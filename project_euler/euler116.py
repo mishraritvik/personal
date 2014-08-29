@@ -7,3 +7,5 @@ def num_ways(tile_size, num_tiles):
 
 def solution(sizes, num_tiles):
 	return sum([num_ways(size, num_tiles) for size in sizes])
+
+solution([2, 3, 4], 50)
