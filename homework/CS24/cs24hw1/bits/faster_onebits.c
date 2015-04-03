@@ -32,13 +32,7 @@ int main(int argc, char **argv) {
 int count_onebits(unsigned int n) {
 
     if (n > 0) {
-        if (n & 1) {
-            return (count_onebits(n >> 1) + 1);
-        }
-        else {
-            return count_onebits(n >> 1);
-        }
-
+        return (count_onebits(n & (n - 1)) + 1);
     }
 
     return 0;
