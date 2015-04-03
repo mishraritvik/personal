@@ -54,6 +54,44 @@ void alu_eval(ALU *alu) {
 
     /*======================================*/
     /* TODO:  Implement the ALU logic here. */
+    // possible operation codes
+    switch (aluop) {
+        case ALUOP_ADD:
+            result = 1;
+            break;
+        case ALUOP_INV:
+            result = 1;
+            break;
+        case ALUOP_SUB:
+            result = 1;
+            break;
+        case ALUOP_XOR:
+            result = 1;
+            break;
+        case ALUOP_OR:
+            result = 1;
+            break;
+        case ALUOP_INCR:
+            result = 1;
+            break;
+        case ALUOP_AND:
+            result = 1;
+            break;
+        case ALUOP_SRA:
+            result = 1;
+            break;
+        case ALUOP_SRL:
+            result = 1;
+            break;
+        case ALUOP_SLA:
+            result = 1;
+            break;
+        case ALUOP_SLL:
+            result = 1;
+            break;
+        default:
+            break;
+    }
     /*======================================*/
 
     pin_set(alu->out, result);

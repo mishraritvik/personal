@@ -14,8 +14,9 @@ float fsum(FloatArray *floats) {
     float sum = 0;
     int i;
 
-    for (i = 0; i < floats->count; i++)
+    for (i = 0; i < floats->count; i++) {
         sum += floats->values[i];
+    }
 
     return sum;
 }
@@ -23,7 +24,17 @@ float fsum(FloatArray *floats) {
 
 /* TODO:  IMPLEMENT my_fsum() HERE, AND DESCRIBE YOUR APPROACH. */
 float my_fsum(FloatArray *floats) {
-    return 0;
+    // we use the Kahan Summation Algorithm
+    float sum = 0, c, nextsum;
+    int i;
+
+    for (i = 0; i < floats->count; i++) {
+        nextsum = sum + floats->values[i];
+        c = (nextsum - sum) - floats->values[i];
+        sum += c;
+    }
+
+    return sum;
 }
 
 
@@ -56,6 +67,7 @@ int main() {
     printf("Sum computed in order of input:  %e\n", sum1);
     printf("Sum computed in order of increasing magnitude:  %e\n", sum2);
     printf("Sum computed in order of decreasing magnitude:  %e\n", sum3);
+    printf("Sum computed using Kahan Summation Algorithm:  %e\n", my_sum);
 
     /* TODO:  UNCOMMENT
     printf("My sum:  %e\n", my_sum);
