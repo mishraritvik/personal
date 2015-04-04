@@ -57,25 +57,25 @@ void alu_eval(ALU *alu) {
     // possible operation codes
     switch (aluop) {
         case ALUOP_ADD:
-            result = 1;
+            result = A + B;
             break;
         case ALUOP_INV:
             result = 1;
             break;
         case ALUOP_SUB:
-            result = 1;
+            result = A - B;
             break;
         case ALUOP_XOR:
-            result = 1;
+            result = A ^ B;
             break;
         case ALUOP_OR:
-            result = 1;
+            result = A | B;
             break;
         case ALUOP_INCR:
-            result = 1;
+            result = A + 1;
             break;
         case ALUOP_AND:
-            result = 1;
+            result = A & B;
             break;
         case ALUOP_SRA:
             result = 1;
