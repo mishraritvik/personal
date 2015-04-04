@@ -60,7 +60,7 @@ void alu_eval(ALU *alu) {
             result = A + B;
             break;
         case ALUOP_INV:
-            result = 1;
+            result = !A;
             break;
         case ALUOP_SUB:
             result = A - B;
