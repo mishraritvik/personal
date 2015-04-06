@@ -56,7 +56,7 @@ void branch_test(BranchUnit *bru) {
     A = pin_read(bru->in1);
     aluop = pin_read(bru->op);
 
-    if ((aluop == BNZ) && (A != 0)) {
+    if ((aluop == ALUOP_BNZ) && (A != 0)) {
         pin_set(bru->branch, BRANCH);
     }
     else {
