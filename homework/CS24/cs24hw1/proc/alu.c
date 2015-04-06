@@ -52,9 +52,6 @@ void alu_eval(ALU *alu) {
 
     result = 0;
 
-    /*======================================*/
-    /* TODO:  Implement the ALU logic here. */
-    // possible operation codes
     switch (aluop) {
         case ALUOP_ADD:
             result = A + B;
@@ -78,21 +75,21 @@ void alu_eval(ALU *alu) {
             result = A & B;
             break;
         case ALUOP_SRA:
-            result = 1;
+            result = A / 2;
             break;
         case ALUOP_SRL:
-            result = 1;
+            result = A / 2;
             break;
         case ALUOP_SLA:
-            result = 1;
+            result = A * 2;
             break;
         case ALUOP_SLL:
-            result = 1;
+            result = A * 2;
             break;
         default:
+            // if no operation code given, leave result as 0
             break;
     }
-    /*======================================*/
 
     pin_set(alu->out, result);
 }
