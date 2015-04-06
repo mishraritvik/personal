@@ -78,13 +78,13 @@ void alu_eval(ALU *alu) {
             result = A >> 1;
             break;
         case ALUOP_SRL:
-            result = (unsigned int) A >> 1;
+            result = ((unsigned int) A) >> 1;
             break;
         case ALUOP_SLA:
             result = A << 1;
             break;
         case ALUOP_SLL:
-            result = (unsigned int) A << 1;
+            result = ((unsigned int) A) << 1;
             break;
         default:
             // if no operation code given, leave result as 0
