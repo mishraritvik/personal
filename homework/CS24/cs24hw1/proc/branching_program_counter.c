@@ -61,26 +61,13 @@ void nextPC(ProgramCounter *pc) {
      * increment the program counter, or load the program counter from the
      * branch address.
      */
-
-    /*=======================================================================*/
     if (pin_read(pc->branch) == BRANCH) {
         next_pc = pin_read(pc->branch_addr);
     }
     else {
         next_pc = pin_read(pc->pc_pin) + 1;
     }
-    /* TODO:  If the pc->branch bus currently has the BRANCH signal, next_pc */
-    /*        should be set to branch_addr.  Otherwise, next_pc should be    */
-    /*        set to PC + 1.                                                 */
-    /*                                                                       */
-    /*        To read the current value of the program counter, use          */
-    /*        pin_read(pc->pc_pin).                                          */
-    /*                                                                       */
-    /*        To read the branch signal, use pin_read(pc->branch).  This is  */
-    /*        the value to compare to BRANCH or NOBRANCH.                    */
-    /*                                                                       */
-    /*        To read the branch address, use pin_read(pc->branch_addr).     */
-    /*=======================================================================*/
+
     pin_set(pc->pc_pin, next_pc);
 }
 

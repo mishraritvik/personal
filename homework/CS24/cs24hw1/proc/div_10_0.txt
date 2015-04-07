@@ -1,0 +1,6 @@
+My code did not have error checking, and the result of attempting to do this
+computation was an infinite loop. This infinite loop occurs in the first while
+loop of the algorithm: we are repeatedly subtracting away the divisor (0) from
+the remainder (10) until the remainder is negative. However, since subtracting
+away 0 from a number leaves the number unchanged, no number of iterations of
+this while loop will result in the remainder being negative. So, it never ends.

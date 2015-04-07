@@ -1,39 +1,22 @@
-0: D1
-1: D2
-2: 100000..000
-3: 1
-4: TMP
-6: Q
-7: R
+# Registers Used:
+# 0: dividend
+# 1: divisor
+# 2: 100000..000 (mask)
+# 3: 1
+# 4: temp value
+# 6: quotient
+# 7: remainder
 
-
-SUB Q, Q, Q
-ADD D1, Q, R
-WHILE:
-    SUB R, D2, R
-    AND R, mask, TMP
-    BNZ TMP DONE
-    INCR Q
-    BNZ 1 WHILE
-DONE:
-    WHILE2:
-        AND R, mask, TMP
-        XOR TMP mask TMP
-        BNZ TMP DONE2
-        ADD R, D2, R
-        BNZ 1 WHILE2
-DONE2:
-
-0010 1 110 110 110
-0000 1 000 110 111
-0010 1 111 001 111
-1000 1 111 010 100
-1010 0 100 000111
-0101 1 110 000 000
-1010 0 011 000010
-1000 1 111 010 100
-0011 1 100 010 100
-1010 0 011 001100
-0000 1 111 001 111
-1010 0 011 000111
-1111 0 000 000 000
+0bb6    # R6 = R6 - R6  -- set quotient to 0
+0237    # R7 = R0 + R6  -- set remainder to dividend (adding 0)
+0bcf    # R7 = R7 - R1  -- subtract divisor from remainder, Loop Top 2
+23d4    # R4 = R7 & R2  -- and remainder with mask to check sign bit
+2907    # BNZ R4 7      -- get out of loop if R4 is not zero
+039e    # R6 = R6 + 1   -- increment quotient
+28c2    # BNZ 1 2       -- unconditionally go to Loop Top 2
+23d4    # R4 = R7 & R2  -- and remainder with mask to check sign bit, Loop Top 7
+0f14    # R4 = R4 ^ R2  -- xor with mask to flip the sign bit
+290c    # BNZ R4 12     -- get out of loop if R4 is not zero
+03cf    # R7 = R7 + R1  -- add divisor to remainder
+28c7    # BNZ 1 7       -- unconditionally go to Loop Top 7
+3c00    # done          -- finish leaving results in R6, R7

@@ -1,0 +1,8 @@
+0013     # This is the dividend
+0004     # This is the divisor
+80000000 # mask
+0001     # 1 (constant)
+ffff
+ffff
+ffff
+ffff
