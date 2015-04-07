@@ -8,6 +8,8 @@
 #include <assert.h>
 #include <string.h>
 #include <ctype.h>
+#include <math.h>
+#include <stdlib.h>
 
 
 /* Maximum length of a line in the input. */
@@ -140,7 +142,7 @@ int prepare(int line_no, char *input, char *clean, char *comment) {
  * we don't need to worry about signed/unsigned issues.
  */
 int convert(const char *bits) {
-    int length, value;
+    int length, value, i;
 
     assert(bits != 0);
 
@@ -151,6 +153,10 @@ int convert(const char *bits) {
     }
 
     assert(length <= 16);
+
+    for (int i = 0; i < length; i++) {
+        value += atoi(&bits[i]) * pow(2, length - i - 1);
+    }
 
     /*=============================================================*/
     /* TODO:  Implement this part of the function!                 */

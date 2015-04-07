@@ -1,0 +1,24 @@
+Why are they different?
+Floating point numbers keep track of number of significant figures and the
+power. If something is raised to the power n and has m significant figures, then
+adding a number that is to the power n - m will not change the significant
+figures. So, changes in accuracy result in the number of times this kind of an
+addition occurs, where a very small and very large numbers are added together.
+Different ordering will result in a different number of times where this occurs;
+the more times that large and small numbers are added the worse the error will
+be. Adding in increasing order decreases this, while adding in a random order
+or adding in decreasing order will have a larger number of times that this
+occurs.
+
+Which is most accurate?
+Summing in order of increasing magnitude is the most accurate. This is because
+it results in the small numbers being added together first, then the larger
+numbers are added once the sum has already gotten larger. Since the error arises
+from adding small numbers to large numbers, it makes sense how adding in this
+order will decrease the error.
+
+What kinds of inputs would increase error?
+The error will increase as the discrepancy in input magnitudes increases. So, if
+the numbers suddenly went from being on the order of 10^-20 to being on the
+order of 10^20, the error would be significantly larger than if the numbers were
+closer.

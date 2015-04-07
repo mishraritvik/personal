@@ -1,14 +1,12 @@
-A.
+A. 0.00011001100110011001100110011001100... - 0.00011001100110011001100
+   = 0.00000000000000000000000011001100110011...
+   Since we only keep 23 decimal places, we lose everything that follows since
+   it is an infinite representation.
 
-B.
+B. This is equivalent to 0.00011001100110011001100110011001100... >> 20, which
+   is .1 * (1/2) ^ 20 = 9.54 * 10 ^ -8.
 
-C. True.
-   Any number squared is strictly positive.
+C. 100 hours = 100 * 60 * 60 * 10 = 3600000 .1 second intervals. So, the error
+   will be 3600000 * 9.54 * 10 ^ -8 = .343 seconds off.
 
-D.
-
-E.
-
-F.
-
-G.
+D. .343 seconds * 2000 meters / second = 686 meters off.

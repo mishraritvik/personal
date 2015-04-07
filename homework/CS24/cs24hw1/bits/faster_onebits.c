@@ -30,11 +30,11 @@ int main(int argc, char **argv) {
  * that are 1.
  */
 int count_onebits(unsigned int n) {
-
-    if (n > 0) {
-        return (count_onebits(n & (n - 1)) + 1);
+    int count = 0;
+    while (n > 0) {
+        n = n & (n - 1);
+        ++count;
     }
-
-    return 0;
+    return count;
 }
 

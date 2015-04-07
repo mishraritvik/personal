@@ -22,16 +22,27 @@ float fsum(FloatArray *floats) {
 }
 
 
-/* TODO:  IMPLEMENT my_fsum() HERE, AND DESCRIBE YOUR APPROACH. */
+/*
+   To get a more accurate summation, we will use the Kahan Summation
+   Algorithm. What this does is separately store the summation of the smaller
+   values and then add them after adding the larger parts so that the
+   significance of the smaller parts are kept.
+
+   Why it works:
+   Algebraically, we notice that this algorithm should not result in anything
+   different than naively summing all the input numbers. However, in each
+   iteration we are keeping track of the correction factor which is the
+   significant numbers that are lost in the floating point addition.
+*/
 float my_fsum(FloatArray *floats) {
-    // we use the Kahan Summation Algorithm
-    float sum = 0, c, nextsum;
+    float sum = 0.0, c = 0.0, y, t;
     int i;
 
     for (i = 0; i < floats->count; i++) {
-        nextsum = sum + floats->values[i];
-        c = (nextsum - sum) - floats->values[i];
-        sum += c;
+        y = floats->values[i] - c;
+        t = sum + y;
+        c = (t - sum) - y;
+        sum = t;
     }
 
     return sum;
