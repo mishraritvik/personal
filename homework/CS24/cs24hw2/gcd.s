@@ -14,7 +14,7 @@
 gcd:
     pushl %ebp          /* Push old base pointer. */
     movl %esp, %ebp     /* Current stack is new base. */
-    cmp 12(%ebp), $0
+    cmpl $0, 12(%ebp)
     movl 8(%ebp), %eax
     jz gcd_return
     // jnz gcd_resume
@@ -22,7 +22,7 @@ gcd:
 gcd_resume:
     xor %edx, %edx
     // movl 8(%ebp), %eax
-    div 12(%ebp)
+    divl 12(%ebp)
     movl 12(%ebp), %ebx
     pushl %edx
     pushl %ebx
