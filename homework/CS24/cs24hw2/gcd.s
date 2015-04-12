@@ -1,11 +1,6 @@
 /*
  * Assume a >= b for gcd.
  *
- * remainder(a, b):
- *     if a < b:
- *         return a
- *     return remainder(a - b, b)
- *
  * gcd(a, b):
  *     if b = 0:
  *         return a
@@ -16,15 +11,25 @@
 .text
     .align 4
 
-
-remainder:
-
-remainder_resume:
-
-remainder_return:
-
 gcd:
+    pushl %ebp          /* Push old base pointer. */
+    movl %esp, %ebp     /* Current stack is new base. */
+    cmp 12(%ebp), $0
+    movl 8(%ebp), %eax
+    jz gcd_return
+    // jnz gcd_resume
 
 gcd_resume:
+    xor %edx, %edx
+    // movl 8(%ebp), %eax
+    div 12(%ebp)
+    movl 12(%ebp), %ebx
+    pushl %edx
+    pushl %ebx
+    call gcd
+    // jnp gcd_return
 
 gcd_return:
+    movl %ebp, %esp     /* Pop local stack. */
+    popl %ebp           /* Pop old base of frame. */
+    ret
