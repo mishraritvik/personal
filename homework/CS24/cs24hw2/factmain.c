@@ -9,7 +9,7 @@ int main(int argc, char **argv) {
     int n = atoi(argv[1]);
 
     if (n < 0) {
-        printf("Argument must be a non-negative integer.");
+        printf("Argument must be a non-negative integer.\n");
         return 0;
     }
 
