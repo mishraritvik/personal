@@ -13,5 +13,6 @@ int main(int argc, char **argv) {
         return 0;
     }
 
-    return fact(n);
+    printf("%d\n", fact(n));
+    return 1;
 }
