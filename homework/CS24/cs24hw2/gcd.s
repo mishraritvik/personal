@@ -17,7 +17,7 @@ gcd:
     cmpl $0, 12(%ebp)   /* Check if second argument is 0. */
     movl 8(%ebp), %eax  /* Move first argument to eax. */
     jz gcd_return       /* Return if second argument was 0. */
-    // jnz gcd_resume
+    // jnz gcd_resume   /* Otherwise recursively continue. */
 
 gcd_resume:
     xor %edx, %edx        /* Set edx to 0. */
@@ -26,7 +26,7 @@ gcd_resume:
     pushl %edx            /* Put remainder on stack as second argument. */
     pushl %ebx            /* Put second argument on stack as first argument. */
     call gcd              /* Make recursive call. */
-    // jnp gcd_return
+    // jnp gcd_return     /* Otherwise recursively continue. */
 
 gcd_return:
     movl %ebp, %esp     /* Pop local stack. */

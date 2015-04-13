@@ -1,0 +1,11 @@
+1. leal 6(%eax), %edx -> edx will have the value 6 + eax = 6 + x
+
+2. leal 6(%eax, %ecx), %edx -> edx will have the value eax + 1 * ecx = x + y
+
+3. leal (%eax, %ecx, 4), %edx -> edx will have eax + 4 * ecx = x + 4 * y
+
+4. leal 7(%eax, %eax, 8), %edx -> edx will have 7 + eax + 8 * eax = 7 + 8 * x
+
+5. leal 0xA(, %ecx, 4), %edx -> edx will have 10 + 0 + 4 * ecx = 10 + 4 * x
+
+6. leal 9(%eax, %ecx, 2), %edx -> edx will have 9 + eax + 2 * ecx = 9 + 2 * x

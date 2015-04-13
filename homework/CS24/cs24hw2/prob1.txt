@@ -1,8 +1,8 @@
-movl 8(%ebp), %eax           # moves the second value in the stack to eax
-imull $3, %eax               # multiplies that number by 3
+movl 8(%ebp), %eax           # moves the first argument to eax
+imull $3, %eax               # multiplies by 3
 addl $12, %eax               # adds 12
-imull 8(%ebp), %eax          # mutiplies by the original number
+imull 8(%ebp), %eax          # mutiplies by the first argument
 subl $17, %eax               # subtracts 17
 
-Let x be the original value in the second position in the stack. Then, at the
-end of this eax contains (((x * 3) + 12) * x) - 17
+Let x be the first argument. Then, at the end of this eax contains:
+(((x * 3) + 12) * x) - 17 = 3x ^ 2 + 12 * x - 17

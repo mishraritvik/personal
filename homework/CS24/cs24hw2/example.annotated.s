@@ -19,9 +19,9 @@ Ltmp2:
 	movl	%ecx, -16(%rbp)
 	movl	-4(%rbp), %ecx
 	movl	-8(%rbp), %edx
-	subl	-12(%rbp), %edx            # subtraction is happening here
-	imull	%edx, %ecx                 # multiplication is happening here
-	addl	-16(%rbp), %ecx            # addition is happening here
+	subl	-12(%rbp), %edx            /* subtraction is happening here */
+	imull	%edx, %ecx                 /* multiplication is happening here */
+	addl	-16(%rbp), %ecx            /* addition is happening here */
 	movl	%ecx, -20(%rbp)
 	movl	-20(%rbp), %eax
 	popq	%rbp

@@ -1,0 +1,36 @@
+/*
+ * It starts at 50 because in the assembly code it subtracts 0x32 (which is 50)
+ * from the value that is being switched on. Then, we follow the addresses to
+ * their corresponding lines to see what happens. Note that cases 54 and 55 do
+ * not have breaks; this is because in the assembly code, it does not jump after
+ * the computation but does a series of computations that happen to be in the
+ * same order as the cases. So, the result is the same.
+ */
+
+int switch_prob(int x, int n) {
+    int result = x;
+
+    switch(n) {
+        case 50:
+            result = result << 2;    /* shl $0x2, %eax */
+            break;
+        /* no case 51 because same as default */
+        case 52:
+            result = result << 2;    /* shl $0x2, %eax */
+            break;
+        case 53:
+            result = result >> 2;    /* sar $0x2, %eax */
+            break;
+        case 54:
+            result *= 3;             /* lea (%eax, %eax, 2), %eax */
+            /* No break because falls through to rest of instructions */
+        case 55:
+            result *= result;        /*imul %eax, %eax */
+            /* No break because falls through to rest of instructions */
+        default:
+            result += 10;            /* add $0xa, %eax */
+            break;
+    }
+
+    return result;
+}
