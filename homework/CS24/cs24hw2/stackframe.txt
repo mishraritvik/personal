@@ -1,0 +1,15 @@
+ addr  -               contents
+----------------------------------------------
+0x1008 - stuff pushed by caller (don't know)
+0x1004 - 3 (argument to fact)
+0x1000 - return address (don't know)
+0x0FFC - caller's base pointer (don't know)
+0x0FF8 - 2 (argument to fact)
+0x0FF4 - 0x2030 (fact_resume)
+0x0FF0 - 0x0FFC (base pointer of fact(3) call)
+0x0FEC - 1 (argument to fact)
+0x0FE8 - 0x2030 (fact_resume)
+0x0FE4 - 0x0FF0 (base pointer of fact(2) call)
+0x0FE0 - 0 (argument to fact)
+0x0FDC - 0x2030 (fact_resume)
+0x0FD8 - 0x0FE4 (base pointer of fact(1) call)
