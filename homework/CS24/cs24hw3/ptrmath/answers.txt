@@ -1,0 +1,36 @@
+Answers for the "Arrays, Pointer Arithmetic, and Structs" section of CS24 HW3:
+
+1.
+p (bytes separated by bars):
+0 | 0 | 0 | 0 | x | x | x | x | 0 | 0 | 0 | 0 | x | x | x | x
+Explanation:
+The first line sets the int starting at p + 3 * sizeof(char) = p + 3 bytes to
+0xDEADBEEF. This takes up bytes 5, 6, 7, and 8 (counting from 1).
+The second line sets the int starting at p + 3 * sizeof(int) = p + 12 bytes to
+0xCAFEBABE. This takes up bytes 13, 14, 15, 16 (counting from 1).
+Since it is little endian, we reverse the order of the bytes.
+
+2.
+entry has three parts:
+
+int id:
+This takes 4 bytes, as that is the size of an int. It does not require any
+padding as it is already a full word. So, 4 used, 0 wasted.
+
+char code[5]:
+This takes 5 * 1 = 5 bytes (1 for each of the five in the array). It will be
+padded to 8 bytes to keep alignment. So, 8 used, 3 wasted.
+
+entry* next:
+Since it is a 32-bit system, all memory addresses are at most 32 bits long, or
+4 bytes. So, the pointer to the next takes 4 bytes. It does not require any
+padding as it is already a full word. So, 4 used, 0 wasted.
+
+In total, this entry struct will use 4 + 8 + 4 = 16 bytes, of which 3 bytes will
+be unused.
+
+3.
+Let us consider the location of arr[4].code[3]. First, there are three full
+entry structs before this. So, 16 * 3 = 48 bytes. Then, there is an int, and
+two chars. So, 4 + 2 * 1 = 6 bytes. So, this refers to the 48 + 6 = 54th byte.
+So, offset = 54 would result in the two lines writing to the same byte.
