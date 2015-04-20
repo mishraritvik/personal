@@ -16,10 +16,11 @@ extern int MEMORY_SIZE;
 /* Initializes allocator state, and memory pool state too. */
 void init_myalloc();
 
+/* Given a size in bytes, increases it to make it a multiple of 4. */
+int aligned_size(int size);
 
 /* Attempt to allocate a chunk of memory of "size" bytes. */
 unsigned char * myalloc(int size);
-
 
 /* Free a previously allocated pointer. */
 void myfree(unsigned char *oldptr);

@@ -23,14 +23,10 @@
 int MEMORY_SIZE;
 unsigned char *mem;
 
-struct block_end {
-    /*
-     contents of data:
-     bit 1: 1 if header, 0 if footer
-     bit 2: 1 if allocated, 0 if free
-     bit 3 - 16: size
-     */
-    unsigned short data;
+// used for beaders and footers of blocks
+struct header {
+    // data is positive if allocated, negative if free
+    int data;
 };
 
 /* TODO:  The unacceptable allocator uses an external "free-pointer" to track
@@ -41,9 +37,7 @@ struct block_end {
  *        variables for managing your memory pool in this section too.
  */
 static unsigned char *freeptr;
-#define HEADER_MASK 0x8000
-#define ALLOC_MASK  0x4000
-#define SIZE_MASK   0x3FFF
+static unsigned int header_size = sizeof(struct header);
 
 
 /*!
@@ -57,7 +51,6 @@ static unsigned char *freeptr;
  * C standard function sbrk(), for example).
  */
 void init_myalloc() {
-
     /*
      * Allocate the entire memory pool, from which our simple allocator will
      * serve allocation requests.
@@ -69,20 +62,53 @@ void init_myalloc() {
         abort();
     }
 
-    /* TODO:  You can initialize the initial state of your memory pool here. */
     freeptr = mem;
 
-    if (MEMORY_SIZE < 2 * sizeof(unsigned short)) {
+    if (MEMORY_SIZE < 2 * header_size) {
         printf("Total memory not large enough to hold two ends.\n");
+        abort();
     }
 
-    struct block_end * header, * footer;
-    footer->data = (unsigned short) MEMORY_SIZE;
-    header->data = footer->data | HEADER_MASK;
+    struct header start, end;
+    start.data = -(MEMORY_SIZE - 2 * header_size);
+    end.data = -(MEMORY_SIZE - 2 * header_size);
 
-    // TODO put two block_ends to cover the entire memory at the beginning
+    *((struct header *) freeptr) = start;
+    *((struct header *) ((void *) freeptr + MEMORY_SIZE -
+        header_size)) = end;
 }
 
+void status() {
+    unsigned char * current = freeptr;
+    int offset = 0, curr_size;
+    while (1) {
+        curr_size = ((struct header *) current)->data;
+
+        if (curr_size < 0) {
+            printf("%d: free %d (+ 8) bytes\n", offset, -curr_size);
+        }
+        else {
+            printf("%d: using %d (+ 8) bytes\n", offset, curr_size);
+        }
+
+        offset += abs(curr_size) + 2 * header_size;
+
+        // if gone beyond the end, return 0 as no blocks found
+        if (offset >= MEMORY_SIZE) {
+            return;
+        }
+
+        // move forward to next header
+        current = ((void *) freeptr) + offset;
+    }
+}
+
+int aligned_size(int size) {
+    if (size % 4 == 0) {
+        return size;
+    }
+    return size + (4 - (size % 4));
+}
 
 /*!
  * Attempt to allocate a chunk of memory of "size" bytes.  Return 0 if
@@ -90,28 +116,58 @@ void init_myalloc() {
  */
 unsigned char *myalloc(int size) {
 
+    size = aligned_size(size);
     unsigned char * current = freeptr;
-    unsigned short header, alloc, data;
+    int offset = 0, curr_size, needed_size = size + 2 * header_size;
+
+    printf("requesting\n");
 
     while (1) {
-        header = *((unsigned short *) current) & HEADER_MASK;
-        alloc  = *((unsigned short *) current) & ALLOC_MASK;
-        data   = *((unsigned short *) current) & SIZE_MASK;
+        curr_size = ((struct header *) current)->data;
+        // check if block is free and big enough
+        if ((curr_size < 0) && (abs(curr_size) >= size)) {
+            printf("allocating\n");
+            // can allocate here!
+            // put header and footer for the block
+            struct header start, end;
+            end.data = size;
+            start.data = size;
 
-        if (header) {
-            if (!(alloc || (data < size))) {
-                // can allocate!
-                // put header and footer for the block
-                // return pointer to beginning of the payload
+            *((struct header *) current) = start;
+            *((struct header *) ((void *) current + size + header_size)) = end;
+
+            if (abs(curr_size) > needed_size) {
+                printf("extra free block\n");
+                printf("size of extra free: %d, start: %d, end: %d\n",
+                    abs(curr_size) - needed_size,
+                    offset + needed_size,
+                    offset + abs(curr_size) + header_size);
+                // put header and footer for remaining free block
+                struct header start, end;
+                start.data = -(abs(curr_size) - needed_size);
+                end.data = -(abs(curr_size) - needed_size);
+
+                *((struct header *) ((void *) current + needed_size)) = start;
+                *((struct header *) ((void *) current + abs(curr_size) +
+                    header_size)) = end;
             }
-            else {
-                // cannot allocate! move forward to next header
-                current = ((void *) current) + 2 * sizeof(unsigned short) + data;
-            }
+
+            status();
+            // return pointer to beginning of the payload
+            return (unsigned char *) ((void *) current + header_size);
         }
         else {
-            // weird...should be at a header
-            printf("not at header\n");
+            // cannot allocate here! find next header
+            offset += abs(curr_size) + 2 * header_size;
+            printf("continue to %d\n", offset);
+
+            // if gone beyond the end, return 0 as no blocks found
+            if (offset >= MEMORY_SIZE - 2 * header_size) {
+                return 0;
+            }
+
+            // move forward to next header
+            current = ((void *) freeptr) + offset;
         }
     }
 }
@@ -122,7 +178,46 @@ unsigned char *myalloc(int size) {
  * myalloc().
  */
 void myfree(unsigned char *oldptr) {
-    // join with free blocks before or after
-    // flip allocated bit
+    printf("freeing!\n");
+    int size, new_size, start_offset;
+    struct header * prev_end, * next_end, * curr_end, new_start, new_end;
+
+    curr_end = (struct header *) ((void *) oldptr - header_size);
+    prev_end = (struct header *) ((void *) oldptr - 2 * header_size);
+    next_end = (struct header *) ((void *) oldptr + size + header_size);
+
+    size = curr_end->data;
+
+    printf("free size: %d\n", size);
+
+    if (((struct header *) prev_end)->data > 0) {
+        if (((struct header *) next_end)->data > 0) {
+            // join all three
+            start_offset = -(2 * header_size + abs(prev_end->data));
+            new_size = 4 * header_size + abs(prev_end->data) + abs(next_end->data) + abs(curr_end->data);
+        }
+        else {
+            // join with prev
+            start_offset = -(2 * header_size + abs(prev_end->data));
+            new_size = 2 * header_size + abs(prev_end->data) + abs(curr_end->data);
+        }
+    }
+    else {
+        if (((struct header *) next_end)->data > 0) {
+            // join with next
+            start_offset = 0;
+            new_size = 2 * header_size + abs(next_end->data) + abs(curr_end->data);
+        }
+        else {
+            // no joining, just switch to free by changing sign of data
+            curr_end->data *= -1;
+            ((struct header *) ((void *) oldptr + size))->data *= -1;
+        }
+    }
+    new_start.data = -new_size;
+    new_end.data = -new_size;
+    *((struct header *) ((void *) oldptr + start_offset)) = new_start;
+    *((struct header *) ((void *) oldptr + start_offset + new_size + header_size)) = new_end;
+    status();
 }
 
