@@ -1,0 +1,36 @@
+A.
+An address that did not originate from myalloc()?
+It will read the 4 bytes starting at that position as if it were a header, and
+take that to be the size. It will then start to look for the preceding and
+succeeding blocks using the size it finds, and will use their size to decide
+whether they are already free. However, since the size of the freed block will
+be garbage as it was just read from an invalid header, it will try to put new
+headers in random parts before and after the provided header.
+
+An address that is contained within a memory block returned by myalloc()?
+This is the same as the previous case.
+It will read the 4 bytes starting at that position as if it were a header, and
+take that to be the size. It will then start to look for the preceding and
+succeeding blocks using the size it finds, and will use their size to decide
+whether they are already free. However, since the size of the freed block will
+be garbage as it was just read from an invalid header, it will try to put new
+headers in random parts before and after the provided header.
+
+An address that has already been freed?
+myfree() checks if the block has already been freed, and then does not do
+anything. So, this will not result in any issues.
+
+B.
+To deal with an address that is not at the start of a block that was allocated
+with myalloc(), so either not originating from myalloc or in the middle of a
+block:
+Set the beginning of the memory pool aside and use it to store a list of all of
+the addresses that have been allocated. Then, every time you try to free, check
+that the address in contained in that list. If in the list then continue to free
+as you normally would, and if not in the list, then do not free it and exit with
+an error.
+
+To deal with an address that has already been freed:
+Before doing the freeing logic, check if it has already been freed. So, in the
+case of my implementation this just means checking if data is negative, and if
+it is then do nothing.

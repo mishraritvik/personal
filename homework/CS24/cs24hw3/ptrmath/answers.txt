@@ -2,7 +2,7 @@ Answers for the "Arrays, Pointer Arithmetic, and Structs" section of CS24 HW3:
 
 1.
 p (bytes separated by bars):
-0 | 0 | 0 | 0 | x | x | x | x | 0 | 0 | 0 | 0 | x | x | x | x
+0 | 0 | 0 | 0 | EF | BE | AD | DE | 0 | 0 | 0 | 0 | BE | BA | FE | CA
 Explanation:
 The first line sets the int starting at p + 3 * sizeof(char) = p + 3 bytes to
 0xDEADBEEF. This takes up bytes 5, 6, 7, and 8 (counting from 1).

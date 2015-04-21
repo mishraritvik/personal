@@ -50,6 +50,7 @@ void init_myalloc() {
      * Allocate the entire memory pool, from which our simple allocator will
      * serve allocation requests.
      */
+
     mem = (unsigned char *) malloc(MEMORY_SIZE);
     if (mem == 0) {
         fprintf(stderr,
@@ -68,35 +69,13 @@ void init_myalloc() {
 
     /* put boundary tags on the full memory pool to start */
     struct header start, end;
+
     start.data = -(MEMORY_SIZE - 2 * header_size);
     end.data = -(MEMORY_SIZE - 2 * header_size);
 
     *((struct header *) freeptr) = start;
-    *((struct header *) ((void *) freeptr + MEMORY_SIZE -
-        header_size)) = end;
-}
-
-void status() {
-    unsigned char * current = freeptr;
-    int offset = 0, curr_size;
-    while (1) {
-        curr_size = ((struct header *) current)->data;
-
-        if (curr_size < 0) {
-            printf("%d: free %d (+ 8) bytes\n", offset, -curr_size);
-        }
-        else {
-            printf("%d: using %d (+ 8) bytes\n", offset, curr_size);
-        }
-
-        offset += abs(curr_size) + 2 * header_size;
-
-        if (offset >= MEMORY_SIZE) {
-            return;
-        }
-
-        current = ((void *) freeptr) + offset;
-    }
+    *((struct header *)
+        ((void *) freeptr + MEMORY_SIZE - header_size)) = end;
 }
 
 /* return smallest multiple of 4 greater than or equal to given size */
@@ -118,16 +97,14 @@ unsigned char *myalloc(int size) {
     int offset = 0, best_offset = 0, flag = 0,
         needed_size = size + 2 * header_size, curr_size, best_size;
 
-    printf("requesting %d\n", size);
-
     /* go through all memory looking for best fit */
     while (1) {
+        /* get size of current block */
         curr_size = ((struct header *) current)->data;
 
         /* check if block is free and big enough */
         if ((curr_size < 0) && (abs(curr_size) >= size)) {
             if ((!flag) || ((flag) && (abs(curr_size) < abs(best_size)))) {
-                printf("switching to %d\n", -curr_size);
                 best_size = curr_size;
                 best_fit = current;
                 best_offset = offset;
@@ -137,7 +114,6 @@ unsigned char *myalloc(int size) {
 
         /* find next header */
         offset += abs(curr_size) + 2 * header_size;
-        printf("continue to %d\n", offset);
 
         /* if gone beyond the end, end while loop */
         if (offset >= MEMORY_SIZE - 2 * header_size) {
@@ -156,18 +132,12 @@ unsigned char *myalloc(int size) {
     /* can allocate at best_fit */
     struct header start, end;
 
-    if (abs(best_size) < size + 2 * header_size) {
+    if ((abs(best_size) <= size + 2 * header_size) && (abs(best_size) != size)) {
         /* no space for the extra free block headers so make larger block */
-        printf("making extra size block\n");
-        size = best_size;
+        size = abs(best_size);
     }
     else if (abs(best_size) > size) {
         /* make the extra free block */
-        printf("extra free block\n");
-        printf("size of extra free: %d, start: %d, end: %d\n",
-            abs(best_size) - needed_size,
-            best_offset + needed_size,
-            best_offset + abs(best_size) + header_size);
         /* put in header and footer for remaining free block */
         struct header start, end;
         start.data = -(abs(best_size) - needed_size);
@@ -184,7 +154,6 @@ unsigned char *myalloc(int size) {
     *((struct header *) best_fit) = start;
     *((struct header *) ((void *) best_fit + size + header_size)) = end;
 
-    status();
     /* return pointer to beginning of the payload */
     return (unsigned char *) ((void *) best_fit + header_size);
 }
@@ -197,51 +166,60 @@ unsigned char *myalloc(int size) {
  * Coalesces all adjacent free blocks, takes constant time.
  */
 void myfree(unsigned char *oldptr) {
-    printf("freeing!\n");
-    int size, new_size, start_offset, flag = 0;
+    int size, next_size, prev_size, new_size, start_offset, flag = 0;
     struct header * prev_end, * next_end, * curr_end, new_start, new_end;
 
     /* get header of block being freed */
     curr_end = (struct header *) ((void *) oldptr - header_size);
     size = curr_end->data;
 
+    if (size < 0) {
+        /* this is already free, so return */
+        return;
+    }
+
     /* get headers of adjacent blocks */
     prev_end = (struct header *) ((void *) curr_end - header_size);
     next_end = (struct header *) ((void *) curr_end + size + 2 * header_size);
 
-    printf("free size: %d\n", size);
-    printf("prev size: %d\n", prev_end->data);
-    printf("next size: %d\n", next_end->data);
+    prev_size = prev_end->data;
+    next_size = next_end->data;
+
+    /* if at the beginning, do not coalesce with previous */
+    if (curr_end == (struct header *) freeptr) {
+        prev_size = 0;
+    }
+
+    /* if at the end, do not coalesce with next */
+    if (next_end == (struct header *) ((void *) freeptr + MEMORY_SIZE)) {
+        next_size = 0;
+    }
 
     /* check which of adjacent blocks are free */
-    if (((struct header *) prev_end)->data < 0) {
-        if (((struct header *) next_end)->data < 0) {
+    if (prev_size < 0) {
+        if (next_size < 0) {
             /* join all three */
-            printf("coalesce with prev and next\n");
-            start_offset = -(2 * header_size + abs(prev_end->data));
-            new_size = 4 * header_size + abs(prev_end->data) +
-                abs(next_end->data) + abs(curr_end->data);
+            start_offset = -(2 * header_size + abs(prev_size));
+            new_size = 4 * header_size + abs(prev_size) +
+                abs(next_size) + abs(size);
         }
         else {
             /* join with prev */
-            printf("coalesce with prev\n");
-            start_offset = -(2 * header_size + abs(prev_end->data));
-            new_size = 2 * header_size + abs(prev_end->data) +
-                abs(curr_end->data);
+            start_offset = -(2 * header_size + abs(prev_size));
+            new_size = 2 * header_size + abs(prev_size) +
+                abs(size);
         }
     }
     else {
-        if (((struct header *) next_end)->data < 0) {
+        if (next_size < 0) {
             /* join with next */
-            printf("coalesce with next\n");
             start_offset = 0;
-            new_size = 2 * header_size + abs(next_end->data) +
-                abs(curr_end->data);
+            new_size = 2 * header_size + abs(next_size) +
+                abs(size);
         }
         else {
             /* no joining, just switch to free by changing sign of data */
             flag = 1;
-            printf("no coalesce\n");
             curr_end->data *= -1;
             ((struct header *)
                 ((void *) curr_end + size + header_size))->data *= -1;
@@ -254,11 +232,8 @@ void myfree(unsigned char *oldptr) {
         new_end.data = -new_size;
 
         *((struct header *)
-            ((void *) oldptr + start_offset - header_size)) = new_start;
+            ((void *) curr_end + start_offset)) = new_start;
         *((struct header *)
             ((void *) oldptr + start_offset + new_size)) = new_end;
     }
-
-    status();
 }
-
