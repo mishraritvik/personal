@@ -35,14 +35,16 @@ rl_decode:
         mov     8(%ebp), %ecx             # %ecx = start of source array
         xor     %esi, %esi                # %esi = loop variable
         xor     %ebx, %ebx                # %ebx = size required
+	xor     %edx, %edx                # empty edx
 
         # Find-space while-loop starts here...
         cmp     12(%ebp), %esi
         jge     find_space_done
 
 find_space_loop:
-        add     (%ecx, %esi), %bl         # Add in the count, then move
-        add     $1, %esi                  # forward to the next count!
+	mov     (%ecx, %esi), %dl
+        add     %edx, %ebx                # Add in the count, then move
+        add     $2, %esi                  # forward to the next count!
 
         cmp     12(%ebp), %esi
         jl      find_space_loop
@@ -57,6 +59,7 @@ find_space_done:
         # Pointer to allocated memory will be returned in %eax.
         push    %ebx              # Number of bytes to allocate...
         call    malloc
+	mov     8(%ebp), %ecx     # %ecx = start of source array. malloc overwrote this
         add     $4, %esp          # Clean up stack after call.
 
         # Now, decode the data from the input buffer into the output buffer.
@@ -74,6 +77,7 @@ decode_loop:
 
 write_loop:
         mov     %bl, (%eax, %edi)
+	inc     %edi # just writing same thing over and over again need to increment mem location
         dec     %bh
         jnz     write_loop
 
