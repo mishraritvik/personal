@@ -35,15 +35,23 @@ rl_decode:
         mov     8(%ebp), %ecx             # %ecx = start of source array
         xor     %esi, %esi                # %esi = loop variable
         xor     %ebx, %ebx                # %ebx = size required
+<<<<<<< HEAD
 	xor     %edx, %edx                # empty edx
+=======
+        xor     %edx, %edx                # clear for counting @@@@
+>>>>>>> 88db74472c212552444b90a11c04eddcc15f2a71
 
         # Find-space while-loop starts here...
         cmp     12(%ebp), %esi
         jge     find_space_done
 
 find_space_loop:
+<<<<<<< HEAD
 	mov     (%ecx, %esi), %dl
         add     %edx, %ebx                # Add in the count, then move
+=======
+        add     (%ecx, %esi), %edx        # Add in the count, then move
+>>>>>>> 88db74472c212552444b90a11c04eddcc15f2a71
         add     $2, %esi                  # forward to the next count!
 
         cmp     12(%ebp), %esi
@@ -61,6 +69,7 @@ find_space_done:
         call    malloc
 	mov     8(%ebp), %ecx     # %ecx = start of source array. malloc overwrote this
         add     $4, %esp          # Clean up stack after call.
+#### should this be a pop instead of an add?
 
         # Now, decode the data from the input buffer into the output buffer.
         xor     %esi, %esi
@@ -74,7 +83,7 @@ decode_loop:
         # Pull out the next [count][value] pair from the encoded data.
         mov     (%ecx, %esi), %bh         # bh is the count of repetitions
         mov     1(%ecx, %esi), %bl        # bl is the value to repeat
-
+#### is offset of 1 enough or should it be more?
 write_loop:
         mov     %bl, (%eax, %edi)
 	inc     %edi # just writing same thing over and over again need to increment mem location
@@ -82,6 +91,7 @@ write_loop:
         jnz     write_loop
 
         add     $2, %esi
+#### why adding 2?
 
         cmp     12(%ebp), %esi
         jl      decode_loop
