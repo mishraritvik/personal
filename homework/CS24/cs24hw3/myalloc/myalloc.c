@@ -13,6 +13,26 @@
 
 #include "myalloc.h"
 
+/*
+ * Implementation Details:
+ * General:
+ * All blocks, both freed and allocated, are stored with 4 byte headers and
+ * footers, so 8 extra bytes used per block.
+ *
+ * Allocation:
+ * Uses best-fit strategy, time complexity is linear in size of memory pool.
+ * All allocation sizes requested are increased to the smallest multiple of four
+ * that is greater than the requested size to maintain alignment, presumably
+ * making most use-cases faster.
+ *
+ * Deallocation:
+ * Constant time deallocation, coalesces with previous and next blocks if free.
+ * Uses boundary tags (headers and footers) to do so. If myfree() is called on
+ * an already freed block, it will not do anything as it checks. If myfree() is
+ * called on a pointer that was not returned by myalloc(), this will result in a
+ * segfault.
+ */
+
 
 /*!
  * These variables are used to specify the size and address of the memory pool
@@ -31,7 +51,9 @@ struct header {
     int data;
 };
 
+/* pointer to start of pool */
 static unsigned char *freeptr;
+/* size of header struct */
 static unsigned int header_size = sizeof(struct header);
 
 
@@ -92,6 +114,11 @@ int aligned_size(int size) {
 unsigned char *myalloc(int size) {
     /* get aligned size */
     size = aligned_size(size);
+    /* Note:
+     * Removing block alignment increases memory utilization from 0.696379 to
+     * 0.701754. But, presumably having all the blocks aligned to 4 bytes
+     * results in faster reading and writing for most applications.
+     */
 
     unsigned char * current = freeptr, * best_fit;
     int offset = 0, best_offset = 0, flag = 0,
@@ -174,7 +201,7 @@ void myfree(unsigned char *oldptr) {
     size = curr_end->data;
 
     if (size < 0) {
-        /* this is already free, so return */
+        /* this is already free, so do nothing */
         return;
     }
 
