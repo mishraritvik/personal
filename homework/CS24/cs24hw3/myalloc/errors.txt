@@ -33,4 +33,6 @@ an error.
 To deal with an address that has already been freed:
 Before doing the freeing logic, check if it has already been freed. So, in the
 case of my implementation this just means checking if data is negative, and if
-it is then do nothing.
+it is then do nothing. Additionally, if the list of memory addresses stored at
+the beginning (as described above to deal with other kinds of misuse) is
+implemented, that will solve this issue as well.

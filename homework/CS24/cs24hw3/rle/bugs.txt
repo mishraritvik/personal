@@ -1,7 +1,21 @@
-Bug 1:
+The bug numbers correspond to the (Bug n) tags in rl_decode.s.
 
-Bug 2:
+Bug 1 (lines 35, 45, 46):
+%bl is not large enough to hold some of the lengths; as a result, the size comes
+off by a factor of 256 due to overflows. So, we must use a larger register in
+order to be able to hold the entire value.
 
-Bug 3:
+Bug 2 (line 47):
+Need to be going forward two bytes to skip to next odd as that is where the next
+count is located; the skipped byte contains the actual character to write the
+count number of times, which is not what we want to look at.
 
-Bug 4:
+Bug 3 (line 62):
+malloc overwrites %ecx, which we were using to hold the memory address of the
+data buffer. So, after calling malloc we must move that argument back into %ecx.
+
+Bug 4 (line 80):
+Everytime something is written into the memory address %edi points to, %edi must
+be incremented so that the next time something is written to the address that
+%edi is in, it does not overwrite what was just written, but it put in the next
+byte.
