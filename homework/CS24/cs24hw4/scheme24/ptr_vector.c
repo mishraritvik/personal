@@ -141,7 +141,7 @@ void pv_compact(PtrVector *pv) {
 #ifdef VERBOSE
     unsigned int initial_size, initial_capacity;
 #endif
-    
+
     assert(pv != NULL);
 
 #ifdef VERBOSE
@@ -222,16 +222,16 @@ int ps_push_elem(PtrStack *ps, void *elem) {
 void * ps_pop_elem(PtrStack *ps) {
     void *elem;
     unsigned int tos_index;
-    
+
     assert(ps != NULL);
     assert(ps->size > 0);
-    
+
     /* Index of the top of the stack. */
     tos_index = ps->size - 1;
-    
+
     elem = pv_get_elem(ps, tos_index);
     pv_set_elem(ps, tos_index, NULL);
-    
+
     ps->size--;
     pvh_reduce_capacity(ps);
 

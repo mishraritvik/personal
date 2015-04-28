@@ -7,7 +7,7 @@
 
 
 /*! Change to #define to output garbage-collector statistics. */
-#undef GC_STATS
+#define GC_STATS
 
 /*!
  * Change to #undef to cause the garbage collector to only run when it has to.
@@ -27,11 +27,13 @@ void free_value(Value *v);
 void free_lambda(Lambda *f);
 void free_environment(Environment *env);
 
+void unmark_values();
+void unmark_lambdas();
+void unmark_environments();
 
-/*========================================================*
- * TODO:  Declarations of your functions might go here... *
- *========================================================*/
-
+void sweep_values();
+void sweep_lambdas();
+void sweep_environments();
 
 /*!
  * A growable vector of pointers to all Value structs that are currently
@@ -62,6 +64,62 @@ static long max_allocation_size = 1048576;
 
 #endif
 
+void unmark_values() {
+    Value * val;
+    for (int i = 0; i < allocated_values.size; i++) {
+        val = (Value *) pv_get_elem(&allocated_values, i);
+        val->marked = 0;
+    }
+}
+
+void unmark_lambdas() {
+    Lambda * func;
+    for (int i = 0; i < allocated_lambdas.size; i++) {
+        func = (Lambda *) pv_get_elem(&allocated_lambdas, i);
+        func->marked = 0;
+    }
+}
+
+void unmark_environments() {
+    Environment * env;
+    for (int i = 0; i < allocated_environments.size; i++) {
+        env = (Environment *) pv_get_elem(&allocated_environments, i);
+        env->marked = 0;
+    }
+}
+
+void sweep_values() {
+    Value * val;
+    for (int i = 0; i < allocated_values.size; i++) {
+        val = (Value *) pv_get_elem(&allocated_values, i);
+        if (!val->marked) {
+            free_value(val);
+        }
+    }
+    pv_compact(&allocated_values);
+}
+
+void sweep_lambdas() {
+    Lambda * func;
+    for (int i = 0; i < allocated_lambdas.size; i++) {
+        func = (Lambda *) pv_get_elem(&allocated_lambdas, i);
+        if (!func->marked) {
+            free_lambda(func);
+        }
+    }
+    pv_compact(&allocated_lambdas);
+}
+
+void sweep_environments() {
+    Environment * env;
+    for (int i = 0; i < allocated_environments.size; i++) {
+        env = (Environment *) pv_get_elem(&allocated_environments, i);
+        if (!env->marked) {
+            free_environment(env);
+        }
+    }
+    pv_compact(&allocated_environments);
+}
 
 void init_alloc() {
     pv_init(&allocated_values);
@@ -91,14 +149,14 @@ void print_alloc_stats(FILE *f) {
  * This helper function returns the amount of memory currently being used by
  * garbage-collected objects.  It is NOT the total amount of memory being used
  * by the interpreter!
- */ 
+ */
 long allocation_size() {
     long size = 0;
-    
+
     size += sizeof(Value) * allocated_values.size;
     size += sizeof(Lambda) * allocated_lambdas.size;
     size += sizeof(Value) * allocated_environments.size;
-    
+
     return size;
 }
 
@@ -142,8 +200,6 @@ void free_value(Value *v) {
     free(v);
 }
 
-
-
 /*!
  * This function heap-allocates a new Lambda struct, initializes it to be empty,
  * and then records the struct's pointer in the allocated_lambdas vector.
@@ -156,7 +212,6 @@ Lambda * alloc_lambda(void) {
 
     return f;
 }
-
 
 /*!
  * This function frees a heap-allocated Lambda struct.
@@ -176,7 +231,6 @@ void free_lambda(Lambda *f) {
     free(f);
 }
 
-
 /*!
  * This function heap-allocates a new Environment struct, initializes it to be
  * empty, and then records the struct's pointer in the allocated_environments
@@ -190,7 +244,6 @@ Environment * alloc_environment(void) {
 
     return env;
 }
-
 
 /*!
  * This function frees a heap-allocated Environment struct.  The environment's
@@ -241,18 +294,25 @@ void collect_garbage() {
         return;
 #endif
 
-    /*==========================================================*
-     * TODO:  Implement mark-and-sweep garbage collection here! *
-     *                                                          *
-     * Mark all objects referenceable from either the global    *
-     * environment, or from the evaluation stack.  Then sweep   *
-     * through all allocated objects, freeing unmarked objects. *
-     *==========================================================*/
-
     global_env = get_global_environment();
     eval_stack = get_eval_stack();
 
-    /* ... TODO ... */
+    // unmark all
+    unmark_values();
+    unmark_lambdas();
+    unmark_environments();
+
+    // mark referenceable ones
+    // from global env
+
+
+    // from eval stack
+
+
+    // sweep
+    sweep_values();
+    sweep_lambdas();
+    sweep_environments();
 
 #ifndef ALWAYS_GC
     /* If we are still above the maximum allocation size, increase it. */
@@ -263,7 +323,7 @@ void collect_garbage() {
             max_allocation_size);
     }
 #endif
-    
+
 #ifdef GC_STATS
     vals_after = allocated_values.size;
     procs_after = allocated_lambdas.size;
