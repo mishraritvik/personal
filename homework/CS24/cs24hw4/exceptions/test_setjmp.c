@@ -126,12 +126,14 @@ void test_local_variables() {
 
 
 int main() {
+    printf("Running all tests.\n");
     // run all tests
     test_setjmp_return();
     test_longjmp_return();
     // test_nested();
     test_multiple_funcs();
     test_local_variables();
+    printf("Tests completed.\n");
 
     return 1;
 }
