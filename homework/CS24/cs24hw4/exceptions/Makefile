@@ -3,7 +3,7 @@ OBJS = c_except.o my_setjmp.o ptr_vector.o
 CFLAGS=-g
 ASFLAGS=-g
 
-check: test_setjmp run_test
+# check: test_setjmp run_test
 
 test_setjmp: $(OBJS) test_setjmp.o
 	$(CC) $(LDFLAGS) $^ -o $@
