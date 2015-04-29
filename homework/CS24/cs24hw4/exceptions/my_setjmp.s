@@ -6,6 +6,14 @@
 .globl my_setjmp
 
 
+# my_longjmp:
+# restores information saved by my_setjmp in order to reinstate execution state.
+# args:
+#     8(%ebp): beginning of memory address where execution state is saved.
+#     12(%ebp): return value.
+.globl my_longjmp
+
+
 my_setjmp:
   # push old base pointer and make current stack new base
   push  %ebp
@@ -35,14 +43,6 @@ my_setjmp:
   mov   %ebp, %esp
   pop   %ebp
   ret
-
-
-# my_longjmp:
-# restores information saved by my_setjmp in order to reinstate execution state.
-# args:
-#     8(%ebp): beginning of memory address where execution state is saved.
-#     12(%ebp): return value.
-.globl my_longjmp
 
 
 my_longjmp:
