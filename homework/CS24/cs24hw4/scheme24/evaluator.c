@@ -285,7 +285,7 @@ Value * bind_names_values(Environment *env, Value *names, Value *values) {
         assert(is_cons_pair(values));
 
         create_binding(env, argname->string_val, get_car(values));
-    
+
         names = get_cdr(names);
         values = get_cdr(values);
     }
@@ -315,11 +315,11 @@ EvaluationContext * push_new_evalctx(Environment *env, Value *expr) {
         memset(ctx, 0, sizeof(EvaluationContext));
         ps_push_elem(&evaluation_stack, ctx);
     }
-    
+
     /* Set up the new values for the environment. */
     ctx->current_env = env;
     ctx->expression = expr;
-    
+
     return ctx;
 }
 
@@ -340,11 +340,11 @@ EvaluationContext * reset_current_evalctx(Environment *env, Value *expr) {
     /* Reset the context! */
     pv_uninit(&ctx->local_vals);
     memset(ctx, 0, sizeof(EvaluationContext));
-    
+
     /* Set up the new values for the environment. */
     ctx->current_env = env;
     ctx->expression = expr;
-    
+
     /* For convenience, return the context pointer. */
     return ctx;
 }
@@ -352,11 +352,11 @@ EvaluationContext * reset_current_evalctx(Environment *env, Value *expr) {
 
 void evalctx_register(Value **v) {
     EvaluationContext *ctx;
-    
+
     assert(v != NULL);
     ctx = get_current_evalctx();
     pv_add_elem(&ctx->local_vals, v);
-    
+
     *v = NULL;
 }
 
@@ -374,11 +374,11 @@ void pop_evalctx(Value *result) {
     EvaluationContext *ctx, *parent_ctx;
 
     ctx = (EvaluationContext *) ps_pop_elem(&evaluation_stack);
-    
+
     /* Clean up the context. */
     pv_uninit(&ctx->local_vals);
     free(ctx);
-    
+
     /* Store the result of the evaluation into the parent context's "child
      * result" slot.
      */
@@ -397,7 +397,7 @@ Value * evaluate(Environment *env, Value *expr) {
     Value *operand_val, *operand_cons;
     Value *operands, *operands_end, *nil_value;
     int num_operands;
-    
+
     /* Set up a new evaluation context and record our local variables, so that
      * the garbage-collector can see any temporary values we use.
      */
@@ -410,7 +410,7 @@ Value * evaluate(Environment *env, Value *expr) {
     evalctx_register(&operands);
     evalctx_register(&operands_end);
     evalctx_register(&nil_value);
-    
+
 #ifdef VERBOSE_EVAL
     printf("\nEvaluating expression:  ");
     print_value(stdout, expr);
@@ -487,14 +487,14 @@ Value * evaluate(Environment *env, Value *expr) {
     temp = get_cdr(expr);
     while (is_cons_pair(temp)) {
         Value *raw_operand;
-        
+
         num_operands++;
 
         /* This is the raw unevaluated value. */
         raw_operand = get_car(temp);
 
         /* Evaluate the raw input into a value. */
-        
+
         operand_val = evaluate(env, raw_operand);
         if (is_error(operand_val)) {
             result = operand_val;
@@ -551,7 +551,7 @@ Value * evaluate(Environment *env, Value *expr) {
     }
 
 Done:
-    
+
 #ifdef VERBOSE_EVAL
     printf("Result:  ");
     print_value(stdout, result);

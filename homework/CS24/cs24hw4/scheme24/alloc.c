@@ -27,9 +27,9 @@ void free_value(Value *v);
 void free_lambda(Lambda *f);
 void free_environment(Environment *env);
 
-void unmark_values();
-void unmark_lambdas();
-void unmark_environments();
+void mark_value(Value *v);
+void mark_lambda(Lambda *f);
+void mark_environment(Environment *env);
 
 void sweep_values();
 void sweep_lambdas();
@@ -64,36 +64,91 @@ static long max_allocation_size = 1048576;
 
 #endif
 
-void unmark_values() {
-    Value * val;
-    for (int i = 0; i < allocated_values.size; i++) {
-        val = (Value *) pv_get_elem(&allocated_values, i);
-        val->marked = 0;
+/*
+ * the next three functions mark the passed value, lambda, and environment, and
+ * recursively calls other mark_xxxx functions as needed.
+ */
+void mark_value(Value *v) {
+    // if null or already marked do nothing
+    if (v == NULL) {
+        return;
+    }
+    if (v->marked) {
+        return;
+    }
+
+    v->marked = 1;
+
+    // check type and mark appropriately
+    if (v->type == T_ConsPair) {
+        mark_value(v->cons_val.p_car);
+        mark_value(v->cons_val.p_cdr);
+    }
+    else if (v->type == T_Lambda) {
+        mark_lambda(v->lambda_val);
     }
 }
 
-void unmark_lambdas() {
-    Lambda * func;
-    for (int i = 0; i < allocated_lambdas.size; i++) {
-        func = (Lambda *) pv_get_elem(&allocated_lambdas, i);
-        func->marked = 0;
+void mark_lambda(Lambda *f) {
+    // if null or already marked do nothing
+    if (f == NULL) {
+        return;
+    }
+    if (f->marked) {
+        return;
+    }
+
+    f->marked = 1;
+
+    // if native mark body and arg_spec
+    if (!f->native_impl) {
+        mark_value(f->body);
+        mark_value(f->arg_spec);
+    }
+
+    // mark parent
+    if (f->parent_env != NULL) {
+        mark_environment(f->parent_env);
+    }
+
+}
+
+void mark_environment(Environment *env) {
+    // if null or already marked do nothing
+    if (env == NULL) {
+        return;
+    }
+    if (env->marked) {
+        return;
+    }
+
+    env->marked = 1;
+
+    // mark parent and bindings
+    if (env->parent_env != NULL) {
+        mark_environment(env->parent_env);
+    }
+
+    int i;
+    for (i = 0; i < env->num_bindings; i++) {
+        mark_value(env->bindings[i].value);
     }
 }
 
-void unmark_environments() {
-    Environment * env;
-    for (int i = 0; i < allocated_environments.size; i++) {
-        env = (Environment *) pv_get_elem(&allocated_environments, i);
-        env->marked = 0;
-    }
-}
-
+// the next three functions sweep values, lambdas, environments for unmarked
 void sweep_values() {
     Value * val;
-    for (int i = 0; i < allocated_values.size; i++) {
+    int i;
+    for (i = 0; i < allocated_values.size; i++) {
         val = (Value *) pv_get_elem(&allocated_values, i);
-        if (!val->marked) {
-            free_value(val);
+        // if not null and marked then free and set position to null
+        if (val != NULL) {
+            if (!val->marked) {
+                free_value(val);
+                pv_set_elem(&allocated_values, i, NULL);
+            }
+            // reset marked flag
+            val->marked = 0;
         }
     }
     pv_compact(&allocated_values);
@@ -101,10 +156,17 @@ void sweep_values() {
 
 void sweep_lambdas() {
     Lambda * func;
-    for (int i = 0; i < allocated_lambdas.size; i++) {
+    int i;
+    for (i = 0; i < allocated_lambdas.size; i++) {
         func = (Lambda *) pv_get_elem(&allocated_lambdas, i);
-        if (!func->marked) {
-            free_lambda(func);
+        // if not null and marked then free and set position to null
+        if (func != NULL) {
+            if (!func->marked) {
+                free_lambda(func);
+                pv_set_elem(&allocated_lambdas, i, NULL);
+            }
+            // reset marked flag
+            func->marked = 0;
         }
     }
     pv_compact(&allocated_lambdas);
@@ -112,10 +174,17 @@ void sweep_lambdas() {
 
 void sweep_environments() {
     Environment * env;
-    for (int i = 0; i < allocated_environments.size; i++) {
+    int i;
+    for (i = 0; i < allocated_environments.size; i++) {
         env = (Environment *) pv_get_elem(&allocated_environments, i);
-        if (!env->marked) {
-            free_environment(env);
+        // if not null and marked then free and set position to null
+        if (env != NULL) {
+            if (!env->marked) {
+                free_environment(env);
+                pv_set_elem(&allocated_environments, i, NULL);
+            }
+            // reset marked flag
+            env->marked = 0;
         }
     }
     pv_compact(&allocated_environments);
@@ -297,19 +366,29 @@ void collect_garbage() {
     global_env = get_global_environment();
     eval_stack = get_eval_stack();
 
-    // unmark all
-    unmark_values();
-    unmark_lambdas();
-    unmark_environments();
+    // mark referenceable from global env
+    mark_environment(global_env);
 
-    // mark referenceable ones
-    // from global env
+    // mark referenceable from eval stack
+    EvaluationContext *ctx;
+    int i, j;
+    for (i = 0; i < eval_stack->size; i++) {
+        ctx = (EvaluationContext *) pv_get_elem(eval_stack, i);
+        if (ctx != NULL) {
+            mark_value(ctx->expression);
+            mark_value(ctx->child_eval_result);
+            mark_environment(ctx->current_env);
 
+            for (j = 0; j < ctx->local_vals.size; j++) {
+                Value **ppv = (Value **) pv_get_elem(&ctx->local_vals, j);
+                if (ppv != NULL) {
+                    mark_value(*ppv);
+                }
+            }
+        }
+    }
 
-    // from eval stack
-
-
-    // sweep
+    // sweep all
     sweep_values();
     sweep_lambdas();
     sweep_environments();
