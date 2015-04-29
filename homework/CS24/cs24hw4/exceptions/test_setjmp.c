@@ -7,7 +7,7 @@ void f2(jmp_buf buf, int x);
 
 void test_setjmp_return();
 void test_longjmp_return();
-void test_nested();
+void test_nested(int x);
 void test_multiple_funcs();
 void test_local_variables();
 
