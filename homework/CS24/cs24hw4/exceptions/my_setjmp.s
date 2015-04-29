@@ -27,8 +27,8 @@ my_setjmp:
 
   # put base pointer at second position in execution state memory
   # have to move base pointer to register in order to move to memory
-  mov   %ebp, %edx
-  mov   %edx, 4(%eax)
+  mov   %ebp, %ecx
+  mov   %ecx, 4(%eax)
 
   # put caller's return address at third position in execution state memory
   # have to move return address to register in order to move to memory
@@ -61,8 +61,9 @@ my_longjmp:
   mov   (%eax), %esp
   mov   4(%eax), %ebp
 
-  # put caller's return address in register for now
+  # put caller's return address back in place
   mov   8(%eax), %ecx
+  mov   %ecx, 4(%ebp)
 
   # put callee-saved registers values back to the original registers
   mov   12(%eax), %ebx
@@ -71,13 +72,12 @@ my_longjmp:
 
   # set eax (return val) to 1 (if arg is 0) or n (if arg is n)
   # put 1 in edx because cmove needs registers, cannot give it $1
-  mov   $1, %edx
+  mov   $1, %ecx
   mov   12(%ebp), %eax
-  test  $0, %eax
-  cmove %edx, %eax
+  cmp  $0, %eax
+  cmove %ecx, %eax
 
-  # put old return address back pop local stack and old base pointer
-  mov   %ecx, 4(%ebp)
+  # pop local stack and old base pointer
   mov   %ebp, %esp
   pop   %ebp
   ret
