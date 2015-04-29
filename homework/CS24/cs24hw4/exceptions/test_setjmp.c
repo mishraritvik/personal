@@ -72,8 +72,6 @@ void test_nested(int x) {
     static jmp_buf buf1, buf2, buf3;
     int e1 = setjmp(buf1), e2 = setjmp(buf2), e3 = setjmp(buf3), flag = 0;
 
-    printf("a\n");
-
     if (e1 == 0 && x == 0) {
         longjmp(buf1, 0);
     }
@@ -83,8 +81,6 @@ void test_nested(int x) {
     else if (e3 == 0 && x == 2) {
         longjmp(buf3, 2);
     }
-
-
 
     switch (x) {
         case 0:
