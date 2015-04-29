@@ -38,31 +38,31 @@ void test_longjmp_return() {
     printf("Testing longjmp return value.\n");
     // test 0 case
     static jmp_buf buf;
-    int e = setjmp(buf);
+    int e1 = setjmp(buf);
 
-    if (e == 0) {
+    if (e1 == 0) {
         longjmp(buf, 0);
     }
 
-    if (e == 1) {
+    if (e1 == 1) {
         printf("longjmp(buf, 0) returns 1: PASS\n");
     }
     else {
-        printf("setjmp(buf, 0) returns %d: FAIL\n", e);
+        printf("setjmp(buf, 0) returns %d: FAIL\n", e1);
     }
 
     // test n case
-    int e = setjmp(buf), n = 7;
+    int e2 = setjmp(buf), n = 7;
 
-    if (e == 0) {
+    if (e2 == 0) {
         longjmp(buf, n);
     }
 
-    if (e == n) {
-        printf("longjmp(buf, %d) returns %d: PASS\n", n, e);
+    if (e2 == n) {
+        printf("longjmp(buf, %d) returns %d: PASS\n", n, e2);
     }
     else {
-        printf("setjmp(buf, %d) returns %d: FAIL\n", n, e);
+        printf("setjmp(buf, %d) returns %d: FAIL\n", n, e2);
     }
 }
 
