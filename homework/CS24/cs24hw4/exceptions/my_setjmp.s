@@ -74,7 +74,7 @@ my_longjmp:
   # put 1 in edx because cmove needs registers, cannot give it $1
   mov   $1, %ecx
   mov   12(%ebp), %eax
-  cmp  $0, %eax
+  test  $0, %eax
   cmove %ecx, %eax
 
   # pop local stack and old base pointer
