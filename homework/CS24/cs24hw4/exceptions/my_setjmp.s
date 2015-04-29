@@ -54,9 +54,11 @@ my_longjmp:
   mov   8(%ebp), %ecx
 
   # set eax (return val) to 1 (if arg is 0) or n (if arg is n)
+  # put 1 in edx because cmove needs registers, cannot give it $1
+  mov   $1, %edx
   mov   12(%ebp), %eax
   test  $0, %eax
-  cmove %eax, %eax
+  cmove %edx, %eax
 
   # put back stack pointer and return address
   mov   (%ecx), %edx

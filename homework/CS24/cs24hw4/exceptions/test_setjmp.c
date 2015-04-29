@@ -68,14 +68,13 @@ void test_longjmp_return() {
 // test if it works with nested try catch
 void test_nested() {
     static jmp_buf buf1, buf2, buf3;
-
     int e1 = setjmp(buf1), e2 = setjmp(buf2), e3 = setjmp(buf3);
 
-    longjmp(env1, 0);
-    longjmp(env2, 1);
-    longjmp(env3, 2);
+    longjmp(buf1, 0);
+    longjmp(buf2, 1);
+    longjmp(buf3, 2);
 
-    if (e1 == 1 && e2 == 1 && e2 == 2) {
+    if (e1 == 1 && e2 == 1 && e3 == 2) {
         printf("works with nested jumps: PASS\n");
     }
     else {
@@ -86,7 +85,7 @@ void test_nested() {
 // test it if works across multiple functions
 void test_multiple_funcs() {
     static jmp_buf buf;
-    e = setjmp(buf);
+    int e = setjmp(buf);
 
     if (e == 0) {
         f1(buf, 0);
