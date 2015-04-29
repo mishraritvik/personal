@@ -113,11 +113,10 @@ void test_local_variables() {
 
     if (e == 0) {
         a = 1;
-        b = 1;
         longjmp(env, 4);
     }
 
-    if (a == 1 && b == 1 && e == 4) {
+    if (a == 1 && b == 0 && e == 4) {
         printf("does not corrupt local variables: PASS\n");
     }
     else {
