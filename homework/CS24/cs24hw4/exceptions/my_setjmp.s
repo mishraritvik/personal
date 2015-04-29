@@ -19,7 +19,7 @@ my_setjmp:
 
   # put base pointer at second position in execution state memory block
   # have to move base pointer to register in order to move to memory
-  mov   %ebp, %ecx
+  mov   %ebp, %edx
   mov   %edx, 4(%eax)
 
   # save all callee-saved registers in execution state memory block (pos 3 - 6)
