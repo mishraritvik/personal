@@ -23,18 +23,19 @@ my_setjmp:
   # move arg (mem location where execution state should go) into register
   mov   8(%ebp), %eax
 
-  # save all callee-saved registers in execution state memory (pos 1 - 3)
+  # put callee-saved registers in execution state memory (pos 1 - 3)
   mov   %ebx, 0(%eax)
   mov   %esi, 4(%eax)
   mov   %edi, 8(%eax)
 
-  # put stack pointer at fourth position in execution state memory
-  mov   %esp, 12(%eax)
-
-  # put base pointer at fifth position in execution state memory
+  # put base pointer at fourth position in execution state memory
   # have to move base pointer to register in order to move to memory
-  mov   %ebp, %ecx
-  mov   %ecx, 16(%eax)
+  # mov   %ebp, %ecx
+  # mov   %ecx, 12(%eax)
+  mov   %ebp, 12(%eax)
+
+  # put stack pointer at fifth position in execution state memory
+  mov   %esp, 16(%eax)
 
   # put caller's return address at sixth position in execution state memory
   # have to move return address to register in order to move to memory
@@ -64,10 +65,10 @@ my_longjmp:
   mov   8(%eax), %edi
 
   # put back stack pointer and return address
-  mov   12(%eax), %esp
-  mov   16(%eax), %ebp
+  mov   12(%eax), %ebp
+  mov   16(%eax), %esp
 
-  # put caller's return address back in place
+  # put caller's return address back
   mov   20(%eax), %ecx
   mov   %ecx, 4(%ebp)
 
