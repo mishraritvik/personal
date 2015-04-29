@@ -70,7 +70,7 @@ void test_longjmp_return() {
 void test_nested(int x) {
     printf("Testing nested jump %d.\n", x + 1);
     static jmp_buf buf1, buf2, buf3;
-    int e1 = setjmp(buf1), e2 = setjmp(buf2), e3 = setjmp(buf3);
+    int e1 = setjmp(buf1), e2 = setjmp(buf2), e3 = setjmp(buf3), flag = 0;
 
     printf("a\n");
 
@@ -84,9 +84,29 @@ void test_nested(int x) {
         longjmp(buf3, 2);
     }
 
-    printf("%d %d %d\n", e1, e2, e3);
 
-    if (e1 == 1 && e2 == 1 && e3 == 2) {
+
+    switch (x) {
+        case 0:
+            if (e1 == 1 && e2 == 0 && e3 == 0) {
+                flag = 1;
+            }
+            break;
+        case 1:
+            if (e1 == 0 && e2 == 1 && e3 == 0) {
+                flag = 1;
+            }
+            break;
+        case 2:
+            if (e1 == 0 && e2 == 0 && e3 == 2) {
+                flag = 1;
+            }
+            break;
+        default:
+            break;
+    }
+
+    if (flag) {
         printf("works with nested jump %d: PASS\n", x + 1);
     }
     else {
