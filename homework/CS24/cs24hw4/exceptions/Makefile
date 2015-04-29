@@ -8,6 +8,9 @@ check: test_setjmp run_test
 test_setjmp: $(OBJS) test_setjmp.o
 	$(CC) $(LDFLAGS) $^ -o $@
 
+run_test:
+	./test_setjmp
+
 test_setjmp.c: my_setjmp.h
 test_setjmp.o: my_setjmp.s
 
@@ -17,9 +20,6 @@ divider: $(OBJS) divider.o
 ptr_vector.c: ptr_vector.h
 c_except.c: c_except.h my_setjmp.h
 divider.c: c_except.h my_setjmp.h
-
-run_test:
-	./test_setjmp
 
 clean:
 	rm -f *.o *~ divider divider.exe test_setjmp
