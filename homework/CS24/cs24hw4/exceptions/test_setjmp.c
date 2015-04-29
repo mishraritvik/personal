@@ -72,9 +72,15 @@ void test_nested() {
     static jmp_buf buf1, buf2, buf3;
     int e1 = setjmp(buf1), e2 = setjmp(buf2), e3 = setjmp(buf3);
 
+    printf("a\n");
+
     longjmp(buf1, 0);
+    printf("c\n");
     longjmp(buf2, 1);
+    printf("d\n");
     longjmp(buf3, 2);
+
+    printf("b\n");
 
     if (e1 == 1 && e2 == 1 && e3 == 2) {
         printf("works with nested jumps: PASS\n");
@@ -115,7 +121,7 @@ void test_local_variables() {
         a = 1;
         longjmp(env, 4);
     }
-    printf("%d %d %d\n", a, b, e);
+
     if (a == 1 && b == 0 && e == 4) {
         printf("does not corrupt local variables: PASS\n");
     }
