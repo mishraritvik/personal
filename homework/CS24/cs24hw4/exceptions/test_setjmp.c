@@ -141,9 +141,9 @@ int main() {
     // run all tests
     test_setjmp_return();
     test_longjmp_return();
-    test_nested();
-    test_nested();
-    test_nested();
+    test_nested(0);
+    test_nested(1);
+    test_nested(2);
     test_multiple_funcs();
     test_local_variables();
     printf("Tests completed.\n");
