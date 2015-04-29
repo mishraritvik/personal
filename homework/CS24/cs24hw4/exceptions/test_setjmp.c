@@ -68,6 +68,7 @@ void test_longjmp_return() {
 
 // test if it works with nested try catch
 void test_nested() {
+    printf("Testing nested jumps.\n");
     static jmp_buf buf1, buf2, buf3;
     int e1 = setjmp(buf1), e2 = setjmp(buf2), e3 = setjmp(buf3);
 
@@ -85,6 +86,7 @@ void test_nested() {
 
 // test it if works across multiple functions
 void test_multiple_funcs() {
+    printf("Testing jumping across multiple functions.\n");
     static jmp_buf buf;
     int e = setjmp(buf);
 
@@ -102,6 +104,7 @@ void test_multiple_funcs() {
 
 // test if it corrupts local variables
 void test_local_variables() {
+    printf("Testing if local variables are corrupted.\n");
     static jmp_buf env;
 
     int a = 0;
