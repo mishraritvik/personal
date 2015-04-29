@@ -74,15 +74,15 @@ void test_nested(int x) {
 
     printf("a\n");
 
-    if (x == 0) {
+    if (e1 == 0 && x == 0) {
         longjmp(buf1, 0);
         printf("%d %d %d\n", e1, e2, e3);
     }
-    else if (x == 1) {
+    else if (e2 == 0 && x == 1) {
         longjmp(buf2, 1);
         printf("%d %d %d\n", e1, e2, e3);
     }
-    else if (x == 2) {
+    else if (e3 == 0 && x == 2) {
         longjmp(buf3, 2);
         printf("%d %d %d\n", e1, e2, e3);
     }
