@@ -163,5 +163,5 @@ int main() {
     test_local_variables();
     printf("Tests completed.\n");
 
-    return 1;
+    return 0;
 }
