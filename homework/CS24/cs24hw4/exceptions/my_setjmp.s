@@ -23,7 +23,7 @@ my_setjmp:
   mov   8(%ebp), %eax
 
   # put stack pointer at first position in execution state memory
-  mov   %esp, (%eax)
+  mov   %esp, 0(%eax)
 
   # put base pointer at second position in execution state memory
   # have to move base pointer to register in order to move to memory
@@ -58,7 +58,7 @@ my_longjmp:
   mov   8(%ebp), %eax
 
   # put back stack pointer and return address
-  mov   (%eax), %esp
+  mov   0(%eax), %esp
   mov   4(%eax), %ebp
 
   # put caller's return address back in place
@@ -71,10 +71,10 @@ my_longjmp:
   mov   20(%eax), %edi
 
   # set eax (return val) to 1 (if arg is 0) or n (if arg is n)
-  # put 1 in edx because cmove needs registers, cannot give it $1
+  # put 1 in edx because cmove needs registers, cannot give it 1
   mov   $1, %ecx
   mov   12(%ebp), %eax
-  test  $0, %eax
+  cmp   $0, %eax
   cmove %ecx, %eax
 
   # pop local stack and old base pointer
