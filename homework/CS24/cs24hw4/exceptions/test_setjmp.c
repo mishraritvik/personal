@@ -34,6 +34,7 @@ void test_setjmp_return() {
     }
 }
 
+// test return value of longjmp
 void test_longjmp_return() {
     printf("Testing longjmp return value.\n");
     // test 0 case
@@ -139,6 +140,7 @@ void test_local_variables() {
 
     if (e == 0) {
         a = 1;
+        b = 1;
         longjmp(env, 4);
     }
 
@@ -150,10 +152,9 @@ void test_local_variables() {
     }
 }
 
-
+// run all tests
 int main() {
     printf("Running all tests.\n");
-    // run all tests
     test_setjmp_return();
     test_longjmp_return();
     test_nested(0);
