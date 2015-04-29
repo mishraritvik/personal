@@ -129,7 +129,7 @@ int main() {
     // run all tests
     test_setjmp_return();
     test_longjmp_return();
-    test_nested();
+    // test_nested();
     test_multiple_funcs();
     test_local_variables();
 
