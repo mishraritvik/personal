@@ -13,8 +13,11 @@ invoke:
   # The argument to this function is at 8(%ebp), and it is the object. Since the
   # first part of this object is the getVolume function pointer, it has an
   # offset of 0, so the getVolume function pointer is at 8(%ebp). Hence, all we
-  # must do is call 8(%ebp).
-  call 8(%ebp)
+  # must do is call the function at 8(%ebp) via an indirect call. Since we can
+  # only do indirect calls on registers, we move it to a register, and then make
+  # the call.
+  mov  8(%ebp), %ecx
+  call *%ecx
 
   # pop local stack and old base pointer
   mov  %ebp, %esp
