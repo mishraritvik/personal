@@ -28,13 +28,8 @@ my_setjmp:
   mov   %esi, 4(%eax)
   mov   %edi, 8(%eax)
 
-  # put base pointer at fourth position in execution state memory
-  # have to move base pointer to register in order to move to memory
-  # mov   %ebp, %ecx
-  # mov   %ecx, 12(%eax)
+  # put base pointer and stack pointer in execution state memory (pos 4 - 5)
   mov   %ebp, 12(%eax)
-
-  # put stack pointer at fifth position in execution state memory
   mov   %esp, 16(%eax)
 
   # put caller's return address at sixth position in execution state memory
@@ -64,7 +59,7 @@ my_longjmp:
   mov   4(%eax), %esi
   mov   8(%eax), %edi
 
-  # put back stack pointer and return address
+  # put back base pointer and stack pointer
   mov   12(%eax), %ebp
   mov   16(%eax), %esp
 
