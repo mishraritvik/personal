@@ -1,6 +1,6 @@
 # my_setjmp:
 # puts information neccessary to reinstate execution state into memory address
-# provided as input. Saves esp, ebp, caller's return address, ebx, esi, and edi.
+# provided as input. Saves ebx, esi, edi, esp, ebp, and caller's return address.
 # args:
 #     8(%ebp): beginning of memory address for execution state to be saved at
 .globl my_setjmp
@@ -8,7 +8,7 @@
 
 # my_longjmp:
 # restores information saved by my_setjmp in order to reinstate execution state.
-# this includes: esp, ebp, caller's return address, ebx, esi, and edi.
+# this includes: ebx, esi, edi, esp, ebp, and caller's return address.
 # args:
 #     8(%ebp): beginning of memory address where execution state is saved.
 #     12(%ebp): return value.
