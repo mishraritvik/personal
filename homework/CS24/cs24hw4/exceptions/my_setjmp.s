@@ -1,69 +1,74 @@
-.globl my_setjmp
-.globl my_longjmp
-
-#define OFF_ESP 0
-
-# my_setjmp
-#
+# my_setjmp:
+# puts information neccessary to reinstate execution state (stack and registers)
+# into memory address provided as input.
 # args:
-#     8(%ebp) = memory location of array holding execution state.
-#
-# eax always has 0 at the end.
+#     8(%ebp): beginning of memory address for execution state to be saved at
+.globl my_setjmp
 
-# my_longjmp
-#
-#
-#
 
 my_setjmp:
-    push  %ebp              # standard set up
-    mov   %esp, %ebp
-    push  %ecx              # pushing these two as they will be used
-    push  %edx
-    mov   8(%ebp), %edx                # %edx = M[8 + %ebp] = address of array
-    mov   %esp, (%edx)                 # M[%edx] = %esp =>
-                                       # first element of int array is the
-                                       # current stack pointer (do this before
-                                       # we push stuff onto the stack)
-    mov   %ebp, %ecx                   # Use %ecx as temp variable
-    mov   %ecx, 4(%edx)                # M[%edx + 4] = M[%esp] =>
-                                       # second element of int array is %ebp
-    mov   4(%ebp), %ecx
-    mov   %ecx, 8(%edx)                # M[%edx + 8] = retr address =>
-                                       # third element of int array is the
-                                       # caller's return address
-    mov   %esi, 12(%edx)               # M[%edx + 12] = %esi =>
-                                       # fourth element of int array is the
-                                       # callee-save register %esi
-    mov   %edi, 16(%edx)               # M[%edx + 16] = %edi =>
-                                       # fifth element of int array is the
-                                       # callee-save register %edi
-    mov   %ebx, 20(%edx)               # M[%edx + 20] = %ebx =>
-                                       # sixth element of int array is the
-                                       # callee-save register %ebx
-    mov   $0, %eax          # set eax to 0
-    pop   %edx              # popping callee values back into registers
-    pop   %ecx
-    mov   %ebp, %esp        # stnadard ending
-    pop   %ebp
-    ret
+  # push old base pointer and make current stack new base
+  push  %ebp
+  mov   %esp, %ebp
+
+  # move arg (mem location where execution state should go) into register
+  mov   8(%ebp), %ecx
+
+  # put stack pointer at first position in execution state memory block
+  mov   %esp, (%ecx)
+
+  # put base pointer at second position in execution state memory block
+  # have to move base pointer to temp register (edx) in order to move to memory
+  mov   %ebp, %edx
+  mov   %edx, 4(%ecx)
+
+  # save all callee-saved registers in execution state memory block (pos 3 - 6)
+  mov   %ebp, 8(%ecx)
+  mov   %ebx, 12(%ecx)
+  mov   %esi, 16(%ecx)
+  mov   %edi, 20(%ecx)
+
+  # Set eax (return val) to 0
+  mov   $0, %eax
+
+  # pop local stack and old base pointer
+  mov   %ebp, %esp
+  pop   %ebp
+  ret
+
+
+# my_longjmp:
+# restores information saved by my_setjmp in order to reinstate execution state.
+# args:
+#     8(%ebp): beginning of memory address where execution state is saved.
+#     12(%ebp): return value.
+.globl my_longjmp
+
 
 my_longjmp:
-    push  %ebp              # standard set up
-    mov   %esp, %ebp
-    movl  $1, %ecx                     # Use to possibly move 1 into %eax
-    mov   8(%ebp), %edx                # %edx = M[8 + %ebp] = address of array
-    mov   12(%ebp), %eax               # %eax = M[%ebp + 12] = ret
-    cmpl  $0, %eax                     # See if %eax = 0
-    cmove %ecx, %eax                   # If %eax = 0, make %eax = 1
-    mov   12(%edx), %esi               # Restore %esi
-    mov   16(%edx), %edi               # Restore %edi
-    mov   20(%edx), %ebx               # Restore %ebx
-    mov   4(%edx), %ebp                # Restore %ebp
-    mov   (%edx), %esp                 # %esp = first element of buf array =>
-                                       # restoring %esp
-    mov   8(%edx), %ecx                # %ecx = M[%edx + 8] = return address
-    mov   %ecx, 4(%ebp)                # Move return address to right above %ebp
-    mov   %ebp, %esp                   # standard ending
-    pop   %ebp
-    ret
+  # push old base pointer and make current stack new base
+  push  %ebp
+  mov   %esp, %ebp
+
+  # get address of memory block into register
+  mov   8(%ebp), %ecx
+
+  # set eax (return val) to 1 (if arg is 0) or n (if arg is n)
+  mov   12(%ebp), %eax
+  cmp   $0, %eax
+  cmove $1, %eax
+
+  # put back stack pointer and return address
+  mov   (%ecx), %edx
+  mov   4(%ecx), %esp
+
+  # put callee-saved registers values back to the original registers
+  mov   8(%ecx), %ebp
+  mov   12(%ecx), %ebx
+  mov   16(%ecx), %esi
+  mov   20(%ecx), %edi
+
+  # pop local stack and old base pointer
+  mov   %ebp, %esp
+  pop   %ebp
+  ret

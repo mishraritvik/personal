@@ -1,14 +1,12 @@
 #ifndef MY_SETJMP
 #define MY_SETJMP
 
-
 /*
  * Change to #define to enable the use of your own setjmp()/longjmp()
  * implementation instead of the standard one, or undefine it if you
  * want to stick with the standard one!
  */
 #undef ENABLE_MY_SETJMP
-
 
 #ifdef ENABLE_MY_SETJMP
 
@@ -17,8 +15,7 @@
  * setjmp() and longjmp()!  Watch out stack, here we come!
  */
 
-/* TODO:  Set this to the proper size for your jump-buffer. */
-#define MY_JB_LEN 0
+#define MY_JB_LEN 6
 typedef int my_jmp_buf[MY_JB_LEN];
 
 int my_setjmp(my_jmp_buf buf);
@@ -48,4 +45,3 @@ void my_longjmp(my_jmp_buf buf, int ret);
 #endif /* ENABLE_MY_SETJMP */
 
 #endif /* MY_SETJMP */
-
