@@ -59,7 +59,7 @@ void free_decode(Decode *d) {
  */
 void fetch_and_decode(InstructionStore *is, Decode *d, ProgramCounter *pc) {
     /* This is the current instruction byte we are decoding. */
-    unsigned char instr_byte, instr_byte2;
+    unsigned char instr_byte;
 
     /* The CPU operation the instruction represents.  This will be one of the
      * OP_XXXX values from instruction.h.
@@ -93,57 +93,53 @@ void fetch_and_decode(InstructionStore *is, Decode *d, ProgramCounter *pc) {
     /*=====================================================*/
     // read operation
     operation = instr_byte >> 4;
+
     if (operation == OP_DONE) {
         // done
     }
     else if (operation <= OP_SHR) {
         // one-byte operation
         dst_write = WRITE_REG;
+        src2_addr = instr_byte & 0x07;
     }
     else if (operation == OP_BRA) {
-        // BRA
+        // unconditionally set branch addr
+        branch_addr = instr_byte & 0x0F;
     }
     else if (operation == OP_BRZ) {
-        // BRZ
+        // set branch addr if 0
+        branch_addr = instr_byte & 0x0F;
     }
     else if (operation == OP_BNZ) {
-        // BNZ
+        // set branch addr if not 0
+        branch_addr = instr_byte & 0x0F;
     }
     else if (operation <= OP_BNZ) {
         // two-byte operation
         dst_write = WRITE_REG;
 
+        // check src1_isreg
+        src1_isreg = (instr_byte & 0x08) >> 3;
+
+        // set dst
+        src2_addr = instr_byte & 0x07;
+
         // get second instruction byte
         incrPC(pc);
         ifetch(is);
-        instr_byte2 = pin_read(d->input);
-
-        // check src1_isreg
-        src1_isreg = (instr_byte & 0x8) >> 3;
-
-        // set dst
+        instr_byte = pin_read(d->input);
 
         // set src
         if (src1_isreg) {
-            // set src1_addr
+            src1_addr = instr_byte & 0x07;
         }
         else {
-            // set src1_const
+            src1_const = instr_byte;
         }
     }
     else {
         printf("invalid operation: %lu\n", operation);
     }
-    // check if 1 or 2 byte
-    // if two byte, incrPC and ifetch and pin_read
-    // decode instruction, set:
-    // - operation
-    // - src1_addr
-    // - src1_const
-    // - src1_isreg
-    // - src2_addr
-    // - dst_write
-    // - branch_addr
 
     /* All decoded!  Write out the decoded values. */
 
