@@ -1,0 +1,26 @@
+1.
+
+2.
+Assembly:
+SUB 6, R5
+
+Translation:
+SUB -> 1010
+constant -> 0
+R5 -> 101
+6 -> 00000110
+
+Machine Code:
+1010 0 101 00000110
+
+Assembly:
+XOR R1, R4
+
+Translation:
+XOR -> 1110
+register -> 1
+R4 -> 100
+R1 -> 00000001
+
+Machine Code:
+1110 1 100 00000001
