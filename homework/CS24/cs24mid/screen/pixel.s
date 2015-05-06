@@ -66,8 +66,8 @@ draw_pixel:
     pop  %ebx
 
     # put values in array to overwite old pixel
-    # movb %bl, 8(%eax, %ecx, 2) # value
-    # movb %dl, 9(%eax, %ecx, 2) # depth
+    movb %bl, 8(%eax, %ecx, 2) # value
+    movb %dl, 9(%eax, %ecx, 2) # depth
 
 
 draw_done:
