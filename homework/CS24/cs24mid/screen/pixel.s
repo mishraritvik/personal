@@ -5,7 +5,7 @@
 #     12(%ebp) : x value of location of pixel
 #     16(%ebp) : y value of location of pixel
 #     20(%ebp) : color value of pixel
-#     21(%ebp) : depth value of pixel
+#     24(%ebp) : depth value of pixel
 # rets:
 #     none.
 

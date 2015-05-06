@@ -24,15 +24,6 @@ int main() {
     printf("\n");
     */
 
-    // MY TEST
-    clear_screen(s);
-    draw_pixel(s, 1, 1, 3, 1);
-    draw_pixel(s, 2, 2, 2, 2);
-    draw_pixel(s, 3, 3, 1, 3);
-    print_screen(s);
-    clear_screen(s);
-    // MY TEST
-
     printf("sizeof(Pixel) = %lu\n\n", sizeof(Pixel));
     printf("Drawing overlapping lines.  Outermost lines should be deepest, "
            "and should be\noccluded by nearer lines.  Part of each line is "
