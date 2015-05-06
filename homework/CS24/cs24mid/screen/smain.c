@@ -26,6 +26,16 @@ int main() {
 
     printf("sizeof(Pixel) = %lu\n\n", sizeof(Pixel));
 
+    // MY TEST
+    printf("Drawing overlapping lines.  Outermost lines should be deepest, "
+           "and should be\noccluded by nearer lines.  Part of each line is "
+           "out of bounds.\n");
+    draw_vline(s, i, 0, 1, 1, 1);
+    printf("Screen:\n");
+    print_screen(s);
+    printf("\n");
+    // MY TEST
+
     printf("Drawing overlapping lines.  Outermost lines should be deepest, "
            "and should be\noccluded by nearer lines.  Part of each line is "
            "out of bounds.\n");
