@@ -5,7 +5,7 @@
 #     12(%ebp) : x value of location of pixel
 #     16(%ebp) : y value of location of pixel
 #     20(%ebp) : color value of pixel
-#     24(%ebp) : depth value of pixel
+#     21(%ebp) : depth value of pixel
 # rets:
 #     none.
 
@@ -47,8 +47,8 @@ draw_pixel:
     add  %ebx, %ecx
 
     # move depth, value to registers
-    mov  20(%ebp), %ebx # value
-    mov  24(%ebp), %edx # depth
+    movb 20(%ebp), %bl  # value
+    movb 21(%ebp), %dl  # depth
 
     # temporarily push on stack and pop later
     push %ebx
