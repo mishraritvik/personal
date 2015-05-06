@@ -57,7 +57,7 @@ draw_pixel:
 
     # move depth, value to registers
     movb 20(%ebp), %bl  # value
-    movb 21(%ebp), %dl  # depth
+    movb 24(%ebp), %dl  # depth
 
     # temporarily push on stack and pop later
     push %ebx
