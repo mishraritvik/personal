@@ -37,7 +37,6 @@ draw_pixel:
     # check that x is valid
     cmp  %ebx, %esi
     jle  draw_done      # go to done if width <= x
-    # jg  draw_done      # go to done if width <= x
 
     cmp %ebx, %eax
     jg  draw_done       # go to done if 0 > x
@@ -45,7 +44,6 @@ draw_pixel:
     # check that y is valid
     cmp  %ecx, %edi
     jle  draw_done      # go to done if height <= y
-    # jg  draw_done      # go to done if height <= y
 
     cmp %ecx, %eax
     jg  draw_done       # go to done if 0 > y
@@ -69,9 +67,7 @@ draw_pixel:
 
     # check if depth is in front of current pixel
     cmp  %dl, %bl
-    # jg   draw_done      # go to done if depth < current depth
-    jl   draw_done      # go to done if depth < current depth
-
+    jl   draw_done      # go to done if current depth < depth
 
     # popping after temporary push
     pop  %ebx
@@ -79,7 +75,6 @@ draw_pixel:
     # put values in array to overwite old pixel
     movb %bl, 8(%eax, %ecx, 2) # value
     movb %dl, 9(%eax, %ecx, 2) # depth
-
 
 draw_done:
     # Restore callee-saved registers
