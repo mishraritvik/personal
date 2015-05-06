@@ -184,8 +184,9 @@ because it starts out with looking for blocks that are of the minimum order
 needed to fit the requested memory size, and then only looks at the next order
 once it does not find any of the smallest possible size.
 
-I think the most accurate description of the allocation algorithm is actually a
-mix between best-fit and first-fit.
+Note: I think the most accurate description of the allocation algorithm is
+actually a mix between best-fit and first-fit. The first-fit comes in because it
+takes the first open spot in the free list for the size it is looking through.
 
 
 Part G.

@@ -108,16 +108,9 @@ void fetch_and_decode(InstructionStore *is, Decode *d, ProgramCounter *pc) {
         dst_write = WRITE_REG;
         src2_addr = instr_byte & ADDR_MASK;
     }
-    else if (operation == OP_BRA) {
-        /* unconditionally set branch addr */
-        branch_addr = instr_byte & BRA_MASK;
-    }
-    else if (operation == OP_BRZ) {
-        /* set branch addr if 0 */
-        branch_addr = instr_byte & BRA_MASK;
-    }
-    else if (operation == OP_BNZ) {
-        /* set branch addr if not 0 */
+    else if ((operation == OP_BRA) || (operation == OP_BRZ)
+        || (operation == OP_BNZ)) {
+        /* set branch addr */
         branch_addr = instr_byte & BRA_MASK;
     }
     else if (operation <= OP_BNZ) {
