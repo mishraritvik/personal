@@ -46,12 +46,18 @@ draw_pixel:
     mov  20(%ebp), %ebx # value
     mov  24(%ebp), %edx # depth
 
+    # temporarily push on stack and pop later
+    push %ebx
+
     # move current depth to register
-    movb 9(%eax, %ecx, 2), %esi
+    movb 9(%eax, %ecx, 2), %bl
 
     # check if depth is in front of current pixel
-    cmp  %edx, %esi
+    cmp  %dl, %bl
     jl   draw_done      # go to done if depth < current depth
+
+    # popping after temporary push
+    pop  %ebx
 
     # put values in array to overwite old pixel
     movb %dl, 8(%eax, %ecx, 2) # depth
