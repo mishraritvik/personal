@@ -27,16 +27,16 @@ draw_pixel:
     mov 16(%ebp), %ecx  # y
 
     # move width, height to registers
-    mov  0(%eax), %esi
-    mov  4(%eax), %edi
+    mov  0(%eax), %esi  # width
+    mov  4(%eax), %edi  # height
 
     # check that x is valid
     cmp  %ebx, %esi
-    jge  draw_done      # go to done if x >= width
+    jl   draw_done      # go to done if x >= width
 
     # check that y is valid
     cmp  %ebx, %edi
-    jge  draw_done      # go to done if y >= height
+    jl   draw_done      # go to done if y >= height
 
     # compute 1D location of pixel (width * y + x)
     imul %esi, %ecx
@@ -54,7 +54,7 @@ draw_pixel:
 
     # check if depth is in front of current pixel
     cmp  %dl, %bl
-    jl   draw_done      # go to done if depth < current depth
+    jge  draw_done      # go to done if depth < current depth
 
     # popping after temporary push
     pop  %ebx
