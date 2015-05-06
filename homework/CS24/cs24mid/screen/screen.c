@@ -6,7 +6,7 @@
 #include <assert.h>
 
 
-#define USE_COLOR 1
+#define USE_COLOR 0
 
 
 /* Allocates and initializes a new "screen" object of the specified size. */
