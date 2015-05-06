@@ -30,17 +30,28 @@ draw_pixel:
     mov  0(%eax), %esi  # width
     mov  4(%eax), %edi  # height
 
+    # temporarily push on stack and pop later
+    push %eax
+    mov  $0, %eax
+
     # check that x is valid
     cmp  %ebx, %esi
-    # jle  draw_done      # go to done if width <= x
-    jg  draw_done      # go to done if width <= x
+    jle  draw_done      # go to done if width <= x
+    # jg  draw_done      # go to done if width <= x
 
+    cmp %ebx, %eax
+    jg  draw_done       # go to done if 0 > x
 
     # check that y is valid
     cmp  %ecx, %edi
-    # jle  draw_done      # go to done if height <= y
-    jg  draw_done      # go to done if height <= y
+    jle  draw_done      # go to done if height <= y
+    # jg  draw_done      # go to done if height <= y
 
+    cmp %ecx, %eax
+    jg  draw_done       # go to done if 0 > y
+
+    # popping after temporary push
+    pop  %eax
 
     # compute 1D location of pixel (width * y + x)
     imul %esi, %ecx
