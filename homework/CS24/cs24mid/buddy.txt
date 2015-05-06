@@ -44,16 +44,19 @@ Step 1:  A = alloc(6000);
 
 Part A.
 MIN_BLOCK_SIZE is 32, and we have 2 ^ 31 bytes. So, the maximum size order is
-log base 2(2 ^ 31 / 32) = 26. However, we will need to make space for the free
-lists so the maximum size order will be one less, at 25. The first 26 * 4 bytes
-= 104 bytes will be used to store the starting point of all of the explicit free
-lists.
+log base 2(2 ^ 31 / 32) = 26.
+
+The free list will then have 27 32 bit entries (0, 1, 2, ..., 26) because there
+must be one for each order so it will be an integer array of length 27, or 108
+bytes long.
 
 
 Part B.
+We want to find the smallest order such that MIN_BLOCK_SIZE * 2 ^ order >= size.
+
 int get_order_of_size(int size) {
-    int factor = size / MIN_BLOCK_SIZE, order = 0, curr_factor = 1;
-    while (curr_factor < factor) {
+    int order = 0, curr_factor = 1;
+    while (curr_factor * MIN_BLOCK_SIZE < size) {
         curr_factor << 1;
         order++;
     }
@@ -62,81 +65,108 @@ int get_order_of_size(int size) {
 
 
 Part C.
+Two cases we can check for invalid allocations regardless of memory state:
+If the requested memory is 0 or negative, we can return NULL.
+If the requested memory is greater than the total memory size, we can return
+NULL as there is no way to be able to satisfy this request.
+
+For the case where it is a valid request but there is not enough free memory:
 The allocator will start by going through the explicit free list for the least
 order blocks that the requested memory can fit in. If the free list is empty,
 the (order)th value int in the memory pool will be negative (by design, we will
 designate a negative value to mean that there are no more empty blocks). Then
 the allocator will move on the (order + 1)th free list, and so on until it finds
 a block. If it gets to the (max order)th free list and still there are no free
-blocks, then it returns NULL.
+blocks as all of the free lists have been empty, then it returns NULL.
 
 
 Part D.
-Initial:
+Step 0
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
   |09 _                                                                           |
   |16KB                                                                           |
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
 
+Step 1
 A = allocate(1400);
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
   |O6 A     |06 _     |07 _               |O8 _                                   |
   |1400     |2KB      |4KB                |8KB                                    |
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
 
+Step 2
 B = allocate(5500);
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
   |O6 A     |06 _     |07 _               |O8 B                                   |
   |1400     |2KB      |4KB                |5500                                   |
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
 
+Step 3
 C = allocate(800);
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
   |O6 A     |05 C|05 _|07 _               |O8 B                                   |
   |1400     |800 |1KB |4KB                |5500                                   |
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
 
+Step 4
 D = allocate(3200);
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
   |O6 A     |05 C|05 _|07 D               |O8 B                                   |
   |1400     |800 |1KB |3200               |5500                                   |
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
 
+Step 5
 free(A);
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
   |O6 _     |05 C|05 _|07 D               |O8 B                                   |
   |2KB      |800 |1KB |3200               |5500                                   |
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
 
+Step 6
 E = allocate(700);
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
   |O6 _     |05 C|05 E|07 D               |O8 B                                   |
   |2KB      |800 |700 |3200               |5500                                   |
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
 
+Step 7
 free(B);
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
   |O6 _     |05 C|05 E|07 D               |O8 _                                   |
   |2KB      |800 |700 |3200               |8KB                                    |
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
 
+Step 8
 free(C);
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
   |O6 _     |05 _|05 E|07 D               |O8 _                                   |
   |2KB      |1KB |700 |3200               |8KB                                    |
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
 
+Step 9
 free(E);
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
   |O7 _               |07 D               |O8 _                                   |
   |4KB                |3200               |8KB                                    |
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
 
+Step 10
 free(D);
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
   |09 _                                                                           |
   |16KB                                                                           |
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+After Step 4:
+1KB is available for allocation requests (the only unused block, order 5).
+
+The wasted memory by each of the allocations:
+A: 2KB - 1400 = 2048 - 1400 = 648
+B: 8KB - 5500 = 8192 - 5500 = 2692
+C: 1KB - 800 = 1024 - 800 = 224
+D: 4KB - 3200 = 4096 - 3200 = 896
+
+So total wasted is 648 + 2692 + 224 + 896 = 4460 bytes.
 
 
 Part E.
@@ -153,6 +183,9 @@ The buddy allocator is closest to the best-fit placement strategy. This is
 because it starts out with looking for blocks that are of the minimum order
 needed to fit the requested memory size, and then only looks at the next order
 once it does not find any of the smallest possible size.
+
+I think the most accurate description of the allocation algorithm is actually a
+mix between best-fit and first-fit.
 
 
 Part G.

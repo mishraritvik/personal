@@ -1,27 +1,35 @@
 Pseudocode for draw_pixel implemented in pixel.s.
 
+Offsets for attributes of s:
+width           : 0
+height          : 4
+ith pixel value : 8 + sizeof(Pixel) * i
+ith pixel depth : 8 + sizeof(Pixel) * i + 1
+
+We are told sizeof(Pixel) = 2.
+
 def draw_pixel(s, x, y, value, depth):
     # check if x and y are valid (gte 0, lt width/height)
     if x < 0:
         return
 
-    if x >= s->width:
+    if x >= s[0]:       # width
         return
 
     if y < 0:
         return
 
-    if y >= s->height:
+    if y >= s[4]:       # height
         return
 
     # compute 1D location of pixel (width * y + x)
-    pos = s->width * y + x
+    pos = s[0] * y + x
 
     # check if depth is in front of current pixel
-    if s->pixels[2 * pos + 1] < depth:
+    if s[8 + sizeof(Pixel) * pos + 1] < depth:
         return
 
     # if gotten to this point, pixel should be put in
     # put values in array to overwite old pixel
-    s->pixels[2 * pos] = value
-    s->pixels[2 * pos + 1] = depth
+    s[8 + sizeof(Pixel) * pos] = value
+    s[8 + sizeof(Pixel) * pos + 1] = depth
