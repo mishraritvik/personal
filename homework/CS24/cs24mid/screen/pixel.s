@@ -54,8 +54,8 @@ draw_pixel:
     jl   draw_done      # go to done if depth < current depth
 
     # put values in array to overwite old pixel
-    # mov  %esi, 8(, %ecx, 2)  # depth
-    # mov  %edi, 8(1, %ecx, 2) # value
+    movb %esi, 8(, %ecx, 2)  # depth
+    movb %edi, 8(1, %ecx, 2) # value
 
 
 draw_done:
