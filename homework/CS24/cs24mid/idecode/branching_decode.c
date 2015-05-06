@@ -101,7 +101,7 @@ void fetch_and_decode(InstructionStore *is, Decode *d, ProgramCounter *pc) {
 
     /* decode remaining bytes based on operation */
     if (operation == OP_DONE) {
-        /* done */
+        /* done, nothing to set besides operation */
     }
     else if (operation <= OP_SHR) {
         /* one-byte operation */

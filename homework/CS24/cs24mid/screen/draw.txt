@@ -8,7 +8,7 @@ ith pixel depth : 8 + sizeof(Pixel) * i + 1
 
 We are told sizeof(Pixel) = 2.
 
-def draw_pixel(s, x, y, value, depth):
+void draw_pixel(s, x, y, value, depth):
     # check if x and y are valid (gte 0, lt width/height)
     if x < 0:
         return

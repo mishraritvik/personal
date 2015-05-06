@@ -3,38 +3,49 @@ A cons-pair can only reference memory cells that are older than it - those that
 appear before it in the linked list (can be reached by tracing back on
 prev_alloc any number of steps). This is because the cons pair must be made of
 two already existing values, so the cons-pair must have been made after the
-values were already made.
+values were already made. This prevents the values in the cons-pair being freed
+before the cons pair itself.
 
 
 Part B.
-def mark_and_sweep(cells):
+void mark_and_sweep(cells):
     # start with the newest
-    current = cells.newest()
+    cell = cells.newest()
+
     while true:
         # end at the oldest
-        if current == NULL:
+        if cell == NULL:
             return
 
-        # check if marked or root
-        if current.marked or is_root(current):
+        # check if reachable
+        if cell.marked or is_root(cell):
             # check if it cons pair and mark values
             if is_cons(cell):
                 set_marked(car(cell), 1)
                 set_marked(cdr(cell), 1)
-            current = current.prev_alloc
+
+            # unmark for next iteration
+            set_marked(cell, 0)
+
+            # go to next in linked list
+            cell = cell.prev_alloc
+
         else:
             # free if not marked or root
-            prev = current
-            current = current.prev_alloc
+            prev = cell
+            cell = cell.prev_alloc
             free(prev)
 
 
 Part C.
 Can it be interrupted and resumed:
-No, this algorithm cannot handle being stopped and then resumed after an
-interruption, it must be restarted from the beginning if interrupted.
+Yes it can be interrupted and then resumed later. My condition for saying this
+is that interrupting and then resuming will not result in anything being freed
+that should not be freed. It will (as discussed in my answer to the next part)
+not fully collect all garbage.
 
 Consequences/Why not:
-It is possible that after the interruption, a cons-pair may be created the
-references two values that were previously allocated. It is possible that before
-the interruption these two values were to be destroyed, but after the interrup
+The consequence of an interruption followed by resuming the garbage collection
+is that any objects that were created during the interruption will not be
+collected. Since they will not be accidentally freed this is okay; if needed
+they will be freed in the next iteration of garbage collection.
