@@ -165,4 +165,6 @@ Step 3. the two n - 1 buddies are coalesced
 Step 4. free order n block is broken up into two n - 1 blocks to alloc an n - 1
 If coalescing is deferred, Step 3 will not occur as the buddies will be left
 separate. Then, if step 4 were an allocation of order n, the two buddies would
-coalesce in order to make a large enough block.
+coalesce in order to make a large enough block. The result of deferred
+coalescing is that blocks are only coalesced if needed, so fewer coalesces and
+breaking up blocks into buddies will occur which is more efficient.

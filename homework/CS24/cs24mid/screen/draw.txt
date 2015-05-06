@@ -1,0 +1,27 @@
+Pseudocode for draw_pixel implemented in pixel.s.
+
+def draw_pixel(s, x, y, value, depth):
+    # check if x and y are valid (gte 0, lt width/height)
+    if x < 0:
+        return
+
+    if x >= s->width:
+        return
+
+    if y < 0:
+        return
+
+    if y >= s->height:
+        return
+
+    # compute 1D location of pixel (width * y + x)
+    pos = s->width * y + x
+
+    # check if depth is in front of current pixel
+    if s->pixels[2 * pos + 1] < depth:
+        return
+
+    # if gotten to this point, pixel should be put in
+    # put values in array to overwite old pixel
+    s->pixels[2 * pos] = value
+    s->pixels[2 * pos + 1] = depth
