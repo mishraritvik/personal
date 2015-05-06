@@ -66,8 +66,8 @@ draw_pixel:
     movb 9(%eax, %ecx, 2), %bl
 
     # check if depth is in front of current pixel
-    cmp  %dl, %bl
-    jl   draw_done      # go to done if current depth < depth
+    # cmp  %dl, %bl
+    # jl   draw_done      # go to done if current depth < depth
 
     # popping after temporary push
     pop  %ebx
