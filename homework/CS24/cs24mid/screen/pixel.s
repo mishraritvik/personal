@@ -33,13 +33,13 @@ draw_pixel:
     # check that x is valid
     cmp  %ebx, %esi
     # jle  draw_done      # go to done if width <= x
-    jg  draw_done      # go to done if width <= x
+    # jg  draw_done      # go to done if width <= x
 
 
     # check that y is valid
     cmp  %ecx, %edi
     # jle  draw_done      # go to done if height <= y
-    jg  draw_done      # go to done if height <= y
+    # jg  draw_done      # go to done if height <= y
 
 
     # compute 1D location of pixel (width * y + x)
@@ -59,7 +59,7 @@ draw_pixel:
     # check if depth is in front of current pixel
     cmp  %dl, %bl
     # jg   draw_done      # go to done if depth < current depth
-    jl   draw_done      # go to done if depth < current depth
+    # jl   draw_done      # go to done if depth < current depth
 
 
     # popping after temporary push
