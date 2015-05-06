@@ -67,7 +67,7 @@ draw_pixel:
 
     # check if depth is in front of current pixel
     cmp  %dl, %bl
-    jge   draw_done      # go to done if current depth < depth
+    jl   draw_done      # go to done if current depth < depth
 
     # popping after temporary push
     pop  %ebx
