@@ -43,19 +43,19 @@ draw_pixel:
     add  %ebx, %ecx
 
     # move depth, value to registers
-    mov  20(%ebp), %eax # value
-    mov  24(%ebp), %ebx # depth
+    mov  20(%ebp), %ebx # value
+    mov  24(%ebp), %edx # depth
 
     # move current depth to register
-    mov  8(, %ecx, 2), %esi
+    mov  8(%eax, %ecx, 2), %esi
 
     # check if depth is in front of current pixel
-    cmp  %ebx, %esi
+    cmp  %edx, %esi
     jl   draw_done      # go to done if depth < current depth
 
     # put values in array to overwite old pixel
-    movb %bl, 8(, %ecx, 2)  # depth
-    movb %al, 8(1, %ecx, 2) # value
+    movb %dl, 8(%eax, %ecx, 2) # depth
+    movb %bl, 9(%eax, %ecx, 2) # value
 
 
 draw_done:
