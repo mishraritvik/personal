@@ -51,6 +51,7 @@ draw_pixel:
 
     # move current depth to register
     # movb 9(%eax, %ecx, 2), %bl
+    mov 9(%eax, %ecx, 2), %ebx
 
     # check if depth is in front of current pixel
     cmp  %dl, %bl
