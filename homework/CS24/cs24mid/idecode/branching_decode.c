@@ -15,6 +15,11 @@
 #include "register_file.h"
 #include "instruction.h"
 
+/* constants used for getting information from bytes */
+#define ADDR_MASK 0x07
+#define BRA_MASK  0x0F
+#define ISREG_LOC 3
+#define OP_LOC    4
 
 /*
  * Branching Instruction Decoder
@@ -91,50 +96,49 @@ void fetch_and_decode(InstructionStore *is, Decode *d, ProgramCounter *pc) {
     /* TODO:  Fill in the implementation of the multi-byte */
     /*        instruction decoder.                         */
     /*=====================================================*/
-    // read operation
-    operation = instr_byte >> 4;
+    /* read operation */
+    operation = instr_byte >> OP_LOC;
 
+    /* decode remaining bytes based on operation */
     if (operation == OP_DONE) {
-        // done
+        /* done */
     }
     else if (operation <= OP_SHR) {
-        // one-byte operation
+        /* one-byte operation */
         dst_write = WRITE_REG;
-        src2_addr = instr_byte & 0x07;
+        src2_addr = instr_byte & ADDR_MASK;
     }
     else if (operation == OP_BRA) {
-        // unconditionally set branch addr
-        branch_addr = instr_byte & 0x0F;
+        /* unconditionally set branch addr */
+        branch_addr = instr_byte & BRA_MASK;
     }
     else if (operation == OP_BRZ) {
-        // set branch addr if 0
-        branch_addr = instr_byte & 0x0F;
+        /* set branch addr if 0 */
+        branch_addr = instr_byte & BRA_MASK;
     }
     else if (operation == OP_BNZ) {
-        // set branch addr if not 0
-        branch_addr = instr_byte & 0x0F;
+        /* set branch addr if not 0 */
+        branch_addr = instr_byte & BRA_MASK;
     }
     else if (operation <= OP_BNZ) {
-        // two-byte operation
+        /* two-byte operation */
         dst_write = WRITE_REG;
 
-        // check src1_isreg
-        src1_isreg = (instr_byte & 0x08) >> 3;
+        /* check src1_isreg */
+        src1_isreg = (instr_byte >> ISREG_LOC) & 0x01;
 
-        // set dst
-        src2_addr = instr_byte & 0x07;
+        /* set dst */
+        src2_addr = instr_byte & ADDR_MASK;
 
-        // get second instruction byte
+        /* get second instruction byte */
         incrPC(pc);
         ifetch(is);
         instr_byte = pin_read(d->input);
 
-        // set src
+        /* set src */
+        src1_const = instr_byte;
         if (src1_isreg) {
-            src1_addr = instr_byte & 0x07;
-        }
-        else {
-            src1_const = instr_byte;
+            src1_addr = instr_byte & ADDR_MASK;
         }
     }
     else {
