@@ -35,7 +35,7 @@ draw_pixel:
     jle  draw_done      # go to done if x >= width
 
     # check that y is valid
-    cmp  %ebx, %edi
+    cmp  %ecx, %edi
     jle  draw_done      # go to done if y >= height
 
     # compute 1D location of pixel (width * y + x)
@@ -50,8 +50,7 @@ draw_pixel:
     push %ebx
 
     # move current depth to register
-    # movb 9(%eax, %ecx, 2), %bl
-    mov 9(%eax, %ecx, 2), %ebx
+    movb 9(%eax, %ecx, 2), %bl
 
     # check if depth is in front of current pixel
     cmp  %dl, %bl
