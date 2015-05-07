@@ -114,7 +114,7 @@ void fetch_and_decode(InstructionStore *is, Decode *d, ProgramCounter *pc) {
         branch_addr = instr_byte & BRA_MASK;
     }
     else if (operation <= OP_BNZ) {
-        /* two-byte operation */
+        /* must be a two-byte operation */
         dst_write = WRITE_REG;
 
         /* check src1_isreg */

@@ -81,77 +81,104 @@ blocks as all of the free lists have been empty, then it returns NULL.
 
 
 Part D.
-Step 0
+Initial:
+
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
   |09 _                                                                           |
   |16KB                                                                           |
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
 
-Step 1
-A = allocate(1400);
+Step 1: A = allocate(1400);
+
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
   |O6 A     |06 _     |07 _               |O8 _                                   |
   |1400     |2KB      |4KB                |8KB                                    |
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
 
-Step 2
-B = allocate(5500);
+Step 2: B = allocate(5500);
+
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
   |O6 A     |06 _     |07 _               |O8 B                                   |
   |1400     |2KB      |4KB                |5500                                   |
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
 
-Step 3
-C = allocate(800);
+Step 3: C = allocate(800);
+
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
   |O6 A     |05 C|05 _|07 _               |O8 B                                   |
   |1400     |800 |1KB |4KB                |5500                                   |
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
 
-Step 4
-D = allocate(3200);
+Step 4: D = allocate(3200);
+
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
   |O6 A     |05 C|05 _|07 D               |O8 B                                   |
   |1400     |800 |1KB |3200               |5500                                   |
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
 
-Step 5
-free(A);
+Step 5: free(A);
+
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
   |O6 _     |05 C|05 _|07 D               |O8 B                                   |
   |2KB      |800 |1KB |3200               |5500                                   |
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
 
-Step 6
-E = allocate(700);
+Step 6: E = allocate(700);
+
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
   |O6 _     |05 C|05 E|07 D               |O8 B                                   |
   |2KB      |800 |700 |3200               |5500                                   |
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
 
-Step 7
-free(B);
+Step 7: free(B);
+
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
   |O6 _     |05 C|05 E|07 D               |O8 _                                   |
   |2KB      |800 |700 |3200               |8KB                                    |
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
 
-Step 8
-free(C);
+Step 8: free(C);
+
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
   |O6 _     |05 _|05 E|07 D               |O8 _                                   |
   |2KB      |1KB |700 |3200               |8KB                                    |
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
 
-Step 9
-free(E);
+Step 9: free(E);
+
+Step 9a: free the block
+  +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+  |O6 _     |05 _|05 _|07 D               |O8 _                                   |
+  |2KB      |1KB |1KB |3200               |8KB                                    |
+  +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+Step 9b: coalesce the order 5 buddies
+  +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+  |O6 _     |06 _     |07 D               |O8 _                                   |
+  |2KB      |2KB      |3200               |8KB                                    |
+  +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+Step 9c: coalesce the order 6 buddies
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
   |O7 _               |07 D               |O8 _                                   |
   |4KB                |3200               |8KB                                    |
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
 
-Step 10
-free(D);
+Step 10: free(D);
+
+Step 10a: free the block
+  +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+  |O7 _               |07 _               |O8 _                                   |
+  |4KB                |4KB                |8KB                                    |
+  +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+Step 10b: coalesce the order 7 buddies
+  +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+  |O8 _                                   |O8 _                                   |
+  |8KB                                    |8KB                                    |
+  +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+
+Step 10c: coalesce the order 8 buddies
   +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
   |09 _                                                                           |
   |16KB                                                                           |
@@ -173,9 +200,11 @@ Part E.
 The problem with buddy allocators is the potential for wasting a lot of memory.
 In the example given, if 8193 bytes was requested (8KB + 1 byte) then it would
 require the entire memory, as the only options are powers of two apart and 8KB
-is not large enough. So, it is possible for the memory utilization to be maxed
-out at just over 50% if the case where the memory needed is just slightly above
-one of the possible sizes and so the next size which is twice as large is used.
+is not large enough. Generally, any time the allocated amount is much smaller
+than the smallest order block it fits in, a lot of memory is wasted: it is
+possible for the memory utilization to be maxed out at just over 50% if the case
+where most of the blocks needed are just slightly above one of the possible
+sizes and so the next size which is twice as large is used.
 
 
 Part F.
@@ -183,10 +212,6 @@ The buddy allocator is closest to the best-fit placement strategy. This is
 because it starts out with looking for blocks that are of the minimum order
 needed to fit the requested memory size, and then only looks at the next order
 once it does not find any of the smallest possible size.
-
-Note: I think the most accurate description of the allocation algorithm is
-actually a mix between best-fit and first-fit. The first-fit comes in because it
-takes the first open spot in the free list for the size it is looking through.
 
 
 Part G.

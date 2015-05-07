@@ -8,28 +8,34 @@ before the cons pair itself.
 
 
 Part B.
-void mark_and_sweep(cells):
+There are two ways that something is reachable:
+- It is a root, which we can check by is_root()
+- It is a value in a cons-pair which is reachable, which we can check by marking
+  the car and cdr of every reachable cons-pair that is encountered, and then
+  check the marked status of everything as we come by it, and since all values
+  in cons-pairs must be older than the cons-pair itself, this will work
+
+void mark_and_sweep():
     # start with the newest
-    cell = cells.newest()
+    cell = newest()
 
     while true:
-        # end at the oldest
+        # end after oldest (assuming oldest().prev_alloc is NULL)
         if cell == NULL:
-            return
+            break
 
-        # check if reachable
+        # check if root or already marked
         if cell.marked or is_root(cell):
-            # check if it cons pair and mark values
+            # check if it cons pair and mark car, cdr
             if is_cons(cell):
                 set_marked(car(cell), 1)
                 set_marked(cdr(cell), 1)
 
-            # unmark for next iteration
+            # unmark for next iteration of garbage collection
             set_marked(cell, 0)
 
             # go to next in linked list
             cell = cell.prev_alloc
-
         else:
             # free if not marked or root
             prev = cell
@@ -39,13 +45,21 @@ void mark_and_sweep(cells):
 
 Part C.
 Can it be interrupted and resumed:
-Yes it can be interrupted and then resumed later. My condition for saying this
-is that interrupting and then resuming will not result in anything being freed
-that should not be freed. It will (as discussed in my answer to the next part)
-not fully collect all garbage.
+Yes, this algorithm cannot be interrupted and then resumed. However, anything
+created during the interruption that is then made unreachable will not be
+garbage collected by resuming; garbage collection must be rerun.
 
-Consequences/Why not:
-The consequence of an interruption followed by resuming the garbage collection
-is that any objects that were created during the interruption will not be
-collected. Since they will not be accidentally freed this is okay; if needed
-they will be freed in the next iteration of garbage collection.
+Explanation:
+The only case in which resuming will harm something is if somehow a cell that is
+not reachable before the interruption is made reachable during the interruption,
+and then gets freed when resumed. However, this cannot happen: if something is
+unreachable before interruption, there is no way for it to be made reachable
+again, as nothing in the program can reference it since it is unreachable. So,
+an interruption followed by resuming cannot result in a value being freed when
+it should not be.
+
+Consequences:
+Since cleaning is continued from the point at which it left off, as stated
+before any values created during the interruption that are no longer reachable
+will be left unfreed. However, the next round of garbage collection will be able
+to free them.

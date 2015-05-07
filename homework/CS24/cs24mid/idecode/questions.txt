@@ -1,9 +1,15 @@
 1.
-0-indexed, counting from the first uncommented line and not counting the lines
-with the labels.
-MUL_LOOP: 3  -> 0011
-SKIP_ADD: 7  -> 0111
-MUL_DONE: 10 -> 1010
+We start at 0, and operations that take two inputs increment PC by 2, while
+branches and operations that take one input increment PC by 1. So we have,
+
+2 + 2 + 1 = 5
+MUL_LOOP: 5  -> 0101
+
+2 + 2 + 1 + 2 + 2 + 1 + 2 = 12
+SKIP_ADD: 12 -> 1010
+
+2 + 2 + 1 + 2 + 2 + 1 + 2 + 1 + 1 + 1 = 15
+MUL_DONE: 15 -> 1111
 
 2.
 Assembly:
