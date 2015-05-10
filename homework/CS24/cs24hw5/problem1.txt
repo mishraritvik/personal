@@ -1,0 +1,28 @@
+Part A.
+Every miss requires 100 clocks, and every time it does not miss requires just 1
+clock. Each instruction requires 1 data value, so in 750 million instructions
+we assume 750 million data values are required. So, it takes 3 billion clocks to
+get 750 million data values. Let n be the number of misses.
+
+(750 million values - n values) * 1 clock per value   <- clocks from hits
++ n values * 100 clocks per value                     <- clocks from misses
+= 3 billion clocks                                    <- total clocks
+
+n = 22.7 million
+
+So, out of the 750 million data values requested, 22.7 million of them are
+missed. So, miss rate = 22.7 million / 750 million = 3.02%.
+
+Part B.
+Now, instead of 750 million data values being required in a second, there will
+be 1.5 billion as we want twice the rate. So,
+
+(1.5 billion values - n values) * 1 clock per value   <- clocks from hits
++ n values * 100 clocks per value                     <- clocks from misses
+= 3 billion clocks                                    <- total clocks
+
+n = 15.2 million
+
+So, miss rate = 15.2 million / 1.5 billion = 1.01%.
+
+So, the miss rate must be decreased by (3.02% - 1.01%) / 3.02% = 66.6%.

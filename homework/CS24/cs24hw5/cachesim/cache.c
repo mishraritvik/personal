@@ -15,6 +15,8 @@
  */
 #define RANDOM_REPLACEMENT_POLICY 1
 
+/* Used to create masks for cache. */
+#define ALL_MASK 0x00
 
 /* Local functions used by the cache implementation, roughly in order of
  * usage.
@@ -44,7 +46,7 @@ cacheline_t * evict_cache_line(cache_t *p_cache, cacheset_t *p_set);
 
 void load_cache_line(cache_t *p_cache, cacheline_t *p_line, addr_t address,
                      addr_t tag);
-void write_back_cache_line(cache_t *p_cache, cacheline_t *p_line, 
+void write_back_cache_line(cache_t *p_cache, cacheline_t *p_line,
                            addr_t set_no);
 
 
@@ -78,7 +80,7 @@ void init_cache(cache_t *p_cache, unsigned int block_size,
     p_cache->free = cache_free;
 
     /* These are various parameters for the cache. */
-    
+
     p_cache->block_size = block_size;
     p_cache->num_sets = num_sets;
     p_cache->cache_sets = malloc(num_sets * sizeof(cacheset_t));
@@ -89,7 +91,7 @@ void init_cache(cache_t *p_cache, unsigned int block_size,
     /* The remaining code initializes each cache set and the lines in
      * each set.
      */
-    
+
     for (set_no = 0; set_no < num_sets; set_no++) {
         /* Get a pointer to the specific cache set to initialize. */
         cacheset_t *p_set = p_cache->cache_sets + set_no;
@@ -114,18 +116,18 @@ unsigned char cache_read_byte(membase_t *mb, addr_t address) {
     cache_t *p_cache = (cache_t *) mb;
     cacheline_t *p_line;
     addr_t block_offset;
-    
+
 #if DEBUG_CACHE
     printf("Resolving cache read to address %u\n", address);
 #endif
-    
+
     p_line = resolve_cache_access(p_cache, address);
     block_offset = get_offset_in_block(p_cache, address);
-    
+
 #if DEBUG_CACHE
     printf(" * Block offset within cache line:  %u\n", block_offset);
 #endif
-    
+
     /* Return the byte read by the requester. */
     p_cache->num_reads++;
     return p_line->block[block_offset];
@@ -137,7 +139,7 @@ void cache_write_byte(membase_t *mb, addr_t address, unsigned char value) {
     cache_t *p_cache = (cache_t *) mb;
     cacheline_t *p_line = resolve_cache_access(p_cache, address);
     addr_t block_offset = get_offset_in_block(p_cache, address);
-    
+
     /* Write the byte specified by the requester. */
     p_cache->num_writes++;
     p_line->block[block_offset] = value;
@@ -150,17 +152,17 @@ void cache_write_byte(membase_t *mb, addr_t address, unsigned char value) {
  */
 void cache_print_stats(membase_t *mb) {
     cache_t *p_cache = (cache_t *) mb;
-    
+
     double miss_rate = (double) p_cache->num_misses;
     miss_rate /= (double) (p_cache->num_hits + p_cache->num_misses);
     miss_rate *= 100;
-    
+
     printf(" * Cache reads=%lld writes=%lld hits=%lld misses=%lld "
            "\n", p_cache->num_reads, p_cache->num_writes,
            p_cache->num_hits, p_cache->num_misses);
     printf("   miss-rate=%.2f%% %s replacement policy\n", miss_rate,
            (RANDOM_REPLACEMENT_POLICY ? "random" : "LRU"));
-    
+
     p_cache->next_memory->print_stats(p_cache->next_memory);
 }
 
@@ -170,12 +172,12 @@ void cache_print_stats(membase_t *mb) {
  */
 void cache_reset_stats(membase_t *mb) {
     cache_t *p_cache = (cache_t *) mb;
-    
+
     p_cache->num_reads = 0;
     p_cache->num_writes = 0;
     p_cache->num_hits = 0;
     p_cache->num_misses = 0;
-    
+
     p_cache->next_memory->reset_stats(p_cache->next_memory);
 }
 
@@ -186,7 +188,7 @@ void cache_reset_stats(membase_t *mb) {
 void cache_free(membase_t *mb) {
     cache_t *p_cache = (cache_t *) mb;
     int i_set, i_line;
-    
+
     for (i_set = 0; i_set < p_cache->num_sets; i_set++) {
         cacheset_t *p_set = p_cache->cache_sets + i_set;
         for (i_line = 0; i_line < p_set->num_lines; i_line++) {
@@ -205,7 +207,7 @@ void cache_free(membase_t *mb) {
 int flush_cache(cache_t *p_cache) {
     addr_t i_set, i_line;
     int flushed;
-    
+
     flushed = 0;
     for (i_set = 0; i_set < p_cache->num_sets; i_set++) {
         cacheset_t *p_set = p_cache->cache_sets + i_set;
@@ -217,7 +219,7 @@ int flush_cache(cache_t *p_cache) {
             }
         }
     }
-    
+
     return flushed;
 }
 
@@ -239,7 +241,7 @@ cacheline_t *resolve_cache_access(cache_t *p_cache, addr_t address) {
     addr_t tag, set_no, block_offset;
     cacheset_t *p_set;
     cacheline_t *p_line;
-    
+
     /* Map the address to a cache set, and pull out the tag and block
      * offset too.
      */
@@ -248,19 +250,19 @@ cacheline_t *resolve_cache_access(cache_t *p_cache, addr_t address) {
     printf(" * Decomposed address %u into tag %u, set %u, and offset %u\n",
            address, tag, set_no, block_offset);
 #endif
-    
+
     /* Get the cache set that should contain the address. */
     p_set = p_cache->cache_sets + set_no;
     p_line = find_line_in_set(p_set, tag);
-    
+
     if (p_line == NULL) {
         /* CACHE MISS.  :-( */
         p_cache->num_misses++;
-        
+
 #if DEBUG_CACHE
         printf(" * Cache miss.\n");
 #endif
-        
+
         /* Resolve the cache miss. */
         p_line = evict_cache_line(p_cache, p_set);
         load_cache_line(p_cache, p_line, address, tag);
@@ -269,7 +271,7 @@ cacheline_t *resolve_cache_access(cache_t *p_cache, addr_t address) {
         /* CACHE HIT!  :-) */
         p_cache->num_hits++;
     }
-    
+
     return p_line;
 }
 
@@ -292,10 +294,14 @@ void decompose_address(cache_t *p_cache, addr_t address,
     assert(set != NULL);
     assert(offset != NULL);
 
-    /* TODO:  IMPLEMENT */
-    *offset = 0;
-    *set = 0;
-    *tag = 0;
+    int block_size = p_cache->block_size,
+        sets_addr_bits = p_cache->sets_addr_bits,
+        block_offset_bits = p_cache->block_offset_bits,
+        num_sets = p_cache->num_sets;
+
+    *offset = address & (block_size - 1);
+    *set = (address & ((num_sets - 1) << block_offset_bits)) >> block_offset_bits;
+    *tag = address & ((ALL_MASK - 1) >> (sets_addr_bits + block_offset_bits));
 }
 
 
@@ -357,7 +363,7 @@ cacheline_t * find_line_in_set(cacheset_t *p_set, addr_t tag) {
 cacheline_t * choose_victim(cacheset_t *p_set) {
     cacheline_t *victim = NULL;
     int i_victim;
-    
+
 #if RANDOM_REPLACEMENT_POLICY
     /* Randomly choose a victim line to evict. */
     i_victim = rand() % p_set->num_lines;
@@ -366,7 +372,7 @@ cacheline_t * choose_victim(cacheset_t *p_set) {
     /* TODO:  Implement the LRU eviction policy. */
     abort();
 #endif
-    
+
 #if DEBUG_CACHE
     if (victim->valid) {
         printf(" * Chose victim line to evict:  tag %u, set %u\n",
