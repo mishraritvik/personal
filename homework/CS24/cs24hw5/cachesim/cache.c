@@ -13,10 +13,7 @@
 /* Set this to 0 to activate your custom replacement policy, which is
  * hopefully smarter and better than a random replacement policy!
  */
-#define RANDOM_REPLACEMENT_POLICY 1
-
-/* Used to create masks for cache. */
-#define ALL_MASK 0x00
+#define RANDOM_REPLACEMENT_POLICY 0
 
 /* Local functions used by the cache implementation, roughly in order of
  * usage.
@@ -124,6 +121,9 @@ unsigned char cache_read_byte(membase_t *mb, addr_t address) {
     p_line = resolve_cache_access(p_cache, address);
     block_offset = get_offset_in_block(p_cache, address);
 
+    /* Update access_time to reflect this access. */
+    p_line->access_time = clock_tick();
+
 #if DEBUG_CACHE
     printf(" * Block offset within cache line:  %u\n", block_offset);
 #endif
@@ -144,6 +144,9 @@ void cache_write_byte(membase_t *mb, addr_t address, unsigned char value) {
     p_cache->num_writes++;
     p_line->block[block_offset] = value;
     p_line->dirty = 1;
+
+    /* Update access_time to reflect this access. */
+    p_line->access_time = clock_tick();
 }
 
 
@@ -294,14 +297,15 @@ void decompose_address(cache_t *p_cache, addr_t address,
     assert(set != NULL);
     assert(offset != NULL);
 
-    int block_size = p_cache->block_size,
-        sets_addr_bits = p_cache->sets_addr_bits,
-        block_offset_bits = p_cache->block_offset_bits,
-        num_sets = p_cache->num_sets;
+    *offset = address & (p_cache->block_size - 1);
 
-    *offset = address & (block_size - 1);
-    *set = (address & ((num_sets - 1) << block_offset_bits)) >> block_offset_bits;
-    *tag = address & ((ALL_MASK - 1) >> (sets_addr_bits + block_offset_bits));
+    *set = (address & ((p_cache->num_sets - 1) << p_cache->block_offset_bits))
+        >> p_cache->block_offset_bits;
+
+    *tag = (address &
+        ~(p_cache->block_size - 1 + ((p_cache->num_sets - 1)
+        << p_cache->block_offset_bits)))
+        >> (p_cache->sets_addr_bits + p_cache->block_offset_bits);
 }
 
 
@@ -311,8 +315,9 @@ void decompose_address(cache_t *p_cache, addr_t address,
  * the memory.
  */
 addr_t get_block_start_from_address(cache_t *p_cache, addr_t address) {
-    /* TODO:  IMPLEMENT */
-    return 0;
+    // return address & ((p_cache->num_sets - 1) << p_cache->block_offset_bits);
+    return address & ~(p_cache->block_size - 1);
+
 }
 
 
@@ -320,8 +325,7 @@ addr_t get_block_start_from_address(cache_t *p_cache, addr_t address) {
  * cache, and returns the offset within the block that the access occurs at.
  */
 addr_t get_offset_in_block(cache_t *p_cache, addr_t address) {
-    /* TODO:  IMPLEMENT */
-    return 0;
+    return address & (p_cache->block_size - 1);
 }
 
 
@@ -332,8 +336,8 @@ addr_t get_offset_in_block(cache_t *p_cache, addr_t address) {
  */
 addr_t get_block_start_from_line_info(cache_t *p_cache,
                                       addr_t tag, addr_t set_no) {
-    /* TODO:  IMPLEMENT */
-    return 0;
+
+    return ((tag << p_cache->sets_addr_bits) + set_no) << p_cache->block_offset_bits;
 }
 
 
@@ -342,14 +346,25 @@ addr_t get_block_start_from_line_info(cache_t *p_cache,
  * returns NULL.
  */
 cacheline_t * find_line_in_set(cacheset_t *p_set, addr_t tag) {
-    cacheline_t *found_line = NULL;
+    cacheline_t * found_line = NULL, * curr;
+    int i;
 
 #if DEBUG_CACHE
     printf(" * Finding line with tag %u in cache set:\n", tag);
 #endif
+    curr = p_set->cache_lines - 1;
 
-    /* TODO:  IMPLEMENT */
+    for (i = 0; i < p_set->num_lines; ++i) {
+        curr++;
 
+        /* If any are valid and have desired tag then return. */
+        if ((curr->valid) && (curr->tag == tag)) {
+            found_line = curr;
+            break;
+        }
+    }
+
+    /* found_line will remain NULL if not found */
     return found_line;
 }
 
@@ -361,16 +376,35 @@ cacheline_t * find_line_in_set(cacheset_t *p_set, addr_t tag) {
  * of data.
  */
 cacheline_t * choose_victim(cacheset_t *p_set) {
-    cacheline_t *victim = NULL;
-    int i_victim;
+    cacheline_t * victim = NULL, * curr;
+    int i_victim, i, oldest;
 
 #if RANDOM_REPLACEMENT_POLICY
     /* Randomly choose a victim line to evict. */
     i_victim = rand() % p_set->num_lines;
     victim = p_set->cache_lines + i_victim;
 #else
-    /* TODO:  Implement the LRU eviction policy. */
-    abort();
+    /* If any invalid lines then use that, if not then use the LRU line. */
+    curr = p_set->cache_lines - 1;
+
+    victim = curr + 1;
+    oldest = curr->access_time;
+
+    for (i = 0; i < p_set->num_lines; ++i) {
+        curr++;
+
+        /* Check if invalid line. */
+        if (!curr->valid) {
+            victim = curr;
+            break;
+        }
+
+        /* Check if older than oldest so far. */
+        if (curr->access_time < oldest) {
+            oldest = curr->access_time;
+            victim = curr;
+        }
+    }
 #endif
 
 #if DEBUG_CACHE

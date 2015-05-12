@@ -1,0 +1,18 @@
+Part D.
+To get direct mapping, there should be exactly one line in each set.
+
+./heaptest 32:256:1
+miss rate = 2.40%
+
+Part E.
+To get fully associative, there should be exactly one set.
+
+./heaptest 32:1:256
+miss rate = 2.45%
+
+Part G.
+./heaptest 32:256:1
+miss rate = 2.40%
+
+./heaptest 32:1:256
+miss rate = 8.43%

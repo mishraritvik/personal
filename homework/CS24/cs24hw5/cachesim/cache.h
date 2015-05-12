@@ -20,6 +20,10 @@ typedef struct cacheline_t {
 
     /* This is the start of the block of data itself. */
     unsigned char *block;
+
+    /* Last time line accessed. Used for LRU. */
+    unsigned long long int access_time;
+
 } cacheline_t;
 
 
