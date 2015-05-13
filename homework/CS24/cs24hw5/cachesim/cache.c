@@ -297,15 +297,14 @@ void decompose_address(cache_t *p_cache, addr_t address,
     assert(set != NULL);
     assert(offset != NULL);
 
+    /* offset is the bottom log_2(block_size) bits */
     *offset = address & (p_cache->block_size - 1);
 
-    *set = (address & ((p_cache->num_sets - 1) << p_cache->block_offset_bits))
-        >> p_cache->block_offset_bits;
+    /* set is the bottom log_2(num_sets) bits after the offset bits */
+    *set = (address >> p_cache->block_offset_bits) & (p_cache->num_sets - 1);
 
-    *tag = (address &
-        ~(p_cache->block_size - 1 + ((p_cache->num_sets - 1)
-        << p_cache->block_offset_bits)))
-        >> (p_cache->sets_addr_bits + p_cache->block_offset_bits);
+    /* tag is the top bits that are not the offset or the set */
+    *tag = address >> (p_cache->block_offset_bits + p_cache->sets_addr_bits);
 }
 
 
@@ -337,7 +336,8 @@ addr_t get_offset_in_block(cache_t *p_cache, addr_t address) {
 addr_t get_block_start_from_line_info(cache_t *p_cache,
                                       addr_t tag, addr_t set_no) {
 
-    return ((tag << p_cache->sets_addr_bits) + set_no) << p_cache->block_offset_bits;
+    return ((tag << p_cache->sets_addr_bits) + set_no)
+        << p_cache->block_offset_bits;
 }
 
 
@@ -352,16 +352,17 @@ cacheline_t * find_line_in_set(cacheset_t *p_set, addr_t tag) {
 #if DEBUG_CACHE
     printf(" * Finding line with tag %u in cache set:\n", tag);
 #endif
-    curr = p_set->cache_lines - 1;
+    curr = p_set->cache_lines;
 
     for (i = 0; i < p_set->num_lines; ++i) {
-        curr++;
-
         /* If any are valid and have desired tag then return. */
         if ((curr->valid) && (curr->tag == tag)) {
             found_line = curr;
             break;
         }
+
+        /* Go to next line. */
+        curr++;
     }
 
     /* found_line will remain NULL if not found */
@@ -385,14 +386,13 @@ cacheline_t * choose_victim(cacheset_t *p_set) {
     victim = p_set->cache_lines + i_victim;
 #else
     /* If any invalid lines then use that, if not then use the LRU line. */
-    curr = p_set->cache_lines - 1;
+    curr = p_set->cache_lines;
 
-    victim = curr + 1;
-    oldest = curr->access_time;
+    /* Init victim to the first line in cache. */
+    victim = curr;
+    oldest = victim->access_time;
 
     for (i = 0; i < p_set->num_lines; ++i) {
-        curr++;
-
         /* Check if invalid line. */
         if (!curr->valid) {
             victim = curr;
@@ -404,7 +404,11 @@ cacheline_t * choose_victim(cacheset_t *p_set) {
             oldest = curr->access_time;
             victim = curr;
         }
+
+        /* Go to next line. */
+        curr++;
     }
+
 #endif
 
 #if DEBUG_CACHE

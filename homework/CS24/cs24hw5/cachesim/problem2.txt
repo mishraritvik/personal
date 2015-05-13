@@ -15,4 +15,4 @@ Part G.
 miss rate = 2.40%
 
 ./heaptest 32:1:256
-miss rate = 7.31%
+miss rate = 2.26%
