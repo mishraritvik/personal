@@ -22,19 +22,22 @@ typedef struct multimap_value {
 } multimap_value;
 
 
+ /* Represents a the set of values that are associated with a given key. */
+typedef struct value_list {
+    int * list;
+    int size;
+    int max;
+} value_list;
+
+
 /* Represents a key and its associated values in the multimap, as well as
  * pointers to the left and right child nodes in the multimap. */
 typedef struct multimap_node {
     /* The key-value that this multimap node represents. */
     int key;
 
-    /* A linked list of the values associated with this key in the multimap. */
-    multimap_value *values;
-
-    /* The tail of the linked list of values, so that we can retain the order
-     * they were added to the list.
-     */
-    multimap_value *values_tail;
+    /* A struct containing values associated with this key in the multimap. */
+    struct value_list * values;
 
     /* The left child of the multimap node.  This will reference nodes that
      * hold keys that are strictly less than this node's key.
@@ -69,13 +72,88 @@ multimap_node * find_mm_node(multimap_node *root, int key,
 void remove_mm_node(multimap *mm, multimap_node *to_remove);
 int remove_mm_node_helper(multimap_node *node, multimap_node *to_remove);
 
-void free_multimap_values(multimap_value *values);
+// void free_multimap_values(multimap_value *values);
 void free_multimap_node(multimap_node *node);
 
+value_list * new_value_list();
+void add_to_value_list(value_list * vl, int value);
+void remove_from_value_list(value_list * vl, int value);
+int find_in_value_list(value_list * vl, int value);
+void free_value_list(value_list * vl);
 
 /*============================================================================
  * FUNCTION IMPLEMENTATIONS
  *============================================================================*/
+
+/* Creates and returns new value_list. */
+value_list * new_value_list() {
+    struct value_list * vl = (value_list *) malloc(sizeof(struct value_list));
+    vl->size = 0;
+    vl->max = 1;
+    vl->list = (int *) malloc(vl->max * sizeof(int));
+
+    return vl;
+}
+
+/* Adds value to value_list. Makes larger if needed. */
+void add_to_value_list(value_list * vl, int value) {
+    /* Check if resizing is needed. */
+    if (vl->size + 1 > vl->max) {
+        /* Make new size double. */
+        vl->max *= 2;
+        vl->list = (int *) realloc(vl->list, vl->max * sizeof(int));
+
+        /* Make sure realloc worked. */
+        if (vl->list == NULL) {
+            printf("error: unable to allocate memory for value_list.\n");
+        }
+    }
+
+    /* Add new value to list. */
+    vl->list[vl->size] = value;
+    vl->size++;
+}
+
+/* Removes value from value_list. Makes smaller if needed. */
+void remove_from_value_list(value_list * vl, int value) {
+    /*Find value in list. */
+    int i = 0;
+    for (i = 0; i < vl->size; ++i) {
+        if (vl->list[i] == value) {
+            /* Remove by replacing with last value and decreasing size. */
+            vl->list[i] = vl->list[vl->size - 1];
+            vl->size--;
+            break;
+        }
+    }
+
+    /* If half of allocated memory, reallocate to use less memory. */
+    if (vl->size <= (vl->max / 2)) {
+        vl->max /= 2;
+        vl->list = (int *) realloc(vl->list, vl->max * sizeof(int));
+
+        /* Make sure realloc worked. */
+        if (vl->list == NULL) {
+            printf("error: unable to allocate memory for value_list.\n");
+        }
+    }
+}
+
+/* Returns 1 if value is in list, 0 otherwise. */
+int find_in_value_list(value_list * vl, int value) {
+    int i = 0;
+    for (i = 0; i < vl->size; ++i) {
+        if (vl->list[i] == value) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* Frees the value_list. */
+void free_value_list(value_list * vl) {
+    free(vl->list);
+}
 
 /* Allocates a multimap node, and zeros out its contents so that we know what
  * the initial value of everything will be.
