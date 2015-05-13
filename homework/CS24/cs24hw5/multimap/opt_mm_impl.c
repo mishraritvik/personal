@@ -77,7 +77,7 @@ void free_multimap_node(multimap_node *node);
 
 value_list * new_value_list();
 void add_to_value_list(value_list * vl, int value);
-void remove_from_value_list(value_list * vl, int value);
+int remove_from_value_list(value_list * vl, int value);
 int find_in_value_list(value_list * vl, int value);
 void free_value_list(value_list * vl);
 
@@ -115,14 +115,15 @@ void add_to_value_list(value_list * vl, int value) {
 }
 
 /* Removes value from value_list. Makes smaller if needed. */
-void remove_from_value_list(value_list * vl, int value) {
+int remove_from_value_list(value_list * vl, int value) {
     /*Find value in list. */
-    int i = 0;
+    int i = 0, flag = 0;
     for (i = 0; i < vl->size; ++i) {
         if (vl->list[i] == value) {
             /* Remove by replacing with last value and decreasing size. */
             vl->list[i] = vl->list[vl->size - 1];
             vl->size--;
+            flag = 1;
             break;
         }
     }
@@ -137,6 +138,9 @@ void remove_from_value_list(value_list * vl, int value) {
             printf("error: unable to allocate memory for value_list.\n");
         }
     }
+
+    /* 1 if found the value, 0 otherwise. */
+    return flag;
 }
 
 /* Returns 1 if value is in list, 0 otherwise. */
@@ -362,7 +366,8 @@ void free_multimap_node(multimap_node *node) {
     free_multimap_node(node->right_child);
 
     /* Free the list of values. */
-    free_multimap_values(node->values);
+    // free_multimap_values(node->values);
+    free_value_list(node->values);
 
 #ifdef DEBUG_ZERO
     /* Clear out what we are about to free, to expose issues quickly. */
@@ -393,7 +398,7 @@ void clear_multimap(multimap *mm) {
 /* Adds the specified (key, value) pair to the multimap. */
 void mm_add_value(multimap *mm, int key, int value) {
     multimap_node *node;
-    multimap_value *new_value;
+    // multimap_value *new_value;
 
     assert(mm != NULL);
 
@@ -406,17 +411,8 @@ void mm_add_value(multimap *mm, int key, int value) {
     assert(node->key == key);
 
     /* Add the new value to the multimap node. */
-
-    new_value = malloc(sizeof(multimap_value));
-    new_value->value = value;
-    new_value->next = NULL;
-
-    if (node->values_tail != NULL)
-        node->values_tail->next = new_value;
-    else
-        node->values = new_value;
-
-    node->values_tail = new_value;
+    node->values = new_value_list();
+    add_to_value_list(node->values, value);
 }
 
 
@@ -433,21 +429,13 @@ int mm_contains_key(multimap *mm, int key) {
  */
 int mm_contains_pair(multimap *mm, int key, int value) {
     multimap_node *node;
-    multimap_value *curr;
+    // multimap_value *curr;
 
     node = find_mm_node(mm->root, key, /* create */ 0);
     if (node == NULL)
         return 0;
 
-    curr = node->values;
-    while (curr != NULL) {
-        if (curr->value == value)
-            return 1;
-
-        curr = curr->next;
-    }
-
-    return 0;
+    return find_in_value_list(node->values, value);
 }
 
 
@@ -456,7 +444,7 @@ int mm_contains_pair(multimap *mm, int key, int value) {
  */
 int mm_remove_pair(multimap *mm, int key, int value) {
     multimap_node *node;
-    multimap_value *prev, *curr;
+    // multimap_value *prev, *curr;
     int found = 0;
 
     assert(mm != NULL);
@@ -472,44 +460,52 @@ int mm_remove_pair(multimap *mm, int key, int value) {
 
     assert(node->key == key);
 
-    /* Traverse the value-list to find the value-node to remove. */
-    prev = NULL;
-    curr = node->values;
-    while (curr != NULL && curr->value != value) {
-        prev = curr;
-        curr = curr->next;
+    /* Remove the value from the value_list. */
+    found = remove_from_value_list(node->values, value);
+
+    /* If value_list now has 0 elements, remove node. */
+    if (node->values->size == 0) {
+        remove_mm_node(mm, node);
     }
 
-    if (curr != NULL) {
-        /* Found the value-node. */
-        found = 1;
+//     /* Traverse the value-list to find the value-node to remove. */
+//     prev = NULL;
+//     curr = node->values;
+//     while (curr != NULL && curr->value != value) {
+//         prev = curr;
+//         curr = curr->next;
+//     }
 
-        assert(curr->value == value);
+//     if (curr != NULL) {
+//         /* Found the value-node. */
+//         found = 1;
 
-        /* Remove the current node from the linked list. */
+//         assert(curr->value == value);
 
-        if (prev != NULL)
-            prev->next = curr->next;
-        else
-            node->values = curr->next;
+//         /* Remove the current node from the linked list. */
 
-        if (node->values_tail == curr) {
-            assert(curr->next == NULL);
-            node->values_tail = prev;
-        }
+//         if (prev != NULL)
+//             prev->next = curr->next;
+//         else
+//             node->values = curr->next;
 
-#ifdef DEBUG_ZERO
-        /* Zero out all the memory that we are about to free, so that we don't
-         * encourage access-after-free bugs.
-         */
-        bzero(curr, sizeof(multimap_value));
-#endif
-        free(curr);
+//         if (node->values_tail == curr) {
+//             assert(curr->next == NULL);
+//             node->values_tail = prev;
+//         }
 
-        /* Finally, if the value-node is now empty, remove it from the tree. */
-        if (node->values == NULL)
-            remove_mm_node(mm, node);
-    }
+// #ifdef DEBUG_ZERO
+//         /* Zero out all the memory that we are about to free, so that we don't
+//          * encourage access-after-free bugs.
+//          */
+//         bzero(curr, sizeof(multimap_value));
+// #endif
+//         free(curr);
+
+//         /* Finally, if the value-node is now empty, remove it from the tree. */
+//         if (node->values == NULL)
+//             remove_mm_node(mm, node);
+//     }
 
     return found;
 }
@@ -519,17 +515,16 @@ int mm_remove_pair(multimap *mm, int key, int value) {
  * the multimap.
  */
 void mm_traverse_helper(multimap_node *node, void (*f)(int key, int value)) {
-    multimap_value *curr;
+    // multimap_value *curr;
 
     if (node == NULL)
         return;
 
     mm_traverse_helper(node->left_child, f);
 
-    curr = node->values;
-    while (curr != NULL) {
-        f(node->key, curr->value);
-        curr = curr->next;
+    int i;
+    for (i = 0; i < node->values->size; ++i) {
+        (*f) (node->key, node->values->list[i]);
     }
 
     mm_traverse_helper(node->right_child, f);
