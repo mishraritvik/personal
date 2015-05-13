@@ -69,9 +69,14 @@ random. Originally, the multimap_values were stored in a linked list. Using an
 array of values results in the values being next to each other in memory, so
 this will make better use of the cache. Since the arrays must be variable length
 as pairs can be added and removed, the value_list structure and accompanying
-helper functions were made.
+helper functions were made. This change resulted in the first three tests being
+about 20x faster, fourth test being about 10x faster, and the last two being
+the same speed.
 
 Second change:
+The same way the value lists can be optimized, the way the nodes themselves are
+stored can be make better use of the cache.
+TODO
 
 f)  Output of ommperf:
 

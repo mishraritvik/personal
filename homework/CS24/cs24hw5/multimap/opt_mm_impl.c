@@ -42,12 +42,12 @@ typedef struct multimap_node {
     /* The left child of the multimap node.  This will reference nodes that
      * hold keys that are strictly less than this node's key.
      */
-    struct multimap_node *left_child;
+    struct multimap_node * left_child;
 
     /* The right child of the multimap node.  This will reference nodes that
      * hold keys that are strictly greater than this node's key.
      */
-    struct multimap_node *right_child;
+    struct multimap_node * right_child;
 } multimap_node;
 
 
@@ -88,9 +88,20 @@ void free_value_list(value_list * vl);
 /* Creates and returns new value_list. */
 value_list * new_value_list() {
     struct value_list * vl = (value_list *) malloc(sizeof(struct value_list));
+
+    /* Make sure alloc worked. */
+    if (vl == NULL) {
+        printf("error: unable to allocate memory for value_list.\n");
+    }
+
     vl->size = 0;
     vl->max = 1;
     vl->list = (int *) malloc(vl->max * sizeof(int));
+
+    /* Make sure alloc worked. */
+    if (vl->list == NULL) {
+        printf("error: unable to allocate memory for value_list.\n");
+    }
 
     return vl;
 }
@@ -105,7 +116,7 @@ void add_to_value_list(value_list * vl, int value) {
 
         /* Make sure realloc worked. */
         if (vl->list == NULL) {
-            printf("error: unable to allocate memory for value_list.\n");
+            printf("error: unable to reallocate memory for value_list.\n");
         }
     }
 
@@ -135,7 +146,7 @@ int remove_from_value_list(value_list * vl, int value) {
 
         /* Make sure realloc worked. */
         if (vl->list == NULL) {
-            printf("error: unable to allocate memory for value_list.\n");
+            printf("error: unable to reallocate memory for value_list.\n");
         }
     }
 
@@ -165,6 +176,9 @@ void free_value_list(value_list * vl) {
 multimap_node * alloc_mm_node() {
     multimap_node *node = malloc(sizeof(multimap_node));
     bzero(node, sizeof(multimap_node));
+
+    /* Allocates a value_list for the new node. */
+    node->values = new_value_list();
 
     return node;
 }
@@ -411,7 +425,6 @@ void mm_add_value(multimap *mm, int key, int value) {
     assert(node->key == key);
 
     /* Add the new value to the multimap node. */
-    node->values = new_value_list();
     add_to_value_list(node->values, value);
 }
 
