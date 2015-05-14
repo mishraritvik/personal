@@ -18,7 +18,6 @@
  *   programs are generic and don't have any access to implementation details.
  *============================================================================*/
 
-
  /* Represents a the set of values that are associated with a given key. */
 typedef struct value_list {
     int * list;
@@ -27,14 +26,14 @@ typedef struct value_list {
 } value_list;
 
 
-/* Represents a key and its associated values in the multimap, as well as
- * pointers to the left and right child nodes in the multimap. */
+/* Represents a key and its associated values in the multimap. */
 typedef struct multimap_node {
     /* A struct containing values associated with this key in the multimap. */
     struct value_list * values;
 } multimap_node;
 
 
+/* Represents all of the nodes in the multimap. */
 typedef struct node_list {
     multimap_node * list;
     int size;
@@ -54,19 +53,18 @@ struct multimap {
  *   these are not visible outside of this module.
  *============================================================================*/
 
-multimap_node * find_mm_node(multimap * mm, int key,
-                             int create_if_not_found);
-
+multimap_node * find_mm_node(multimap * mm, int key, int create_if_not_found);
 void free_multimap_node(multimap_node *node);
+multimap_node new_mm_node();
 
+/*value list functions. */
 value_list * new_value_list();
 void add_to_value_list(value_list * vl, int value);
 int remove_from_value_list(value_list * vl, int value);
 int find_in_value_list(value_list * vl, int value);
 void free_value_list(value_list * vl);
 
-multimap_node new_mm_node();
-
+/* node list functions. */
 node_list * new_node_list();
 void add_to_node_list(node_list * nl, int key);
 int remove_from_node_list(node_list * nl, int key);
@@ -162,9 +160,12 @@ void free_value_list(value_list * vl) {
     free(vl->list);
 }
 
+/* Creates and returns new multimap node. */
 multimap_node new_mm_node() {
     multimap_node node;
+    /* Create a value list for the node. */
     node.values = new_value_list();
+
     return node;
 }
 
@@ -195,6 +196,7 @@ node_list * new_node_list() {
     return nl;
 }
 
+/* Adds a node to a node list if needed. */
 void add_to_node_list(node_list * nl, int key) {
     /* Check if reallocation is needed. */
     if (key >= nl->size) {
@@ -215,6 +217,7 @@ void add_to_node_list(node_list * nl, int key) {
     }
 }
 
+/* Removes all the value associated with a key in the multimap. */
 int remove_from_node_list(node_list * nl, int key) {
     /* Check if key is in node list. */
     if (key < nl->size) {
@@ -228,11 +231,13 @@ int remove_from_node_list(node_list * nl, int key) {
     return 0;
 }
 
+/* Returns the node in the multimap given the key. */
 multimap_node find_in_node_list(node_list * nl, int key) {
     assert(key < nl->size);
     return nl->list[key];
 }
 
+/* Frees a node list. */
 void free_node_list(node_list * nl) {
     free(nl);
 }
@@ -279,7 +284,6 @@ void free_multimap_node(multimap_node *node) {
 /* Initialize a multimap data structure. */
 multimap * init_multimap() {
     multimap *mm = malloc(sizeof(multimap));
-
     /* Allocates a node_list for the new multimap. */
     mm->nodes = new_node_list();
 
@@ -314,11 +318,19 @@ void mm_add_value(multimap *mm, int key, int value) {
 int mm_contains_key(multimap *mm, int key) {
     multimap_node *node;
 
+    /* Get the node. */
     node = find_mm_node(mm, key, /* create */ 0);
+
+    /* Return 0 if node does not exist or if it does not have any values. */
+    if (node == NULL) {
+        return 0;
+    }
 
     if (node->values->size == 0) {
         return 0;
     }
+
+    /* Otherwise return 1. */
     return 1;
 }
 
@@ -329,10 +341,17 @@ int mm_contains_key(multimap *mm, int key) {
 int mm_contains_pair(multimap *mm, int key, int value) {
     multimap_node *node;
 
-    node = find_mm_node(mm, key, /* create */ 0);
-    if (node == NULL)
-        return 0;
+    assert(mm != NULL);
 
+    /* Get the node. */
+    node = find_mm_node(mm, key, /* create */ 0);
+
+    /* If node does not exist, obviously pair does not exist. */
+    if (node == NULL) {
+        return 0;
+    }
+
+    /* Node exists, so check if value is in and return that. */
     return find_in_value_list(node->values, value);
 }
 
