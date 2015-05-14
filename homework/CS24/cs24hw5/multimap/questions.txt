@@ -70,22 +70,24 @@ array of values results in the values being next to each other in memory, so
 this will make better use of the cache. Since the arrays must be variable length
 as pairs can be added and removed, the value_list structure and accompanying
 helper functions were made. This change resulted in the first three tests being
-about 20x faster, fourth test being about 10x faster, and the last two being
-the same speed.
+about 50x faster, fourth test being about 10x faster, and the last two being
+the same speed as they were before this change.
 
 Second change:
 The same way the value lists can be optimized, the way the nodes themselves are
-stored can be make better use of the cache. The current structure is
-effectively stored as a linked list where each node has two children. Search
-speed is faster due to insertion requirements. But, as seen in the last change,
-linked lists do not make good use of the cache. So, the node structure can be
-changed to an array. Since this keeps the data contiguous, it makes better use
-of the cache. All the keys are integers and we do not know the range in which
-they will be, so we will start with a small initial size, and at least double it
-if a new key comes that is larger (more than double if neccessary). Then, that
-many spaces for nodes will be allocated, and given a key k, it can be found by
-accessing the kth index in the allocated space, and resizing the allocated space
-or creating a new node as needed.
+stored can be as well. The current structure (BST) is effectively stored as a
+linked list where each node has two children. Search speed is faster due to the
+insertion requirements. But, as seen in the last change, linked lists do not
+make good use of the cache. So, the node structure can be changed to an array.
+Additionally, since all the keys are integers between 0 and some number, and
+almost all numbers in that range are used at some point, we can use a simple
+array where the key is used as the index of the node. Since we do not know the
+size of the range in which the keys can be in, we will start with a small
+initial size, and at least double it if a new key comes that is larger (more
+than double if neccessary). Then, that many spaces for nodes will be allocated,
+and given a key k, it can be found by accessing the kth index in the allocated
+space, and resizing the allocated space or creating a new node as needed. This
+results in the last two tests being approximately 1000x faster.
 
 f)  Output of ommperf:
 

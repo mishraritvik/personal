@@ -25,4 +25,3 @@ clean:
 	rm -f mmtest mmperf ommtest ommperf *.o *~
 
 .PHONY: all opt clean
-
