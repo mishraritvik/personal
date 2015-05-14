@@ -11,7 +11,7 @@ get 750 million data values. Let n be the number of misses.
 n = 22.7 million
 
 So, out of the 750 million data values requested, 22.7 million of them are
-missed. So, miss rate = 22.7 million / 750 million = 3.02%.
+missed. So, miss rate = 22.7 million / 750 million = 3.03%.
 
 Part B.
 Now, instead of 750 million data values being required in a second, there will
@@ -25,4 +25,4 @@ n = 15.2 million
 
 So, miss rate = 15.2 million / 1.5 billion = 1.01%.
 
-So, the miss rate must be decreased by (3.02% - 1.01%) / 3.02% = 66.6%.
+So, the miss rate must be decreased by (3.03% - 1.01%) / 3.02% = 66.6%.

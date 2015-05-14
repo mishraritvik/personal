@@ -297,13 +297,20 @@ void decompose_address(cache_t *p_cache, addr_t address,
     assert(set != NULL);
     assert(offset != NULL);
 
-    /* offset is the bottom log_2(block_size) bits */
+    /*
+     * Format of address (from left to right):
+     * tag. number of bits   : 32 - (sets_addr_bits + block_offset_bits)
+     * set. number of bits   : sets_addr_bits
+     * offset. number of bits: block_offset_bits
+    */
+
+    /* offset is the bottom block_offset_bits bits. */
     *offset = address & (p_cache->block_size - 1);
 
-    /* set is the bottom log_2(num_sets) bits after the offset bits */
+    /* set is the bottom sets_addr_bits bits after the offset bits. */
     *set = (address >> p_cache->block_offset_bits) & (p_cache->num_sets - 1);
 
-    /* tag is the top bits that are not the offset or the set */
+    /* tag is the top bits that are not the offset or the set. */
     *tag = address >> (p_cache->block_offset_bits + p_cache->sets_addr_bits);
 }
 
@@ -314,7 +321,7 @@ void decompose_address(cache_t *p_cache, addr_t address,
  * the memory.
  */
 addr_t get_block_start_from_address(cache_t *p_cache, addr_t address) {
-    /* start is the bits above the bottom log_2(block_size) bits */
+    /* start is the bits above the bottom block_offset_bits bits. */
     return address & ~(p_cache->block_size - 1);
 
 }
@@ -324,7 +331,7 @@ addr_t get_block_start_from_address(cache_t *p_cache, addr_t address) {
  * cache, and returns the offset within the block that the access occurs at.
  */
 addr_t get_offset_in_block(cache_t *p_cache, addr_t address) {
-    /* offset is the bottom log_2(block_size) bits */
+    /* offset is the bottom block_offset_bits bits. */
     return address & (p_cache->block_size - 1);
 }
 
@@ -337,8 +344,15 @@ addr_t get_offset_in_block(cache_t *p_cache, addr_t address) {
 addr_t get_block_start_from_line_info(cache_t *p_cache,
                                       addr_t tag, addr_t set_no) {
 
-    return ((tag << p_cache->sets_addr_bits) + set_no)
-        << p_cache->block_offset_bits;
+    return
+    /* tag must be moved up to the top bits above sets_addr_bits and
+     * block_offset_bits as those are the bits that determine the tag. */
+    (tag << (p_cache->sets_addr_bits + p_cache->block_offset_bits))
+    /* add the two values to have all info in the same address. */
+    +
+    /* set_no must be moved up by block_offset_bits so that it is in the range
+     * of bits that determine the set. */
+    (set_no << p_cache->block_offset_bits);
 }
 
 

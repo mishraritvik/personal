@@ -28,4 +28,3 @@ float get_first_value(float_heap *p_heap);
 void add_value(float_heap *p_heap, float newval);
 
 #endif /* __HEAP_H__ */
-

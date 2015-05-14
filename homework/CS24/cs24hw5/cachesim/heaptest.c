@@ -45,7 +45,7 @@ int main(int argc, const char **argv) {
 
     /* Set up the simulated memory. */
     p_mem = make_cached_memory(argc, argv, NUM_ELEMS * sizeof(int));
-    
+
     /* Generate random floats to sort. */
 
     printf("Generating %d random floats to sort.\n", NUM_ELEMS);
@@ -93,4 +93,3 @@ int main(int argc, const char **argv) {
 
     return 0;
 }
-

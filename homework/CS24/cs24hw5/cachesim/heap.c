@@ -220,4 +220,3 @@ void swap_values(float_heap *p_heap, int i, int j) {
     write_float(p_heap->memory, i, j_val);
     write_float(p_heap->memory, j, i_val);
 }
-
