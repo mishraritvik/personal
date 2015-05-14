@@ -314,7 +314,7 @@ void decompose_address(cache_t *p_cache, addr_t address,
  * the memory.
  */
 addr_t get_block_start_from_address(cache_t *p_cache, addr_t address) {
-    // return address & ((p_cache->num_sets - 1) << p_cache->block_offset_bits);
+    /* start is the bits above the bottom log_2(block_size) bits */
     return address & ~(p_cache->block_size - 1);
 
 }
@@ -324,6 +324,7 @@ addr_t get_block_start_from_address(cache_t *p_cache, addr_t address) {
  * cache, and returns the offset within the block that the access occurs at.
  */
 addr_t get_offset_in_block(cache_t *p_cache, addr_t address) {
+    /* offset is the bottom log_2(block_size) bits */
     return address & (p_cache->block_size - 1);
 }
 

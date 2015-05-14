@@ -2,9 +2,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "multimap.h"
 
+#define NODE_LIST_START_SIZE   64
+#define VALUE_LIST_START_SIZE  1
 
 /*============================================================================
  * TYPES
@@ -14,12 +17,6 @@
  *   security reason, but rather just so we can enforce that our testing
  *   programs are generic and don't have any access to implementation details.
  *============================================================================*/
-
- /* Represents a value that is associated with a given key in the multimap. */
-typedef struct multimap_value {
-    int value;
-    struct multimap_value *next;
-} multimap_value;
 
 
  /* Represents a the set of values that are associated with a given key. */
@@ -33,27 +30,20 @@ typedef struct value_list {
 /* Represents a key and its associated values in the multimap, as well as
  * pointers to the left and right child nodes in the multimap. */
 typedef struct multimap_node {
-    /* The key-value that this multimap node represents. */
-    int key;
-
     /* A struct containing values associated with this key in the multimap. */
     struct value_list * values;
-
-    /* The left child of the multimap node.  This will reference nodes that
-     * hold keys that are strictly less than this node's key.
-     */
-    struct multimap_node * left_child;
-
-    /* The right child of the multimap node.  This will reference nodes that
-     * hold keys that are strictly greater than this node's key.
-     */
-    struct multimap_node * right_child;
 } multimap_node;
+
+
+typedef struct node_list {
+    multimap_node * list;
+    int size;
+} node_list;
 
 
 /* The entry-point of the multimap data structure. */
 struct multimap {
-    multimap_node *root;
+    struct node_list * nodes;
 };
 
 
@@ -64,15 +54,9 @@ struct multimap {
  *   these are not visible outside of this module.
  *============================================================================*/
 
-multimap_node * alloc_mm_node();
-
-multimap_node * find_mm_node(multimap_node *root, int key,
+multimap_node * find_mm_node(multimap * mm, int key,
                              int create_if_not_found);
 
-void remove_mm_node(multimap *mm, multimap_node *to_remove);
-int remove_mm_node_helper(multimap_node *node, multimap_node *to_remove);
-
-// void free_multimap_values(multimap_value *values);
 void free_multimap_node(multimap_node *node);
 
 value_list * new_value_list();
@@ -80,6 +64,14 @@ void add_to_value_list(value_list * vl, int value);
 int remove_from_value_list(value_list * vl, int value);
 int find_in_value_list(value_list * vl, int value);
 void free_value_list(value_list * vl);
+
+multimap_node new_mm_node();
+
+node_list * new_node_list();
+void add_to_node_list(node_list * nl, int key);
+int remove_from_node_list(node_list * nl, int key);
+multimap_node find_in_node_list(node_list * nl, int key);
+void free_node_list(node_list * nl);
 
 /*============================================================================
  * FUNCTION IMPLEMENTATIONS
@@ -95,7 +87,7 @@ value_list * new_value_list() {
     }
 
     vl->size = 0;
-    vl->max = 1;
+    vl->max = VALUE_LIST_START_SIZE;
     vl->list = (int *) malloc(vl->max * sizeof(int));
 
     /* Make sure alloc worked. */
@@ -170,19 +162,80 @@ void free_value_list(value_list * vl) {
     free(vl->list);
 }
 
-/* Allocates a multimap node, and zeros out its contents so that we know what
- * the initial value of everything will be.
- */
-multimap_node * alloc_mm_node() {
-    multimap_node *node = malloc(sizeof(multimap_node));
-    bzero(node, sizeof(multimap_node));
-
-    /* Allocates a value_list for the new node. */
-    node->values = new_value_list();
-
+multimap_node new_mm_node() {
+    multimap_node node;
+    node.values = new_value_list();
     return node;
 }
 
+/* Creates and returns new node_list. */
+node_list * new_node_list() {
+    struct node_list * nl = (node_list *) malloc(sizeof(struct node_list));
+
+    /* Make sure alloc worked. */
+    if (nl == NULL) {
+        printf("error: unable to allocate memory for node_list.\n");
+    }
+
+    nl->size = NODE_LIST_START_SIZE;
+    nl->list =
+        (multimap_node *) malloc(nl->size * sizeof(struct multimap_node));
+
+    /* Make sure alloc worked. */
+    if (nl->list == NULL) {
+        printf("error: unable to allocate memory for node_list.\n");
+    }
+
+    /* Populate memory region with empty nodes. */
+    int i;
+    for (i = 0; i < nl->size; ++i) {
+        nl->list[i] = new_mm_node();
+    }
+
+    return nl;
+}
+
+void add_to_node_list(node_list * nl, int key) {
+    /* Check if reallocation is needed. */
+    if (key >= nl->size) {
+        int prev_size = nl->size, i;
+        nl->size *= ceil(key / prev_size) + 1;
+        nl->list = (multimap_node *)
+            realloc(nl->list, nl->size * sizeof(struct multimap_node));
+
+        /* Make sure realloc worked. */
+        if (nl->list == NULL) {
+            printf("error: unable to reallocate memory for node_list.\n");
+        }
+
+        /* Populate new memory region with empty nodes. */
+        for (i = prev_size; i < nl->size; ++i) {
+            nl->list[i] = new_mm_node();
+        }
+    }
+}
+
+int remove_from_node_list(node_list * nl, int key) {
+    /* Check if key is in node list. */
+    if (key < nl->size) {
+        /* Free the list, create a new one. */
+        free(nl->list[key].values);
+        nl->list[key].values = new_value_list();
+        return 1;
+    }
+
+    /* Return 0 if it is not. */
+    return 0;
+}
+
+multimap_node find_in_node_list(node_list * nl, int key) {
+    assert(key < nl->size);
+    return nl->list[key];
+}
+
+void free_node_list(node_list * nl) {
+    free(nl);
+}
 
 /* This helper function searches for the multimap node that contains the
  * specified key.  If such a node doesn't exist, the function can initialize
@@ -190,181 +243,21 @@ multimap_node * alloc_mm_node() {
  * The one exception is the root - if the root is NULL then the function will
  * return a new root node.
  */
-multimap_node * find_mm_node(multimap_node *root, int key,
+multimap_node * find_mm_node(multimap * mm, int key,
                              int create_if_not_found) {
-    multimap_node *node;
 
-    /* If the entire multimap is empty, the root will be NULL. */
-    if (root == NULL) {
-        if (create_if_not_found) {
-            root = alloc_mm_node();
-            root->key = key;
-        }
-        return root;
+    /* If key does not exist and not creating, return NULL. */
+    if (key >= mm->nodes->size && !create_if_not_found) {
+        return NULL;
     }
 
-    /* Now we know the multimap has at least a root node, so start there. */
-    node = root;
-    while (1) {
-        if (node->key == key)
-            break;
-
-        if (node->key > key) {   /* Follow left child */
-            if (node->left_child == NULL && create_if_not_found) {
-                /* No left child, but caller wants us to create a new node. */
-                multimap_node *new = alloc_mm_node();
-                new->key = key;
-
-                node->left_child = new;
-            }
-            node = node->left_child;
-        }
-        else {                   /* Follow right child */
-            if (node->right_child == NULL && create_if_not_found) {
-                /* No right child, but caller wants us to create a new node. */
-                multimap_node *new = alloc_mm_node();
-                new->key = key;
-
-                node->right_child = new;
-            }
-            node = node->right_child;
-        }
-
-        if (node == NULL)
-            break;
+    /* If key does not exist and creating, create new node and return. */
+    if (key >= mm->nodes->size) {
+        add_to_node_list(mm->nodes, key);
     }
 
-    return node;
-}
-
-
-/* Removes the specified multimap node from the multimap.  The root is checked
- * separately so that the multimap structure itself can be updated; otherwise,
- * the multimap is recursively scanned to make it easier.
- */
-void remove_mm_node(multimap *mm, multimap_node *to_remove) {
-    assert(mm != NULL);
-    assert(to_remove != NULL);
-
-    if (mm->root == to_remove) {
-        /* The root of the multimap is the node being removed. */
-
-        multimap_node *left, *right;
-
-        left = to_remove->left_child;
-        right = to_remove->right_child;
-
-        /* If there is a right child, it must take the place of the node being
-         * removed; the left child becomes the left child of the promoted node.
-         * Otherwise, if there is no right child, the left child is promoted.
-         */
-        if (right != NULL) {
-            mm->root = right;
-            right->left_child = left;
-        }
-        else {
-            mm->root = left;
-        }
-    }
-    else {
-        /* The node being removed is not the root, so recursively scan
-         * the tree.
-         */
-#ifndef NDEBUG
-        /* Wrap this in an #ifndef since the compiler will complain that the
-         * variable is unused otherwise.
-         */
-        int found =
-#endif
-            remove_mm_node_helper(mm->root, to_remove);
-        assert(found);
-    }
-
-    /* Presumably, the node to remove has been found, so extract it from the
-     * tree and call the free-node helper.
-     */
-    to_remove->left_child = NULL;
-    to_remove->right_child = NULL;
-    free_multimap_node(to_remove);
-}
-
-
-/* This helper function recursively scans the multimap tree to identify the
- * node being removed, and update the tree structure to maintain the ordering
- * property of the structure.  (It does not try to keep the tree balanced.)
- *
- * The helper also reports whether or not the node was found in the subtree
- * rooted at node, so that we can minimize the amount of the tree that is
- * scanned.
- */
-int remove_mm_node_helper(multimap_node *node, multimap_node *to_remove) {
-    multimap_node **to_change;
-    multimap_node *left, *right;
-
-    if (node == NULL)
-        return 0;
-
-    assert(node != NULL);
-    assert(to_remove != NULL);
-
-    /* See if the node to remove is a child of this node.  If so, figure out
-     * if it's the left or right child, and take it from there.
-     */
-    to_change = NULL;
-    if (node->left_child == to_remove)
-        to_change = &(node->left_child);
-    else if (node->right_child == to_remove)
-        to_change = &(node->right_child);
-
-    if (to_change != NULL) {
-        /* If there is a right child, it must take the place of the node being
-         * removed; the left child becomes the left child of the promoted node.
-         * Otherwise, if there is no right child, the left child is promoted.
-         */
-
-        left = to_remove->left_child;
-        right = to_remove->right_child;
-
-        if (right != NULL) {
-            *to_change = right;
-            right->left_child = left;
-        }
-        else {
-            *to_change = left;
-        }
-
-        /* Found it! */
-        return 1;
-    }
-    else {
-        /* This node doesn't have the node-to-remove as a child, so recursively
-         * descend into the part of the tree that will have the node to remove.
-         */
-
-        multimap_node *child;
-        assert(to_remove->key != node->key);
-
-        if (to_remove->key < node->key)
-            child = node->left_child;
-        else
-            child = node->right_child;
-
-        return remove_mm_node_helper(child, to_remove);
-    }
-}
-
-
-/* This helper function frees all values in a multimap node's value-list. */
-void free_multimap_values(multimap_value *values) {
-    while (values != NULL) {
-        multimap_value *next = values->next;
-#ifdef DEBUG_ZERO
-        /* Clear out what we are about to free, to expose issues quickly. */
-        bzero(values, sizeof(multimap_value));
-#endif
-        free(values);
-        values = next;
-    }
+    /* If it got here key does exist, so return node. */
+    return &mm->nodes->list[key];
 }
 
 
@@ -375,18 +268,10 @@ void free_multimap_node(multimap_node *node) {
     if (node == NULL)
         return;
 
-    /* Free the children first. */
-    free_multimap_node(node->left_child);
-    free_multimap_node(node->right_child);
-
     /* Free the list of values. */
-    // free_multimap_values(node->values);
     free_value_list(node->values);
 
-#ifdef DEBUG_ZERO
-    /* Clear out what we are about to free, to expose issues quickly. */
-    bzero(node, sizeof(multimap_node));
-#endif
+    /* Free node itself. */
     free(node);
 }
 
@@ -394,7 +279,10 @@ void free_multimap_node(multimap_node *node) {
 /* Initialize a multimap data structure. */
 multimap * init_multimap() {
     multimap *mm = malloc(sizeof(multimap));
-    mm->root = NULL;
+
+    /* Allocates a node_list for the new multimap. */
+    mm->nodes = new_node_list();
+
     return mm;
 }
 
@@ -404,27 +292,18 @@ multimap * init_multimap() {
  */
 void clear_multimap(multimap *mm) {
     assert(mm != NULL);
-    free_multimap_node(mm->root);
-    mm->root = NULL;
+
+    /* Free the node list. */
+    free_node_list(mm->nodes);
 }
 
 
 /* Adds the specified (key, value) pair to the multimap. */
 void mm_add_value(multimap *mm, int key, int value) {
-    multimap_node *node;
-    // multimap_value *new_value;
+    /* Find key's node, if it does not exist then create. */
+    multimap_node * node = find_mm_node(mm, key, /* create */ 1);
 
-    assert(mm != NULL);
-
-    /* Look up the node with the specified key.  Create if not found. */
-    node = find_mm_node(mm->root, key, /* create */ 1);
-    if (mm->root == NULL)
-        mm->root = node;
-
-    assert(node != NULL);
-    assert(node->key == key);
-
-    /* Add the new value to the multimap node. */
+    /* Add the value to the nodes list. */
     add_to_value_list(node->values, value);
 }
 
@@ -433,7 +312,14 @@ void mm_add_value(multimap *mm, int key, int value) {
  * otherwise.
  */
 int mm_contains_key(multimap *mm, int key) {
-    return find_mm_node(mm->root, key, /* create */ 0) != NULL;
+    multimap_node *node;
+
+    node = find_mm_node(mm, key, /* create */ 0);
+
+    if (node->values->size == 0) {
+        return 0;
+    }
+    return 1;
 }
 
 
@@ -442,9 +328,8 @@ int mm_contains_key(multimap *mm, int key) {
  */
 int mm_contains_pair(multimap *mm, int key, int value) {
     multimap_node *node;
-    // multimap_value *curr;
 
-    node = find_mm_node(mm->root, key, /* create */ 0);
+    node = find_mm_node(mm, key, /* create */ 0);
     if (node == NULL)
         return 0;
 
@@ -457,90 +342,18 @@ int mm_contains_pair(multimap *mm, int key, int value) {
  */
 int mm_remove_pair(multimap *mm, int key, int value) {
     multimap_node *node;
-    // multimap_value *prev, *curr;
-    int found = 0;
 
     assert(mm != NULL);
 
-    /* Look up the node with the specified key.  DO NOT create if not found. */
-    node = find_mm_node(mm->root, key, /* create */ 0);
+    /* Find key's node, if it does not exist then do not create. */
+    node = find_mm_node(mm, key, /* create */ 0);
+
+    /* If key does not exist then obviously pair does not exist. */
     if (node == NULL)
-        return 0;      /* Pair already doesn't appear in the multiset. */
+        return 0;
 
-    /* If we got here, we found a node with the specified key.  Now we need to
-     * remove one instance of the specified value from the node's value-list.
-     */
-
-    assert(node->key == key);
-
-    /* Remove the value from the value_list. */
-    found = remove_from_value_list(node->values, value);
-
-    /* If value_list now has 0 elements, remove node. */
-    if (node->values->size == 0) {
-        remove_mm_node(mm, node);
-    }
-
-//     /* Traverse the value-list to find the value-node to remove. */
-//     prev = NULL;
-//     curr = node->values;
-//     while (curr != NULL && curr->value != value) {
-//         prev = curr;
-//         curr = curr->next;
-//     }
-
-//     if (curr != NULL) {
-//         /* Found the value-node. */
-//         found = 1;
-
-//         assert(curr->value == value);
-
-//         /* Remove the current node from the linked list. */
-
-//         if (prev != NULL)
-//             prev->next = curr->next;
-//         else
-//             node->values = curr->next;
-
-//         if (node->values_tail == curr) {
-//             assert(curr->next == NULL);
-//             node->values_tail = prev;
-//         }
-
-// #ifdef DEBUG_ZERO
-//         /* Zero out all the memory that we are about to free, so that we don't
-//          * encourage access-after-free bugs.
-//          */
-//         bzero(curr, sizeof(multimap_value));
-// #endif
-//         free(curr);
-
-//         /* Finally, if the value-node is now empty, remove it from the tree. */
-//         if (node->values == NULL)
-//             remove_mm_node(mm, node);
-//     }
-
-    return found;
-}
-
-
-/* This helper function is used by mm_traverse() to traverse every pair within
- * the multimap.
- */
-void mm_traverse_helper(multimap_node *node, void (*f)(int key, int value)) {
-    // multimap_value *curr;
-
-    if (node == NULL)
-        return;
-
-    mm_traverse_helper(node->left_child, f);
-
-    int i;
-    for (i = 0; i < node->values->size; ++i) {
-        (*f) (node->key, node->values->list[i]);
-    }
-
-    mm_traverse_helper(node->right_child, f);
+    /* Remove the value from the node's list and return whether or not found. */
+    return remove_from_value_list(node->values, value);
 }
 
 
@@ -548,6 +361,11 @@ void mm_traverse_helper(multimap_node *node, void (*f)(int key, int value)) {
  * pair to the specified function.
  */
 void mm_traverse(multimap *mm, void (*f)(int key, int value)) {
-    mm_traverse_helper(mm->root, f);
+    int i, j;
+    for (i = 0; i < mm->nodes->size; ++i) {
+        for (j = 0; j < mm->nodes->list[i].values->size; ++j) {
+            (*f) (i, mm->nodes->list[i].values->list[j]);
+        }
+    }
 }
 
