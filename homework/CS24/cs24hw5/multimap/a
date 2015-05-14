@@ -1,0 +1,36 @@
+Testing multimap performance:  300000 pairs, 1000000 probes, random keys.
+Adding 300000 pairs to multimap.  Keys in range [0, 50), values in range [0, 1000).
+Probing multimap 1000000 times.  Keys in range [0, 50), values in range [0, 1000).
+Total hits:  997144/1000000 (99.7%)
+Total wall-clock time:  16.38 seconds		us per probe:  16.376 us
+
+Testing multimap performance:  300000 pairs, 1000000 probes, incrementing keys.
+Adding 300000 pairs to multimap.  Keys in range [0, 50), values in range [0, 1000).
+Probing multimap 1000000 times.  Keys in range [0, 50), values in range [0, 1000).
+Total hits:  997715/1000000 (99.8%)
+Total wall-clock time:  35.33 seconds		us per probe:  35.327 us
+
+Testing multimap performance:  300000 pairs, 1000000 probes, decrementing keys.
+Adding 300000 pairs to multimap.  Keys in range [0, 50), values in range [0, 1000).
+Probing multimap 1000000 times.  Keys in range [0, 50), values in range [0, 1000).
+Total hits:  997325/1000000 (99.7%)
+Total wall-clock time:  35.19 seconds		us per probe:  35.190 us
+
+Testing multimap performance:  15000000 pairs, 1000000 probes, random keys.
+Adding 15000000 pairs to multimap.  Keys in range [0, 100000), values in range [0, 50).
+Probing multimap 1000000 times.  Keys in range [0, 100000), values in range [0, 50).
+Total hits:  949586/1000000 (95.0%)
+Total wall-clock time:  5.70 seconds		us per probe:  5.704 us
+
+Testing multimap performance:  100000 pairs, 50000 probes, incrementing keys.
+Adding 100000 pairs to multimap.  Keys in range [0, 100000), values in range [0, 50).
+Probing multimap 50000 times.  Keys in range [0, 100000), values in range [0, 50).
+Total hits:  976/50000 (2.0%)
+Total wall-clock time:  122.58 seconds		us per probe:  2451.503 us
+
+Testing multimap performance:  100000 pairs, 50000 probes, decrementing keys.
+Adding 100000 pairs to multimap.  Keys in range [0, 100000), values in range [0, 50).
+Probing multimap 50000 times.  Keys in range [0, 100000), values in range [0, 50).
+Total hits:  980/50000 (2.0%)
+Total wall-clock time:  117.64 seconds		us per probe:  2352.846 us
+
