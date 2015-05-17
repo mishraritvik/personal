@@ -1,0 +1,1 @@
+.globl get_ids
