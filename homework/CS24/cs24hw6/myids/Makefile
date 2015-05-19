@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -g -O0
 
-OBJS = myids.o get_ids.o
+OBJS = myids.h myids.o get_ids.o
 EXEC = myids
 
 
