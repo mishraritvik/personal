@@ -1,4 +1,7 @@
-#include "my_ids.h"
+#include <stdio.h>
+#include <stdlib.h>
+
+void get_ids(int * uid, int * gid);
 
 int main() {
     int uid, gid;
