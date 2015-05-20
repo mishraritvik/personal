@@ -1,2 +1,5 @@
 # ignore the manuals
 manuals/
+
+# ignore pdfs of sets
+*.pdf
