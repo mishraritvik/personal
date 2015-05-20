@@ -48,7 +48,7 @@ __sthread_schedule:
         # Restore the context to resume the thread.
 __sthread_restore:
 
-        # Switch back to old stack
+        # go to new stack
         mov     %eax, %esp
 
         # Restore all process state (all registers and flags) from stack
@@ -80,13 +80,28 @@ __sthread_restore:
         .globl __sthread_initialize_context
 __sthread_initialize_context:
 
-        push %ebp
-        mov  %esp, %ebp
+        push    %ebp
+        mov     %esp, %ebp
 
-        # TODO
+        # go to new stack
+        mov     8(%ebp), %esp
 
-        mov  %ebp, %esp
-        pop  %ebp
+        # push arg on to stack
+        push    16(%ebp)
+
+        # put return location on stack (thread is finished to __sthread_finish)
+        push    $__sthread_finish
+
+        # push fp on to stack
+        push    12(%ebp)
+
+        # TODO: do we have to push stuff on?
+
+        # return stack pointer
+        mov     %esp, %eax
+
+        mov     %ebp, %esp
+        pop     %ebp
         ret
 
 #
