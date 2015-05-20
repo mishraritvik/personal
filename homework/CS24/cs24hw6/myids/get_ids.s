@@ -14,17 +14,23 @@ get_ids:
     push %ebp
     mov  %esp, %ebp
 
-    # move args to registers
+    # move user id location to register
     mov  8(%ebp), %ecx
-    mov  12(%ebp), %edx
+    # put 24 in %eax to get user id
+    mov  $24, %eax
+    # make system call
+    int  $0x80
+    # move user id to memory location
+    mov  %eax, (%ecx)
 
-    # get user id, put in desired location
-    # TODO
-    mov  X, (%ecx)
-
-    # get group id, put in desired location
-    # TODO
-    mov  X, (%edx)
+    # move group id location to register
+    mov  12(%ebp), %ecx
+    # put 47 in %eax to get group id
+    mov $47, %eax
+    # make system call
+    int  $0x80
+    # move group id to memory location
+    mov  %eax, (%ecx)
 
     mov  %ebp, %esp
     pop  %ebp
