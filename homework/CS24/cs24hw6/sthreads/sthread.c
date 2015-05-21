@@ -283,6 +283,8 @@ ThreadContext *__sthread_scheduler(ThreadContext *context) {
             /* Queue up because blocked. */
             queue_add(current);
         }
+
+        current->state = ThreadRunning;
     }
 
     printf("2\n");
@@ -308,7 +310,7 @@ ThreadContext *__sthread_scheduler(ThreadContext *context) {
 
     printf("3\n");
     /* Make current thread running, and return thread. */
-    current->state = ThreadRunning;
+
     printf("4\n");
 
     return current->context;
