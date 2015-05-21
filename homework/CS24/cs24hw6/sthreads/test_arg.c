@@ -4,7 +4,9 @@
 
 
 static void thread(void *arg) {
-    *((int *) arg)++;
+    printf("%d\n", *((int *) arg));
+    *((int *) arg) += 1;
+    printf("%d\n", *((int *) arg));
     sthread_yield();
 }
 
@@ -20,6 +22,8 @@ int main(int argc, char **argv) {
         sthread_create(thread, (void *) &thread_counter);
         local_counter++;
     }
+
+    ssthread_start();
 
     printf("%d\n", thread_counter);
 
