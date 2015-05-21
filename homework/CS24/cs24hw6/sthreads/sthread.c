@@ -306,7 +306,9 @@ ThreadContext *__sthread_scheduler(ThreadContext *context) {
         current = queue_take(&ready_queue);
         printf("e\n");
         current->state = ThreadRunning;
+        ThreadContext * a = current->context;
         printf("f\n");
+
         return current->context;
     }
 }
