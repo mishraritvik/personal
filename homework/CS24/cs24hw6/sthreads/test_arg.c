@@ -4,7 +4,7 @@
 
 
 static void thread(void *arg) {
-    *((int *) arg) += 1;
+    *((int *) arg)++;
     sthread_yield();
 }
 
