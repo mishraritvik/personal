@@ -28,7 +28,7 @@ ret: sthread.o glue.o test_ret.o
 
 # pseudo-target to clean up
 clean:
-	$(RM) -f *.o core* *~ test
+	$(RM) -f *.o core* *~ test arg ret
 
 
 .PHONY: all clean
