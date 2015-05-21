@@ -78,19 +78,19 @@ typedef enum {
      * in this state.
      */
     ThreadRunning,
-    
+
     /*!
      * The thread is ready to run, but doesn't have access to the CPU yet.  The
      * thread will be kept in the ready-queue.
      */
     ThreadReady,
-    
+
     /*!
      * The thread is blocked and currently unable to progress, so it is not
      * scheduled on the CPU.  Blocked threads are kept in the blocked-queue.
      */
     ThreadBlocked,
-    
+
     /*!
      * The thread's function has returned, and therefore the thread is ready to
      * be permanently removed from the scheduling mechanism and deallocated.
@@ -208,7 +208,7 @@ static Thread *queue_take(Queue *queuep) {
     Thread *threadp;
 
     assert(queuep != NULL);
-    
+
     /* Return NULL if the queue is empty */
     if(queuep->head == NULL)
         return NULL;
@@ -269,10 +269,39 @@ static void queue_remove(Queue *queuep, Thread *threadp) {
  */
 ThreadContext *__sthread_scheduler(ThreadContext *context) {
 
-    /* Replace these lines with your implementation */
-    /* TODO */ assert(0); /* TODO */
 
-    /* Return the next thread to resume executing. */
+    if (context != NULL) {
+        /* Save the context argument into the current thread. */
+        current->context = context;
+
+        /* Either queue up or deallocate current thread, based on its state. */
+        if (current->state == ThreadFinished) {
+            /* Deallocatate because finished. */
+            __sthread_delete(current);
+        }
+        else if (current->state == ThreadBlocked) {
+            /* Queue up because blocked. */
+            queue_add(current);
+        }
+    }
+
+    /* Select a new "ready" thread to run, and set the "current" variable to
+     * that thread. */
+    if (queue_empty(&ready_queue)) {
+        if (queue_empty(&blocked_queue)) {
+            /* Ready and blocked are empty, so done! */
+            printf("Done.\n");
+            exit(0);
+        }
+        else {
+            /* Nothing ready but still blocked threads, so deadlock. */
+            printf("Deadlock.\n");
+            /* Exit with error. */
+            exit(1);
+        }
+    }
+
+    /* Return thread. */
     return current->context;
 }
 
@@ -296,9 +325,32 @@ void sthread_start(void)
  * structure, and it adds the thread to the Ready queue.
  */
 Thread * sthread_create(void (*f)(void *arg), void *arg) {
-    /* Replace this function's body with your implementation */
-    /* TODO */ assert(0); /* TODO */
-    return NULL;
+    /* Allocate memory for a new thread. */
+    Thread * new_thread = (Thread *) malloc(sizeof(Thread));
+
+    /* Allocate memory for a stack for the thread. */
+    void * new_stack = (void *) malloc(DEFAULT_STACKSIZE);
+
+    /* Make sure mallocs worked. */
+    if (new_thread == NULL) {
+        printf("Thread was not allocated.\n");
+    }
+
+    if (new_stack == NULL) {
+        printf("Stack was not allocated.\n");
+    }
+
+    /* Set thread's stack. */
+    new_thread->memory = new_stack;
+
+    /* Set thread to ready. */
+    new_thread->state = ThreadReady;
+
+    /* Add to queue. */
+    queue_add(new_thread);
+
+    return new_thread;
+
 }
 
 
@@ -323,8 +375,9 @@ void __sthread_finish(void) {
  * context, as well as the memory for the Thread struct.
  */
 void __sthread_delete(Thread *threadp) {
-    /* Replace this function's body with your implementation */
-    /* TODO */ assert(0); /* TODO */
+    /* Free thread's stack and thread itself. */
+    free(threadp->memory);
+    free(threadp);
 }
 
 

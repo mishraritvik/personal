@@ -95,7 +95,15 @@ __sthread_initialize_context:
         # push fp on to stack
         push    12(%ebp)
 
-        # TODO: do we have to push stuff on?
+        # need to push dummy values as if pushing registers
+        pushfl
+        push    %eax
+        push    %ebx
+        push    %ecx
+        push    %edx
+        push    %esi
+        push    %edi
+        push    %ebp
 
         # return stack pointer
         mov     %esp, %eax
