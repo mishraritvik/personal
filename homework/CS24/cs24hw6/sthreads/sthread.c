@@ -304,7 +304,9 @@ ThreadContext *__sthread_scheduler(ThreadContext *context) {
         /* Select a new "ready" thread to run, and set the "current" variable to
          * that thread. */
         current = queue_take(&ready_queue);
+        printf("e\n");
         current->state = ThreadRunning;
+        printf("f\n");
         return current->context;
     }
 }
