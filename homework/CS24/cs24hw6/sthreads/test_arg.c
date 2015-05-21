@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
         local_counter++;
     }
 
-    ssthread_start();
+    sthread_start();
 
     printf("%d\n", thread_counter);
 
