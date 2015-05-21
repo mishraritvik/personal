@@ -268,9 +268,7 @@ static void queue_remove(Queue *queuep, Thread *threadp) {
  * This function is global because it needs to be called from the assembly.
  */
 ThreadContext *__sthread_scheduler(ThreadContext *context) {
-    printf("1\n");
     if (context != NULL) {
-        printf("1a\n");
         /* Save the context argument into the current thread. */
         current->context = context;
 
@@ -287,33 +285,25 @@ ThreadContext *__sthread_scheduler(ThreadContext *context) {
         current->state = ThreadRunning;
     }
 
-    printf("2\n");
-
-    /* Select a new "ready" thread to run, and set the "current" variable to
-     * that thread. */
     if (queue_empty(&ready_queue)) {
-        printf("2a\n");
         if (queue_empty(&blocked_queue)) {
-            printf("2b\n");
             /* Ready and blocked are empty, so done! */
             printf("Done.\n");
             exit(0);
         }
         else {
-            printf("2c\n");
             /* Nothing ready but still blocked threads, so deadlock. */
             printf("Deadlock.\n");
             /* Exit with error. */
             exit(1);
         }
     }
-
-    printf("3\n");
-    /* Make current thread running, and return thread. */
-
-    printf("4\n");
-
-    return current->context;
+    else {
+        /* Select a new "ready" thread to run, and set the "current" variable to
+         * that thread. */
+        current = queue_take(&ready_queue);
+        return current->context;
+    }
 }
 
 
