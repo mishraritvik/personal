@@ -1,34 +1,10 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "sthread.h"
 
-/**
- * This function reads a counter variable, prints its value and indicates that
- * it did the printing, then increments it and yields execution, finally
- * returning when the counter variable is at least 6.
- */
-static void thread1(void *arg) {
-    // Cast the argument to an int * so we can manipulate its value
-    int *counter = (int *) arg;
-    while (*counter < 6) {
-        printf("Counter = %d in thread 1, incrementing\n", *counter);
-        *counter += 1;
-        sthread_yield();
-    }
-}
 
-/**
- * This function reads a counter variable, prints its value and indicates that
- * it did the printing, then increments it and yields execution, finally
- * returning when the counter variable is at least 6.
- */
-static void thread2(void *arg) {
-    // Cast the argument to an int * so we can manipulate its value
-    int *counter = (int *) arg;
-    while (*counter < 6) {
-        printf("Counter = %d in thread 2, incrementing\n", *counter);
-        *counter += 1;
-        sthread_yield();
-    }
+static void thread(void *arg) {
+    *((int *) arg) += 1;
 }
 
 /**
@@ -37,9 +13,19 @@ static void thread2(void *arg) {
  * once it reaches a value of 6.
  */
 int main(int argc, char **argv) {
-    int counter = 0;
-    sthread_create(thread1, (void *) &counter);
-    sthread_create(thread2, (void *) &counter);
-    sthread_start();
+    int i, n = rand() % 100, local_counter = 0, thread_counter = 0;
+
+    for (i = 0; i < n; ++i) {
+        sthread_create(thread, (void *) &thread_counter);
+        local_counter++;
+    }
+
+    if (local_counter == thread_counter) {
+        printf("Pass.\n");
+    }
+    else {
+        printf("Fail.\n");
+    }
+
     return 0;
 }
