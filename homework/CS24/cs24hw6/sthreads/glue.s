@@ -30,7 +30,7 @@ __sthread_schedule:
 
         # Save the process state (all registers and flags) onto its stack
         pushfl
-        push    %eax
+        # push    %eax
         push    %ebx
         push    %ecx
         push    %edx
@@ -58,7 +58,7 @@ __sthread_restore:
         pop     %edx
         pop     %ecx
         pop     %ebx
-        pop     %eax
+        # pop     %eax
         popfl
 
         ret
