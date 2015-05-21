@@ -281,8 +281,6 @@ ThreadContext *__sthread_scheduler(ThreadContext *context) {
             /* Queue up because blocked. */
             queue_add(current);
         }
-
-        current->state = ThreadRunning;
     }
 
     if (queue_empty(&ready_queue)) {
@@ -302,6 +300,7 @@ ThreadContext *__sthread_scheduler(ThreadContext *context) {
         /* Select a new "ready" thread to run, and set the "current" variable to
          * that thread. */
         current = queue_take(&ready_queue);
+        current->state = ThreadRunning;
         return current->context;
     }
 }
