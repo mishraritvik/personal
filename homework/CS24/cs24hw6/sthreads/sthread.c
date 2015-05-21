@@ -269,10 +269,8 @@ static void queue_remove(Queue *queuep, Thread *threadp) {
  */
 ThreadContext *__sthread_scheduler(ThreadContext *context) {
     if (context != NULL) {
-        printf("a\n");
         /* Save the context argument into the current thread. */
         current->context = context;
-
         /* Either queue up or deallocate current thread, based on its state. */
         if (current->state == ThreadFinished) {
             /* Deallocatate because finished. */
@@ -285,10 +283,8 @@ ThreadContext *__sthread_scheduler(ThreadContext *context) {
     }
 
     if (queue_empty(&ready_queue)) {
-        printf("b\n");
         if (queue_empty(&blocked_queue)) {
-            printf("c\n");
-            /* Ready and blocked are empty, so done! */
+            /* Nothing ready and nothing blocked, so done! */
             printf("Done.\n");
             exit(0);
         }
@@ -300,17 +296,12 @@ ThreadContext *__sthread_scheduler(ThreadContext *context) {
         }
     }
     else {
-        printf("d\n");
         /* Select a new "ready" thread to run, and set the "current" variable to
          * that thread. */
         current = queue_take(&ready_queue);
-        printf("e\n");
         current->state = ThreadRunning;
-        ThreadContext * a = current->context;
-        printf("f\n");
-
-        return current->context;
     }
+    return current->context;
 }
 
 
