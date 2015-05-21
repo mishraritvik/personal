@@ -10,10 +10,11 @@ static void thread(void * arg) {
 }
 
 int main(int argc, char **argv) {
-    sthread_create(thread, (void *) 1);
-    sthread_create(thread, (void *) 2);
-    sthread_create(thread, (void *) 4);
-    sthread_create(thread, (void *) 8);
+    int a = 1, b = 2, c = 3, d = 4;
+    sthread_create(thread, (void *) &a);
+    sthread_create(thread, (void *) &b);
+    sthread_create(thread, (void *) &c);
+    sthread_create(thread, (void *) &d);
     sthread_start();
     return 0;
 }
