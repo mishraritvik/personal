@@ -4,9 +4,7 @@
 
 
 static void thread(void *arg) {
-    printf("%d\n", *((int *) arg));
     *((int *) arg) += 1;
-    printf("%d\n", *((int *) arg));
     sthread_yield();
 }
 
@@ -25,14 +23,7 @@ int main(int argc, char **argv) {
 
     sthread_start();
 
-    printf("%d\n", thread_counter);
-
-    if (local_counter == thread_counter) {
-        printf("Pass.\n");
-    }
-    else {
-        printf("Fail.\n");
-    }
+    assert(local_counter == thread_counter);
 
     return 0;
 }
