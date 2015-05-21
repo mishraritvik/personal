@@ -301,6 +301,7 @@ ThreadContext *__sthread_scheduler(ThreadContext *context) {
         current = queue_take(&ready_queue);
         current->state = ThreadRunning;
     }
+
     return current->context;
 }
 

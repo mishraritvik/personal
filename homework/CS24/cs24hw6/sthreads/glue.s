@@ -97,7 +97,7 @@ __sthread_initialize_context:
 
         # need to push dummy values as if pushing registers
         pushfl
-        push    %eax
+        # push    %eax
         push    %ebx
         push    %ecx
         push    %edx
