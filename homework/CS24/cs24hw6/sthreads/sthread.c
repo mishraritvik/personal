@@ -281,7 +281,7 @@ ThreadContext *__sthread_scheduler(ThreadContext *context) {
             queue_add(current);
         }
         else if (current->state == ThreadRunning) {
-            /* Queue up because stopping and make it ready. */
+            /* Queue up because yielding and make it ready. */
             current->state = ThreadReady;
             queue_add(current);
         }
@@ -352,9 +352,8 @@ Thread * sthread_create(void (*f)(void *arg), void *arg) {
     new_thread->state = ThreadReady;
 
     /* Set contect to end of stack (because it grows down). */
-    new_thread->context =
-        __sthread_initialize_context((char *) new_stack + DEFAULT_STACKSIZE, f,
-                                     arg);
+    new_thread->context = __sthread_initialize_context((char *) new_stack +
+        DEFAULT_STACKSIZE, f, arg);
 
     /* Add to queue. */
     queue_add(new_thread);
