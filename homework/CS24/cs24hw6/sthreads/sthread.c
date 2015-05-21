@@ -359,7 +359,6 @@ Thread * sthread_create(void (*f)(void *arg), void *arg) {
     queue_add(new_thread);
 
     return new_thread;
-
 }
 
 
