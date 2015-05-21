@@ -56,11 +56,8 @@ static void loop2(void *arg) {
  * the start the thread scheduler.
  */
 int main(int argc, char **argv) {
-    printf("a\n");
     sthread_create(loop1, NULL);
-    printf("b\n");
     sthread_create(loop2, NULL);
-    printf("c\n");
     sthread_start();
     printf("d\n");
     return 0;

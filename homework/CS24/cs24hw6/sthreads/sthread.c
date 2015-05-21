@@ -268,9 +268,9 @@ static void queue_remove(Queue *queuep, Thread *threadp) {
  * This function is global because it needs to be called from the assembly.
  */
 ThreadContext *__sthread_scheduler(ThreadContext *context) {
-
-
+    printf("1\n");
     if (context != NULL) {
+        printf("1a\n");
         /* Save the context argument into the current thread. */
         current->context = context;
 
@@ -284,6 +284,8 @@ ThreadContext *__sthread_scheduler(ThreadContext *context) {
             queue_add(current);
         }
     }
+
+    printf("2\n");
 
     /* Select a new "ready" thread to run, and set the "current" variable to
      * that thread. */
