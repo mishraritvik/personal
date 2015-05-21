@@ -11,13 +11,18 @@ CFLAGS = -Wall -g -std=c99 -pedantic
 ASFLAGS = -g
 
 
-all: test
+all: test arg ret
 
 
 # The simple test program
 test: sthread.o glue.o test.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
 
+arg: sthread.o glue.o test_arg.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
+
+ret: sthread.o glue.o test_ret.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
 
 # pseudo-target to clean up
 clean:
