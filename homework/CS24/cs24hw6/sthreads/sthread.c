@@ -290,12 +290,15 @@ ThreadContext *__sthread_scheduler(ThreadContext *context) {
     /* Select a new "ready" thread to run, and set the "current" variable to
      * that thread. */
     if (queue_empty(&ready_queue)) {
+        printf("2a\n");
         if (queue_empty(&blocked_queue)) {
+            printf("2b\n");
             /* Ready and blocked are empty, so done! */
             printf("Done.\n");
             exit(0);
         }
         else {
+            printf("2c\n");
             /* Nothing ready but still blocked threads, so deadlock. */
             printf("Deadlock.\n");
             /* Exit with error. */
@@ -303,6 +306,7 @@ ThreadContext *__sthread_scheduler(ThreadContext *context) {
         }
     }
 
+    printf("3\n");
     /* Return thread. */
     return current->context;
 }
