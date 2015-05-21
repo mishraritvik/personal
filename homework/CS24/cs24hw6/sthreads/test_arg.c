@@ -4,7 +4,9 @@
 
 
 static void thread(void *arg) {
-    *((int *) arg) += 1;
+    // *((int *) arg) += 1;
+    int * a = (int *) arg;
+    *(a)++;
 }
 
 /**
