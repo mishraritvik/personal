@@ -307,7 +307,10 @@ ThreadContext *__sthread_scheduler(ThreadContext *context) {
     }
 
     printf("3\n");
-    /* Return thread. */
+    /* Make current thread running, and return thread. */
+    current->state = ThreadRunning;
+    printf("4\n");
+
     return current->context;
 }
 

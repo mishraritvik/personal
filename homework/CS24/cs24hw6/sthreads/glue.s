@@ -89,7 +89,7 @@ __sthread_initialize_context:
         # push arg on to stack
         push    16(%ebp)
 
-        # put return location on stack (thread is finished to __sthread_finish)
+        # put return location on stack
         push    $__sthread_finish
 
         # push fp on to stack
