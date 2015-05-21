@@ -346,6 +346,7 @@ Thread * sthread_create(void (*f)(void *arg), void *arg) {
     /* Set thread to ready. */
     new_thread->state = ThreadReady;
 
+    /* Set contect to end of stack (because it grows down). */
     new_thread->context =
         __sthread_initialize_context((char *) new_stack + DEFAULT_STACKSIZE, f,
                                      arg);
