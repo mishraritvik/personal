@@ -59,7 +59,6 @@ int main(int argc, char **argv) {
     sthread_create(loop1, NULL);
     sthread_create(loop2, NULL);
     sthread_start();
-    printf("d\n");
     return 0;
 }
 

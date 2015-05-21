@@ -280,6 +280,11 @@ ThreadContext *__sthread_scheduler(ThreadContext *context) {
             /* Queue up because blocked. */
             queue_add(current);
         }
+        else if (current->state == ThreadRunning) {
+            /* Queue up because stopping and make it ready. */
+            current->state = ThreadReady;
+            queue_add(current);
+        }
     }
 
     if (queue_empty(&ready_queue)) {
