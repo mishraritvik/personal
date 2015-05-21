@@ -28,24 +28,15 @@ scheduler_context:      .long   0
         .globl __sthread_schedule
 __sthread_schedule:
 
-        pushl   %ebp    # Save the branch pointer so we can restore it for
-        pushl   %eax    #   sthread_yield() returns to the right place, then
-        pushl   %ebx    #   save all the other non-stack pointer registers so
-        pushl   %ecx    #   the thread's state can be restored
-        pushl   %edx
-        pushl   %esi
-        pushl   %edi
-
-        pushfl          # Save the eflags register
-        # # Save the process state (all registers and flags) onto its stack
-        # pushfl
-        # push    %eax
-        # push    %ebx
-        # push    %ecx
-        # push    %edx
-        # push    %esi
-        # push    %edi
-        # push    %ebp
+        # Save the process state (all registers and flags) onto its stack
+        pushfl
+        push    %eax
+        push    %ebx
+        push    %ecx
+        push    %edx
+        push    %esi
+        push    %edi
+        push    %ebp
 
         # Call the high-level scheduler with the current context as an argument
         movl    %esp, %eax
@@ -57,35 +48,20 @@ __sthread_schedule:
         # Restore the context to resume the thread.
 __sthread_restore:
 
-        movl    %eax, %esp      # Move the stack pointer to the new context
+        # go to new stack
+        mov     %eax, %esp
 
-        popfl           # Restore the eflags register
+        # Restore all process state (all registers and flags) from stack
+        pop     %ebp
+        pop     %edi
+        pop     %esi
+        pop     %edx
+        pop     %ecx
+        pop     %ebx
+        pop     %eax
+        popfl
 
-        popl    %edi    # Restore all the other registers
-        popl    %esi
-        popl    %edx
-        popl    %ecx
-        popl    %ebx
-        popl    %eax
-        popl    %ebp    # Restore the branch pointer for sthreads_yield()
-
-        ret             # Returns to f on the first time this is called,
-                        #   otherwise to sthreads_yield()
-
-        # # go to new stack
-        # mov     %eax, %esp
-
-        # # Restore all process state (all registers and flags) from stack
-        # pop     %ebp
-        # pop     %edi
-        # pop     %esi
-        # pop     %edx
-        # pop     %ecx
-        # pop     %ebx
-        # pop     %eax
-        # popfl
-
-        # ret
+        ret
 
 #
 # Initialize a process context, given:
@@ -104,63 +80,37 @@ __sthread_restore:
         .globl __sthread_initialize_context
 __sthread_initialize_context:
 
-        pushl   %ebp            # Set up the stack frame
-        movl    %esp, %ebp
+        push    %ebp
+        mov     %esp, %ebp
 
-        movl    8(%ebp), %esp   # Move the stack pointer to the new context
+        # go to new stack
+        mov     8(%ebp), %esp
 
-        pushl   16(%ebp)        # Push the thread's argument to the stack
-        pushl   $__sthread_finish       # Set the thread to return to
-                                        #   __sthread_finish when done
-        pushl   12(%ebp)        # Push the pointer to the thread's function
+        # push arg on to stack
+        push    16(%ebp)
 
-        pushl   $0      # The first time this thread is initialized, it will
-        pushl   $0      #   fill in its registers with all these zeros, although
-        pushl   $0      #   it doesn't really matter what goes here since at the
-        pushl   $0      #   start of execution it only cares about its argument,
-        pushl   $0      #   and __sthread_finish() doesn't need the branch
-        pushl   $0      #   pointer since it just calls __sthread_schedule() to
-        pushl   $0      #   switch to another thread
-        pushl   $0
+        # put return location on stack
+        push    $__sthread_finish
 
-        movl    %esp, %eax      # Set up this context to be returned
+        # push fp on to stack
+        push    12(%ebp)
 
-        movl    %ebp, %esp      # Restore the stack frame and return
-        popl    %ebp
+        # need to push dummy values as if pushing registers
+        pushfl
+        push    %eax
+        push    %ebx
+        push    %ecx
+        push    %edx
+        push    %esi
+        push    %edi
+        push    %ebp
 
+        # return stack pointer
+        mov     %esp, %eax
+
+        mov     %ebp, %esp
+        pop     %ebp
         ret
-
-        # push    %ebp
-        # mov     %esp, %ebp
-
-        # # go to new stack
-        # mov     8(%ebp), %esp
-
-        # # push arg on to stack
-        # push    16(%ebp)
-
-        # # put return location on stack
-        # push    $__sthread_finish
-
-        # # push fp on to stack
-        # push    12(%ebp)
-
-        # # need to push dummy values as if pushing registers
-        # pushfl
-        # push    %eax
-        # push    %ebx
-        # push    %ecx
-        # push    %edx
-        # push    %esi
-        # push    %edi
-        # push    %ebp
-
-        # # return stack pointer
-        # mov     %esp, %eax
-
-        # mov     %ebp, %esp
-        # pop     %ebp
-        # ret
 
 #
 # The start routine initializes the scheduler_context variable,
