@@ -21,6 +21,8 @@ int main(int argc, char **argv) {
         local_counter++;
     }
 
+    printf("%d\n", thread_counter);
+
     if (local_counter == thread_counter) {
         printf("Pass.\n");
     }
