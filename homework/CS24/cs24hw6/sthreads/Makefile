@@ -18,9 +18,11 @@ all: test arg ret
 test: sthread.o glue.o test.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
 
+# The argument test program
 arg: sthread.o glue.o test_arg.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
 
+# The return test program
 ret: sthread.o glue.o test_ret.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
 

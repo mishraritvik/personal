@@ -4,26 +4,25 @@
 #include "sthread.h"
 
 
+/* Helper function that increments. */
 static void thread(void *arg) {
     *((int *) arg) += 1;
     sthread_yield();
 }
 
-/**
- * This program initializes a counter variable to 0, and then has two threads
- * take turns printing its value and incrementing it, until they both return
- * once it reaches a value of 6.
- */
 int main(int argc, char **argv) {
-    int i, n = rand() % 100, local_counter = 0, thread_counter = 0;
+    int i, n = rand() % 10, local_counter = 0, thread_counter = 0;
 
+    /* Create threads that all increment the same number. */
     for (i = 0; i < n; ++i) {
         sthread_create(thread, (void *) &thread_counter);
         local_counter++;
     }
 
+    /* Start all threads. */
     sthread_start();
 
+    /* Make sure that it incremented properly. */
     assert(local_counter == thread_counter);
 
     return 0;
