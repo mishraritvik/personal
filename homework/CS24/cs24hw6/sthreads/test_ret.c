@@ -14,5 +14,6 @@ int main(int argc, char **argv) {
     sthread_create(thread, (void *) (rand() % 10));
     sthread_create(thread, (void *) (rand() % 10));
     sthread_create(thread, (void *) (rand() % 10));
+    sthread_start();
     return 0;
 }
