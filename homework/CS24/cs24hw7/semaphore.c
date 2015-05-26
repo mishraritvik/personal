@@ -33,7 +33,7 @@ struct _semaphore {
  * specified by the argument.
  */
 Semaphore *new_semaphore(int init) {
-    Semaphore *semp;
+    Semaphore *semp = NULL;
 
     /*
      * TODO: allocate and initialize a semaphore data struct.
