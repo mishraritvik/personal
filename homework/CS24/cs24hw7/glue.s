@@ -28,9 +28,6 @@ scheduler_lock:         .long   0
 #
         .globl __sthread_lock
 __sthread_lock:
-        # always set scheduler_lock to 1, and return 0 if it was already 1, 0
-        # otherwise.
-
         # put 1 in eax to be exchanged with scheduler_lock
         mov     $1, %eax
 
@@ -38,14 +35,17 @@ __sthread_lock:
         lock
         xchg    scheduler_lock, %eax
 
-        # return the inverse of eax (can't actually use inverse because one bit)
-        xor     $1, %eax
+        # if eax is 1 put 0 in it
+        cmp     $0, %eax
+        je      done
+        mov     $0, %eax
 
+done:
         ret
 
         .globl __sthread_unlock
 __sthread_unlock:
-        # release the lock. scheduler_lock will always be 0 after this.
+        # release the lock.
         mov     $0, scheduler_lock
         ret
 
