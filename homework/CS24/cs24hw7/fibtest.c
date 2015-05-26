@@ -45,7 +45,7 @@ static int fib(int i) {
  * Producer produces Fibonacci numbers mod FIB_MODULUS.
  */
 
-#define FIB_MODULUS     30
+#define FIB_MODULUS     20
 
 static void producer(void *arg) {
     BufferElem elem;
