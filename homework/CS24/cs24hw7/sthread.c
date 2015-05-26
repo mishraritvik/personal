@@ -270,6 +270,12 @@ ThreadContext *__sthread_scheduler(ThreadContext *context) {
 
     current->state = ThreadRunning;
 
+    /*
+     * Need to unlock because lock was called before scheduling, and now the
+     * changes are done so we can unlock.
+     */
+    __sthread_unlock();
+
     /* Return the next thread to resume executing. */
     return current->context;
 }
@@ -318,7 +324,13 @@ Thread * sthread_create(void (*f)(void *arg), void *arg) {
     threadp->memory = memory;
     threadp->context = __sthread_initialize_context(
         (char *) memory + DEFAULT_STACKSIZE, f, arg);
+
+    /*
+     * TODO explain this
+     */
+    __sthread_lock();
     queue_add(threadp);
+    __sthread_unlock();
 
     return threadp;
 }
@@ -367,6 +379,10 @@ Thread * sthread_current() {
  * run.
  */
 void sthread_yield() {
+    /*
+     * TODO explain this
+     */
+    __sthread_lock();
     __sthread_schedule();
 }
 
