@@ -143,6 +143,7 @@ void semaphore_signal(Semaphore *semp) {
             semp->head = semp->head->next;
         }
 
+        /* Free it. */
         free(old_head);
     }
 
