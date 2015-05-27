@@ -29,6 +29,13 @@ struct _bounded_buffer {
 
     /* The values in the buffer */
     BufferElem *buffer;
+
+    /* Semaphore used to count taken spots in buffer. */
+    Semaphore * taken;
+
+    /* Semaphore used to count open spots in buffer. */
+    Semaphore * open;
+
 };
 
 /*
@@ -63,6 +70,13 @@ BoundedBuffer *new_bounded_buffer(int length) {
     bufp->length = length;
     bufp->buffer = buffer;
 
+    /*
+     * Initialize the semaphores. To start, 0 spots are taken and length spots
+     * are open.
+     */
+    bufp->taken = new_semaphore(0);
+    bufp->open = new_semaphore(length);
+
     return bufp;
 }
 
@@ -71,13 +85,18 @@ BoundedBuffer *new_bounded_buffer(int length) {
  * thread if the buffer is full.
  */
 void bounded_buffer_add(BoundedBuffer *bufp, const BufferElem *elem) {
-    /* Wait until the buffer has space */
-    while (bufp->count == bufp->length)
-        sthread_yield();
+    /*
+     * Wait until the buffer has space by waiting on the open semaphore (there
+     * must be an open spot to add an element).
+     */
+    semaphore_wait(bufp->open);
 
-    /* Now the buffer has space */
+    /* Now the buffer has space so add element. */
     bufp->buffer[(bufp->first + bufp->count) % bufp->length] = *elem;
     bufp->count++;
+
+    /* One more spot is taken in buffer so add to taken semaphore. */
+    semaphore_signal(bufp->taken);
 }
 
 /*
@@ -85,14 +104,19 @@ void bounded_buffer_add(BoundedBuffer *bufp, const BufferElem *elem) {
  * thread if the buffer is empty.
  */
 void bounded_buffer_take(BoundedBuffer *bufp, BufferElem *elem) {
-    /* Wait until the buffer has a value to retrieve */
-    while (bufp->count == 0)
-        sthread_yield();
+    /*
+     * Wait until the buffer has a value to retrieve by waiting on the taken
+     * semaphore (there must be an element to take).
+     */
+    semaphore_wait(bufp->taken);
 
     /* Copy the element from the buffer, and clear the record */
     *elem = bufp->buffer[bufp->first];
     bufp->buffer[bufp->first] = empty;
     bufp->count--;
     bufp->first = (bufp->first + 1) % bufp->length;
+
+    /* One more spot is open in buffer so add to open semaphore. */
+    semaphore_signal(bufp->open);
 }
 
