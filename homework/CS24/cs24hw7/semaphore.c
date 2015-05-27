@@ -98,16 +98,13 @@ void semaphore_wait(Semaphore *semp) {
             semp->tail = semp->tail->next;
         }
 
-        if (semp->head == NULL) {
-            printf("Fuck 1\n");
-        }
-        if (semp->tail == NULL) {
-            printf("Fuck 2\n");
-        }
+        assert(semp->tail = new_thread);
+        assert(semp->head != NULL);
     }
 
     /* Decrement semaphore count. */
     semp->i--;
+    assert(semp->i >= 0);
 
     /* Can unlock now that operations are done. */
     __sthread_unlock();
@@ -143,6 +140,7 @@ void semaphore_signal(Semaphore *semp) {
         else {
             /* Move head to the next. */
             semp->head = semp->head->next;
+            assert(semp->head != NULL);
         }
 
         free(old_head);
