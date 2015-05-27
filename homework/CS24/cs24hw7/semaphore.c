@@ -20,7 +20,7 @@
  */
 struct thread_node {
     Thread * thread;
-    thread_node * next;
+    struct thread_node * next;
 };
 
 /*
