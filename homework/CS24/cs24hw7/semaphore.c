@@ -49,13 +49,13 @@ Semaphore *new_semaphore(int init) {
 
     /* Check that allocation worked. */
     if (semp == NULL) {
-        printf("Allocating a new Semaphore did not work.\n");
+        printf("Semaphore was not allocated.\n");
     }
 
     /* Set the intiial number of the semaphore. */
     semp->i = init;
 
-    /* No threads, so set head and tail of queue to NULL. */
+    /* Queue is empty so set head and tail of queue to NULL. */
     semp->head = NULL;
     semp->tail = NULL;
 
@@ -69,27 +69,35 @@ Semaphore *new_semaphore(int init) {
 void semaphore_wait(Semaphore *semp) {
     /* TODO */
     while (semp->i == 0) {
-        /* Semaphore cannot handle another thread, so add to queue. */
+        /* Semaphore cannot handle another thread, so block it. */
+        /* Need to lock before blocking so that multiple threads do not access
+         * the queue at the same time. */
+        __sthread_lock();
+        sthread_block();
+
+        /* Add to queue of blocked threads. */
         thread_node * new_thread = (thread_node *) malloc(sizeof(thread_node));
 
         /* The thread to be held is the currently executing one. */
         new_thread->thread = sthread_current();
 
+        /* Will be at the end of queue so next is NULL. */
+        new_thread->next = NULL;
+
         /* Add to queue. */
         if (semp->head == NULL) {
-            /* Empty queue. */
+            /* Empty queue, head and tail are new value. */
             semp->head = new_thread;
             semp->tail = semp->head;
-            semp->head->next = NULL;
         }
         else {
-            /* Put on the end. */
+            /* This will be the next of tail, and new tail. */
             semp->tail->next = new_thread;
             semp->tail = semp->tail->next;
         }
     }
 
-    /* Decrement semaphore count as another thread is running. */
+    /* Decrement semaphore count. */
     semp->i--;
 }
 
@@ -98,7 +106,7 @@ void semaphore_wait(Semaphore *semp) {
  * This operation must be atomic.
  */
 void semaphore_signal(Semaphore *semp) {
-    /* Incrememnt semaphore count as thread is no longer running. */
+    /* Incrememnt semaphore count. */
     semp->i++;
 
     /* Get next in queue to run. */
