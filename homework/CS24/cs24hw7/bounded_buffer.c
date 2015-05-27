@@ -13,6 +13,7 @@
 
 #include "sthread.h"
 #include "bounded_buffer.h"
+#include "semaphore.h"
 
 /*
  * The bounded buffer data.
