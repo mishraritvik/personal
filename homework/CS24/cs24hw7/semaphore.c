@@ -18,6 +18,7 @@
  * The semaphore data structure contains TODO
  */
 struct _semaphore {
+    int i;
     /*
      * TODO: define the semaphore data struct, and update the above
      *       comment to properly reflect your changes.
@@ -33,7 +34,11 @@ struct _semaphore {
  * specified by the argument.
  */
 Semaphore *new_semaphore(int init) {
-    Semaphore *semp = NULL;
+    /* Allocate memory for the new semaphore. */
+    Semaphore *semp = (Semaphore *) malloc(sizeof(Semaphore));
+
+    /* Set the intiial number of the semaphore. */
+    semp->i = init;
 
     /*
      * TODO: allocate and initialize a semaphore data struct.
