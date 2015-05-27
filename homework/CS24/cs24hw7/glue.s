@@ -28,10 +28,9 @@ scheduler_lock:         .long   0
 #
         .globl __sthread_lock
 __sthread_lock:
-        ret
         # put 1 in eax to be exchanged with scheduler_lock
         mov     $1, %eax
-
+        ret
         # put 1 in scheduler_lock and previous value in eax
         lock
         xchg    scheduler_lock, %eax
