@@ -97,6 +97,13 @@ void semaphore_wait(Semaphore *semp) {
             semp->tail->next = new_thread;
             semp->tail = semp->tail->next;
         }
+
+        if (semp->head == NULL) {
+            printf("Fuck 1\n");
+        }
+        if (semp->tail == NULL) {
+            printf("Fuck 2\n");
+        }
     }
 
     /* Decrement semaphore count. */
@@ -125,7 +132,7 @@ void semaphore_signal(Semaphore *semp) {
         struct thread_node * old_head = semp->head;
 
         /* Unblock the head. */
-        sthread_unblock(old_head->thread);
+        sthread_unblock(semp->head->thread);
 
         /* Remove from queue and free. */
         if (semp->head->next == NULL) {
