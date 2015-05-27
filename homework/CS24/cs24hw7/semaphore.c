@@ -26,8 +26,8 @@ struct thread_node {
 /*
  * The semaphore data structure contains:
  *     int i              : the count of the semaphore
- *     thread_node * head : head of the linked list containing threads
- *     thread_node * tail : tail of the linked list containing threads
+ *     thread_node * head : head of the linked list containing blocked threads
+ *     thread_node * tail : tail of the linked list containing blocked threads
  */
 struct _semaphore {
     int i;
@@ -68,8 +68,25 @@ Semaphore *new_semaphore(int init) {
  */
 void semaphore_wait(Semaphore *semp) {
     /* TODO */
-    if (semp->i == 0) {
-        //TODO do something like waiting
+    while (semp->i == 0) {
+        /* Semaphore cannot handle another thread, so add to queue. */
+        thread_node * new_thread = (thread_node *) malloc(sizeof(thread_node));
+
+        /* The thread to be held is the currently executing one. */
+        new_thread->thread = sthread_current();
+
+        /* Add to queue. */
+        if (semp->head == NULL) {
+            /* Empty queue. */
+            semp->head = new_thread;
+            semp->tail = semp->head;
+            semp->head->next = NULL;
+        }
+        else {
+            /* Put on the end. */
+            semp->tail->next = new_thread;
+            semp->tail = semp->tail->next;
+        }
     }
 
     /* Decrement semaphore count as another thread is running. */
@@ -84,7 +101,19 @@ void semaphore_signal(Semaphore *semp) {
     /* Incrememnt semaphore count as thread is no longer running. */
     semp->i++;
 
-    /* Find a blocked thread to run. */
-    //TODO
+    /* Get next in queue to run. */
+    if (semp->head == NULL) {
+        /* Queue empty! Do nothing. */
+    }
+    else {
+        thread_node * old_head = semp->head;
+
+        /* Unblock the head. */
+        sthread_unblock(old_head->thread);
+
+        /* Remove from queue and free. */
+        semp->head = semp->head->next;
+        free(old_head);
+    }
 }
 
