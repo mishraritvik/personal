@@ -72,7 +72,6 @@ void semaphore_wait(Semaphore *semp) {
 
     while (semp->i == 0) {
         /* Semaphore cannot handle another thread, so block current one. */
-        sthread_block();
 
         /* Add to queue of blocked threads. */
         struct thread_node * new_thread =
@@ -80,6 +79,9 @@ void semaphore_wait(Semaphore *semp) {
 
         /* The thread to be held is the currently executing one. */
         new_thread->thread = sthread_current();
+
+        /* Block it. */
+        sthread_block();
 
         /* Will be at the end of queue so next is NULL. */
         new_thread->next = NULL;

@@ -37,6 +37,7 @@ __sthread_lock:
 
         # take inverse of eax (can't use inv because one bit)
         xorl    $1, %eax
+
         ret
 
         .globl __sthread_unlock
