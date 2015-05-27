@@ -30,16 +30,15 @@ scheduler_lock:         .long   0
 __sthread_lock:
         # put 1 in eax to be exchanged with scheduler_lock
         mov     $1, %eax
-        ret
         # put 1 in scheduler_lock and previous value in eax
-        lock
-        xchg    scheduler_lock, %eax
+        # lock
+        # xchg    scheduler_lock, %eax
 
         # if eax is 1 return 0 otherwise end
         # cmp     $0, %eax
         # je      done
         # mov     $0, %eax
-        xor $1, %eax
+        # xor $1, %eax
 
 done:
         ret
@@ -47,8 +46,7 @@ done:
         .globl __sthread_unlock
 __sthread_unlock:
         # release the lock.
-        ret
-        movl    $0, scheduler_lock
+        # movl    $0, scheduler_lock
 
         ret
 
