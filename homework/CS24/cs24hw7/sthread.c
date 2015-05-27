@@ -296,6 +296,9 @@ void sthread_start(int timer) {
  * structure, and it adds the thread to the Ready queue.
  */
 Thread * sthread_create(void (*f)(void *arg), void *arg) {
+    //TRY
+    __sthread_lock();
+
     Thread *threadp;
     void *memory;
 
@@ -320,6 +323,7 @@ Thread * sthread_create(void (*f)(void *arg), void *arg) {
         (char *) memory + DEFAULT_STACKSIZE, f, arg);
     queue_add(threadp);
 
+    __sthread_unlock();
     return threadp;
 }
 
@@ -354,8 +358,11 @@ void __sthread_finish(void) {
 void __sthread_delete(Thread *threadp) {
     assert(threadp != NULL);
 
+    //TRY
+    __sthread_lock();
     free(threadp->memory);
     free(threadp);
+    __sthread_unlock();
 }
 
 

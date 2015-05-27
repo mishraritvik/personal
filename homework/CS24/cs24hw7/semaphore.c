@@ -26,8 +26,8 @@ struct thread_node {
 /*
  * The semaphore data structure contains:
  *     int i              : the count of the semaphore
- *     thread_node * head : head of the linked list containing blocked threads
- *     thread_node * tail : tail of the linked list containing blocked threads
+ *     thread_node * head : head of the queue containing blocked threads
+ *     thread_node * tail : tail of the queue containing blocked threads
  */
 struct _semaphore {
     int i;
@@ -71,7 +71,7 @@ void semaphore_wait(Semaphore *semp) {
     __sthread_lock();
 
     while (semp->i == 0) {
-        /* Semaphore cannot handle another thread, so block it. */
+        /* Semaphore cannot handle another thread, so block current one. */
         sthread_block();
 
         /* Add to queue of blocked threads. */

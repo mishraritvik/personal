@@ -75,8 +75,11 @@ BoundedBuffer *new_bounded_buffer(int length) {
     bufp->buffer = buffer;
 
     /*
-     * Initialize the semaphores. To start, 0 spots are taken and length spots
-     * are open.
+     * Initialize the semaphores.
+     * taken  : 0 spots are taken, so 0.
+     * open   : length spots are open, so length.
+     * access : no thread is accessing the buffer and only one should be allowed
+     *          to access at a time, so 1.
      */
     bufp->taken = new_semaphore(0);
     bufp->open = new_semaphore(length);

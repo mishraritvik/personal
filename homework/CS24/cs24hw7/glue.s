@@ -35,7 +35,7 @@ __sthread_lock:
         lock
         xchgl   %eax, scheduler_lock
 
-        # take inverse of eax (can't use inverse because one bit)
+        # take inverse of eax (can't use inv because one bit)
         xorl    $1, %eax
         ret
 
