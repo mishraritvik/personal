@@ -28,26 +28,21 @@ scheduler_lock:         .long   0
 #
         .globl __sthread_lock
 __sthread_lock:
-        # put 1 in eax to be exchanged with scheduler_lock
-        mov     $1, %eax
-        # put 1 in scheduler_lock and previous value in eax
-        # lock
-        # xchg    scheduler_lock, %eax
+        # TODO: currently this code always returns 1 (it always grants
+        # the lock).  Fix this code, using the "scheduler_lock" variable
+        # to ensure mutual exlucsion.
+        movl    $1, %eax
 
-        # if eax is 1 return 0 otherwise end
-        # cmp     $0, %eax
-        # je      done
-        # mov     $0, %eax
-        # xor $1, %eax
+        lock
+        xchgl   %eax, scheduler_lock
 
-done:
+        xor     $1, %eax
         ret
 
         .globl __sthread_unlock
 __sthread_unlock:
-        # release the lock.
-        # movl    $0, scheduler_lock
-
+        # TODO: release the lock.
+        movl    $0, scheduler_lock
         ret
 
 #
