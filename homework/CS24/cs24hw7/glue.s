@@ -35,10 +35,11 @@ __sthread_lock:
         lock
         xchg    scheduler_lock, %eax
 
-        # if eax is 1 put 0 in it
-        cmp     $0, %eax
-        je      done
-        mov     $0, %eax
+        # if eax is 1 return 0 otherwise end
+        # cmp     $0, %eax
+        # je      done
+        # mov     $0, %eax
+        xor $1, %eax
 
 done:
         ret
@@ -46,7 +47,8 @@ done:
         .globl __sthread_unlock
 __sthread_unlock:
         # release the lock.
-        mov     $0, scheduler_lock
+        movl    $0, scheduler_lock
+
         ret
 
 #
