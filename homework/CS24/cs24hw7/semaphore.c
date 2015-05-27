@@ -106,7 +106,7 @@ void semaphore_wait(Semaphore *semp) {
     semp->i--;
     assert(semp->i >= 0);
 
-    sthread_block(sthread_current());
+    sthread_unblock(sthread_current());
 
     /* Can unlock now that operations are done. */
     __sthread_unlock();
