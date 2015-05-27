@@ -31,8 +31,8 @@ struct thread_node {
  */
 struct _semaphore {
     int i;
-    thread_node * head;
-    thread_node * tail;
+    struct thread_node * head;
+    struct thread_node * tail;
 };
 
 /************************************************************************
@@ -76,7 +76,8 @@ void semaphore_wait(Semaphore *semp) {
         sthread_block();
 
         /* Add to queue of blocked threads. */
-        thread_node * new_thread = (thread_node *) malloc(sizeof(thread_node));
+        struct thread_node * new_thread =
+            (thread_node *) malloc(sizeof(struct thread_node));
 
         /* The thread to be held is the currently executing one. */
         new_thread->thread = sthread_current();
