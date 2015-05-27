@@ -29,11 +29,11 @@ scheduler_lock:         .long   0
         .globl __sthread_lock
 __sthread_lock:
         # put 1 into eax to switch with scheduler_lock
-        movl    $1, %eax
+        mov     $1, %eax
 
         # switch values
         lock
-        xchgl   %eax, scheduler_lock
+        xchg    %eax, scheduler_lock
 
         # take inverse of eax (can't use inverse because one bit)
         xor     $1, %eax
@@ -42,7 +42,7 @@ __sthread_lock:
         .globl __sthread_unlock
 __sthread_unlock:
         # release the lock by putting 0 in scheduler_lock
-        movl    $0, scheduler_lock
+        mov     $0, scheduler_lock
         ret
 
 #

@@ -333,6 +333,11 @@ Thread * sthread_create(void (*f)(void *arg), void *arg) {
  * This function is global because it needs to be referenced from assembly.
  */
 void __sthread_finish(void) {
+    /*
+     * Any time we schedule we should lock and then unlock once it is done so
+     * that it is never half done. Also, the queue is changed during schedule,
+     * and two threads should not be able to change the queue at the same time.
+     */
     __sthread_lock();
     printf("Thread 0x%08x has finished executing.\n", (unsigned int) current);
     current->state = ThreadFinished;
@@ -368,6 +373,11 @@ Thread * sthread_current() {
  * run.
  */
 void sthread_yield() {
+    /*
+     * Any time we schedule we should lock and then unlock once it is done so
+     * that it is never half done. Also, the queue is changed during schedule,
+     * and two threads should not be able to change the queue at the same time.
+     */
     __sthread_lock();
     __sthread_schedule();
     __sthread_unlock();
@@ -379,6 +389,11 @@ void sthread_yield() {
  * to Blocked, and call the scheduler.
  */
 void sthread_block() {
+    /*
+     * Any time we schedule we should lock and then unlock once it is done so
+     * that it is never half done. Also, the queue is changed during schedule,
+     * and two threads should not be able to change the queue at the same time.
+     */
     __sthread_lock();
     current->state = ThreadBlocked;
     __sthread_schedule();
@@ -395,6 +410,7 @@ void sthread_unblock(Thread *threadp) {
     assert(threadp != NULL);
     assert(threadp->state == ThreadBlocked);
 
+    /* Two threads should not be able to change the queue at the same time. */
     __sthread_lock();
 
     /* Remove from the blocked queue */
