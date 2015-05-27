@@ -33,16 +33,16 @@ __sthread_lock:
         # to ensure mutual exlucsion.
         movl    $1, %eax
 
-        lock
-        xchgl   %eax, scheduler_lock
+        # lock
+        # xchgl   %eax, scheduler_lock
 
-        xor     $1, %eax
+        # xor     $1, %eax
         ret
 
         .globl __sthread_unlock
 __sthread_unlock:
         # TODO: release the lock.
-        movl    $0, scheduler_lock
+        # movl    $0, scheduler_lock
         ret
 
 #
