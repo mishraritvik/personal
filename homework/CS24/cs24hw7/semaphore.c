@@ -115,7 +115,7 @@ void semaphore_signal(Semaphore *semp) {
         /* Queue empty! Do nothing. */
     }
     else {
-        thread_node * old_head = semp->head;
+        struct thread_node * old_head = semp->head;
 
         /* Unblock the head. */
         sthread_unblock(old_head->thread);
