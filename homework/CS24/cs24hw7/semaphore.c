@@ -20,7 +20,7 @@
  */
 struct thread_node {
     Thread * thread;
-    struct thread_node * next;
+    thread_node * next;
 } thread_node;
 
 /*
@@ -31,8 +31,8 @@ struct thread_node {
  */
 struct _semaphore {
     int i;
-    struct thread_node * head;
-    struct thread_node * tail;
+    thread_node * head;
+    thread_node * tail;
 };
 
 /************************************************************************
