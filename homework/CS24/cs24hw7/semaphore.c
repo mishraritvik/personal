@@ -128,7 +128,16 @@ void semaphore_signal(Semaphore *semp) {
         sthread_unblock(old_head->thread);
 
         /* Remove from queue and free. */
-        semp->head = semp->head->next;
+        if (semp->head->next == NULL) {
+            /* If this has no next them queue is empty now. */
+            semp->head = NULL;
+            semp->tail = NULL;
+        }
+        else {
+            /* Move head to the next. */
+            semp->head = semp->head->next;
+        }
+
         free(old_head);
     }
 
