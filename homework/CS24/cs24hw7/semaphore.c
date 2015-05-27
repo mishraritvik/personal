@@ -77,7 +77,7 @@ void semaphore_wait(Semaphore *semp) {
 
         /* Add to queue of blocked threads. */
         struct thread_node * new_thread =
-            (thread_node *) malloc(sizeof(struct thread_node));
+            (struct thread_node *) malloc(sizeof(struct thread_node));
 
         /* The thread to be held is the currently executing one. */
         new_thread->thread = sthread_current();
