@@ -28,6 +28,10 @@ struct thread_node {
  *     int i              : the count of the semaphore
  *     thread_node * head : head of the queue containing blocked threads
  *     thread_node * tail : tail of the queue containing blocked threads
+ *
+ * The queue is needed so that when a thread calls wait and the semaphore count
+ * is 0, it can be blocked. Then when the semaphore is signalled, the thread
+ * that was blocked first can be unblocked.
  */
 struct _semaphore {
     int i;
@@ -97,16 +101,11 @@ void semaphore_wait(Semaphore *semp) {
             semp->tail->next = new_thread;
             semp->tail = semp->tail->next;
         }
-
-        assert(semp->tail = new_thread);
-        assert(semp->head != NULL);
     }
 
     /* Decrement semaphore count. */
     semp->i--;
     assert(semp->i >= 0);
-
-    sthread_unblock(sthread_current());
 
     /* Can unlock now that operations are done. */
     __sthread_unlock();
@@ -142,7 +141,6 @@ void semaphore_signal(Semaphore *semp) {
         else {
             /* Move head to the next. */
             semp->head = semp->head->next;
-            assert(semp->head != NULL);
         }
 
         free(old_head);
