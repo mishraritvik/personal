@@ -37,6 +37,9 @@ struct _bounded_buffer {
     /* Semaphore used to count open spots in buffer. */
     Semaphore * open;
 
+    /* Semaphore (mutex) used to make sure only one thread accesses buffer. */
+    Semaphore * access;
+
 };
 
 /*
@@ -77,6 +80,7 @@ BoundedBuffer *new_bounded_buffer(int length) {
      */
     bufp->taken = new_semaphore(0);
     bufp->open = new_semaphore(length);
+    bufp->access = new_semaphore(1);
 
     return bufp;
 }
@@ -88,16 +92,22 @@ BoundedBuffer *new_bounded_buffer(int length) {
 void bounded_buffer_add(BoundedBuffer *bufp, const BufferElem *elem) {
     /*
      * Wait until the buffer has space by waiting on the open semaphore (there
-     * must be an open spot to add an element).
+     * must be an open spot to add an element). Need to wait on access as well
+     * to make sure only one thread is changing the buffer at a time.
      */
     semaphore_wait(bufp->open);
+    semaphore_wait(bufp->access);
 
     /* Now the buffer has space so add element. */
     bufp->buffer[(bufp->first + bufp->count) % bufp->length] = *elem;
     bufp->count++;
 
-    /* One more spot is taken in buffer so add to taken semaphore. */
+    /*
+     * One more spot is taken in buffer so add to taken semaphore. Also, no
+     * longer accessing the buffer so signal to access.
+     */
     semaphore_signal(bufp->taken);
+    semaphore_signal(bufp->access);
 }
 
 /*
@@ -107,17 +117,23 @@ void bounded_buffer_add(BoundedBuffer *bufp, const BufferElem *elem) {
 void bounded_buffer_take(BoundedBuffer *bufp, BufferElem *elem) {
     /*
      * Wait until the buffer has a value to retrieve by waiting on the taken
-     * semaphore (there must be an element to take).
+     * semaphore (there must be an element to take). Need to wait on access as
+     * well to make sure only one thread is changing the buffer at a time.
      */
     semaphore_wait(bufp->taken);
+    semaphore_wait(bufp->access);
 
-    /* Copy the element from the buffer, and clear the record */
+    /* Copy the element from the buffer, and clear the record. */
     *elem = bufp->buffer[bufp->first];
     bufp->buffer[bufp->first] = empty;
     bufp->count--;
     bufp->first = (bufp->first + 1) % bufp->length;
 
-    /* One more spot is open in buffer so add to open semaphore. */
+    /*
+     * One more spot is open in buffer so add to open semaphore. Also, no longer
+     * accessing the buffer so signal to access.
+     */
     semaphore_signal(bufp->open);
+    semaphore_signal(bufp->access);
 }
 
