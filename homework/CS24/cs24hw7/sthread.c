@@ -337,6 +337,7 @@ void __sthread_finish(void) {
     printf("Thread 0x%08x has finished executing.\n", (unsigned int) current);
     current->state = ThreadFinished;
     __sthread_schedule();
+    __sthread_unlock();
 }
 
 
@@ -367,7 +368,9 @@ Thread * sthread_current() {
  * run.
  */
 void sthread_yield() {
+    __sthread_lock();
     __sthread_schedule();
+    __sthread_unlock();
 }
 
 
@@ -376,8 +379,10 @@ void sthread_yield() {
  * to Blocked, and call the scheduler.
  */
 void sthread_block() {
+    __sthread_lock();
     current->state = ThreadBlocked;
     __sthread_schedule();
+    __sthread_unlock();
 }
 
 
@@ -390,11 +395,15 @@ void sthread_unblock(Thread *threadp) {
     assert(threadp != NULL);
     assert(threadp->state == ThreadBlocked);
 
+    __sthread_lock();
+
     /* Remove from the blocked queue */
     queue_remove(&blocked_queue, threadp);
 
     /* Re-queue it */
     threadp->state = ThreadReady;
     queue_add(threadp);
+
+    __sthread_unlock();
 }
 
