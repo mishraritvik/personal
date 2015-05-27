@@ -21,7 +21,7 @@
 struct thread_node {
     Thread * thread;
     struct thread_node * next;
-};
+} thread_node;
 
 /*
  * The semaphore data structure contains:
@@ -31,8 +31,8 @@ struct thread_node {
  */
 struct _semaphore {
     int i;
-    thread_node * head;
-    thread_node * tail;
+    struct thread_node * head;
+    struct thread_node * tail;
 };
 
 /************************************************************************
