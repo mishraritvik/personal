@@ -335,8 +335,9 @@ Thread * sthread_create(void (*f)(void *arg), void *arg) {
 void __sthread_finish(void) {
     /*
      * Any time we schedule we should lock and then unlock once it is done so
-     * that it is never half done. Also, the queue is changed during schedule,
-     * and two threads should not be able to change the queue at the same time.
+     * that it is never interrupted by another thread. Also, the queue is
+     * changed during schedule, and two threads should not be able to change the
+     * queue at the same time.
      */
     __sthread_lock();
     printf("Thread 0x%08x has finished executing.\n", (unsigned int) current);
@@ -354,7 +355,7 @@ void __sthread_finish(void) {
 void __sthread_delete(Thread *threadp) {
     assert(threadp != NULL);
 
-    __sthread_lock();
+    // __sthread_lock();
     free(threadp->memory);
     free(threadp);
 }
@@ -376,8 +377,9 @@ Thread * sthread_current() {
 void sthread_yield() {
     /*
      * Any time we schedule we should lock and then unlock once it is done so
-     * that it is never half done. Also, the queue is changed during schedule,
-     * and two threads should not be able to change the queue at the same time.
+     * that it is never interrupted by another thread. Also, the queue is
+     * changed during schedule, and two threads should not be able to change the
+     * queue at the same time.
      */
     __sthread_lock();
     __sthread_schedule();
@@ -392,8 +394,9 @@ void sthread_yield() {
 void sthread_block() {
     /*
      * Any time we schedule we should lock and then unlock once it is done so
-     * that it is never half done. Also, the queue is changed during schedule,
-     * and two threads should not be able to change the queue at the same time.
+     * that it is never interrupted by another thread. Also, the queue is
+     * changed during schedule, and two threads should not be able to change the
+     * queue at the same time.
      */
     __sthread_lock();
     current->state = ThreadBlocked;
