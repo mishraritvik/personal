@@ -28,6 +28,7 @@ scheduler_lock:         .long   0
 #
         .globl __sthread_lock
 __sthread_lock:
+        ret
         # put 1 in eax to be exchanged with scheduler_lock
         mov     $1, %eax
 
@@ -47,6 +48,7 @@ done:
         .globl __sthread_unlock
 __sthread_unlock:
         # release the lock.
+        ret
         movl    $0, scheduler_lock
 
         ret
