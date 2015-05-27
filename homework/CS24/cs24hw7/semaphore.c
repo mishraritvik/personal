@@ -55,7 +55,7 @@ Semaphore *new_semaphore(int init) {
     /* Set the intiial number of the semaphore. */
     semp->i = init;
 
-    /* Queue is empty so set head and tail of queue to NULL. */
+    /* Queue is empty initially so set head and tail of queue to NULL. */
     semp->head = NULL;
     semp->tail = NULL;
 
@@ -67,12 +67,11 @@ Semaphore *new_semaphore(int init) {
  * This operation must be atomic, and it blocks iff the semaphore is zero.
  */
 void semaphore_wait(Semaphore *semp) {
-    /* TODO */
+    /* This must be atomic, so make sure no other threads interfere. */
+    __sthread_lock();
+
     while (semp->i == 0) {
         /* Semaphore cannot handle another thread, so block it. */
-        /* Need to lock before blocking so that multiple threads do not access
-         * the queue at the same time. */
-        __sthread_lock();
         sthread_block();
 
         /* Add to queue of blocked threads. */
@@ -100,6 +99,9 @@ void semaphore_wait(Semaphore *semp) {
 
     /* Decrement semaphore count. */
     semp->i--;
+
+    /* Can unlock now that operations are done. */
+    __sthread_unlock();
 }
 
 /*
@@ -107,6 +109,9 @@ void semaphore_wait(Semaphore *semp) {
  * This operation must be atomic.
  */
 void semaphore_signal(Semaphore *semp) {
+    /* This must be atomic, so make sure no other threads interfere. */
+    __sthread_lock();
+
     /* Incrememnt semaphore count. */
     semp->i++;
 
@@ -124,5 +129,8 @@ void semaphore_signal(Semaphore *semp) {
         semp->head = semp->head->next;
         free(old_head);
     }
+
+    /* Can unlock now that operations are done. */
+    __sthread_unlock();
 }
 
