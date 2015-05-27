@@ -84,9 +84,6 @@ void semaphore_wait(Semaphore *semp) {
         /* The thread to be held is the currently executing one. */
         new_thread->thread = sthread_current();
 
-        /* Block it. */
-        sthread_block();
-
         /* Will be at the end of queue so next is NULL. */
         new_thread->next = NULL;
 
@@ -101,6 +98,9 @@ void semaphore_wait(Semaphore *semp) {
             semp->tail->next = new_thread;
             semp->tail = semp->tail->next;
         }
+
+        /* Block it. */
+        sthread_block();
     }
 
     /* Decrement semaphore count. */
