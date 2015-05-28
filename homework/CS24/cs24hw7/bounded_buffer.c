@@ -38,7 +38,7 @@ struct _bounded_buffer {
     Semaphore * open;
 
     /* Binary Semaphore used to make sure only one thread accesses buffer. */
-    // Semaphore * access;
+    Semaphore * access;
 
 };
 
@@ -83,7 +83,7 @@ BoundedBuffer *new_bounded_buffer(int length) {
      */
     bufp->taken = new_semaphore(0);
     bufp->open = new_semaphore(length);
-    // bufp->access = new_semaphore(1);
+    bufp->access = new_semaphore(1);
 
     return bufp;
 }
@@ -99,7 +99,7 @@ void bounded_buffer_add(BoundedBuffer *bufp, const BufferElem *elem) {
      * to make sure only one thread is changing the buffer at a time.
      */
     semaphore_wait(bufp->open);
-    // semaphore_wait(bufp->access);
+    semaphore_wait(bufp->access);
 
     /* Now the buffer has space so add element. */
     bufp->buffer[(bufp->first + bufp->count) % bufp->length] = *elem;
@@ -110,7 +110,7 @@ void bounded_buffer_add(BoundedBuffer *bufp, const BufferElem *elem) {
      * longer accessing the buffer so signal to access.
      */
     semaphore_signal(bufp->taken);
-    // semaphore_signal(bufp->access);
+    semaphore_signal(bufp->access);
 }
 
 /*
@@ -124,7 +124,7 @@ void bounded_buffer_take(BoundedBuffer *bufp, BufferElem *elem) {
      * well to make sure only one thread is changing the buffer at a time.
      */
     semaphore_wait(bufp->taken);
-    // semaphore_wait(bufp->access);
+    semaphore_wait(bufp->access);
 
     /* Copy the element from the buffer, and clear the record. */
     *elem = bufp->buffer[bufp->first];
@@ -137,6 +137,6 @@ void bounded_buffer_take(BoundedBuffer *bufp, BufferElem *elem) {
      * accessing the buffer so signal to access.
      */
     semaphore_signal(bufp->open);
-    // semaphore_signal(bufp->access);
+    semaphore_signal(bufp->access);
 }
 
