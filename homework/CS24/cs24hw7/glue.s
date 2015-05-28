@@ -37,7 +37,7 @@ __sthread_lock:
 
         # return inverse of old value (can't use inv because one bit)
         movl    $1, %eax
-        cmp     $0, %ecx
+        cmpl     $0, %ecx
         je      done
         movl    $0, %eax
 
