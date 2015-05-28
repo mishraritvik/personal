@@ -355,7 +355,6 @@ void __sthread_finish(void) {
 void __sthread_delete(Thread *threadp) {
     assert(threadp != NULL);
 
-    // __sthread_lock();
     free(threadp->memory);
     free(threadp);
 }

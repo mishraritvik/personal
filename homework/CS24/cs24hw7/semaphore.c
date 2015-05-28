@@ -56,7 +56,7 @@ Semaphore *new_semaphore(int init) {
         printf("Semaphore was not allocated.\n");
     }
 
-    /* Set the intiial number of the semaphore. */
+    /* Set the intiial count of the semaphore. */
     semp->i = init;
 
     /* Queue is empty initially so set head and tail of queue to NULL. */
@@ -78,24 +78,24 @@ void semaphore_wait(Semaphore *semp) {
         /* Semaphore cannot handle another thread, so block current one. */
 
         /* Add to queue of blocked threads. */
-        struct thread_node * new_thread =
+        struct thread_node * current =
             (struct thread_node *) malloc(sizeof(struct thread_node));
 
         /* The thread to be held is the currently executing one. */
-        new_thread->thread = sthread_current();
+        current->thread = sthread_current();
 
         /* Will be at the end of queue so next is NULL. */
-        new_thread->next = NULL;
+        current->next = NULL;
 
         /* Add to queue. */
         if (semp->head == NULL) {
-            /* Empty queue, head and tail are new value. */
-            semp->head = new_thread;
+            /* Empty queue, head and tail are the new thread_node. */
+            semp->head = current;
             semp->tail = semp->head;
         }
         else {
             /* This will be the next of tail, and new tail. */
-            semp->tail->next = new_thread;
+            semp->tail->next = current;
             semp->tail = semp->tail->next;
         }
 
@@ -103,7 +103,7 @@ void semaphore_wait(Semaphore *semp) {
         sthread_block();
     }
 
-    /* Decrement semaphore count. */
+    /* Decrement semaphore count, should still be non-negative. */
     semp->i--;
     assert(semp->i >= 0);
 
@@ -127,6 +127,7 @@ void semaphore_signal(Semaphore *semp) {
         /* Queue empty! Do nothing. */
     }
     else {
+        /* Save the current head to free it later. */
         struct thread_node * old_head = semp->head;
 
         /* Unblock the head. */

@@ -31,11 +31,11 @@ __sthread_lock:
         # put 1 into eax to switch with scheduler_lock
         movl    $1, %eax
 
-        # switch values
+        # switch values so that 1 is in scheduler_lock and old value in eax
         lock
         xchgl   %eax, scheduler_lock
 
-        # take inverse of eax (can't use inv because one bit)
+        # return inverse of old value (can't use inv because one bit)
         xorl    $1, %eax
 
         ret

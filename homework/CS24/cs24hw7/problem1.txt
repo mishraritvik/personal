@@ -1,8 +1,9 @@
 The problem:
 As seen in the output, only producer 0 ever outputs values of the Fibonacci
-sequence, while the other producer never outputs anything.
+sequence, while producer 1 never outputs anything.
 
 Why:
-This unfair execution occurs because producer 0 never yields. Even though it is
-supposed to yield when the buffer is full, if this never occurs then it will
-never yield, and this is what seems to be occuring.
+This unfair execution occurs because the producer 0 thread never yields. Even
+though it is supposed to yield when the buffer is full, if the buffer never gets
+full then it will never yield. Since the buffer is presumably never filling, the
+producer 0 thread never yields to the producer 1 thread.

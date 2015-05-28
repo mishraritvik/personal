@@ -37,7 +37,7 @@ struct _bounded_buffer {
     /* Semaphore used to count open spots in buffer. */
     Semaphore * open;
 
-    /* Semaphore (mutex) used to make sure only one thread accesses buffer. */
+    /* Binary Semaphore used to make sure only one thread accesses buffer. */
     // Semaphore * access;
 
 };
