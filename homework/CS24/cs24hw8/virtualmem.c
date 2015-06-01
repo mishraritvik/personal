@@ -554,8 +554,6 @@ void unmap_page(page_t page) {
      * Step 2:
      * Remove the page’s address-range from the process’ virtual address space.
      */
-
-    /* Unmap. */
     ret = munmap(page_to_addr(page), PAGE_SIZE);
 
     /* Check that it worked. */
@@ -626,40 +624,47 @@ static void sigsegv_handler(int signum, siginfo_t *infop, void *data) {
      * this may result in some other page being unmapped.
      */
 
-    /* ==== TODO:  IMPLEMENT =================================================
-     *
-     * Examine the value of infop->si_code to determine if the corresponding
-     * page is simply unmapped (SEGV_MAPERR), or if the page is mapped but the
-     * access itself was not permitted (SEGV_ACCERR).
-     *
-     * If the address is unmapped (SEGV_ACCERR), you will need to map the
-     * corresponding page into memory.  Make sure to respect the physical
-     * memory constraints by evicting a page if there are already max_resident
-     * pages loaded.  You can do something like this to evict a page:
-     *
-     *     assert(num_resident <= max_resident);
-     *     if (num_resident == max_resident) {
-     *         page_t victim = choose_victim_page();
-     *         assert(is_page_resident(victim));
-     *         unmap_page(victim);
-     *         assert(!is_page_resident(victim));
-     *     }
-     *
-     * Keep in mind that the new page will need its Page Table Entry (PTE)
-     * and permissions updated properly.
-     *
-     * If the address is mapped but an access violation occurred (SEGV_ACCERR),
-     * you can use the Page Table Entry helper functions to retrieve and update
-     * the page's PTE and permissions appropriately.  The set_page_permission()
-     * function is particularly useful; it will update the permission values in
-     * the page's PTE, as well as modifying the actual virtual-memory page
-     * permissions with a call to mprotect().
-     *
-     * As always, use assertions liberally!  If you have any errors, or you
-     * have points in the code that should never be reached, report an error
-     * and then call abort() so that your code will fail visibly.  This will
-     * greatly aid in debugging.
-     */
+    /* Handle unmapped address (SEGV_MAPERR). */
+    if (infop->si_code == SEGV_MAPERR) {
+        /* Evict a page. */
+        assert(num_resident <= max_resident);
+        if (num_resident == max_resident) {
+            page_t victim = choose_victim_page();
+            assert(is_page_resident(victim));
+            unmap_page(victim);
+            assert(!is_page_resident(victim));
+        }
+
+        /*
+         * There should now be space, so load the new page. No permissions
+         * initially.
+         */
+        assert(num_resident < max_resident);
+        map_page(page, PAGEPERM_NONE);
+    }
+
+    /* Handle unpermitted access (SEGV_ACCERR). */
+    else {
+        switch(get_page_permission(page)) {
+            case PAGEPERM_NONE:
+                //TODO how do we know if they tried to read or write?
+                break;
+            case PAGEPERM_READ:
+                /* Tried to write, so make it read-write access. */
+                set_page_permission(page, PAGEPERM_READ);
+                /* Now it is accessed and dirty so mark both. */
+                set_page_accessed(page);
+                set_page_dirty(page);
+                assert(is_page_accessed(page));
+                assert(is_page_dirty(page));
+                break;
+            case PAGEPERM_RDWR:
+                fprintf(stderr, "sigsegv_handler: got unpermitted access error \
+                    on page that already has read-write permission.\n");
+                abort();
+                break;
+        }
+    }
 }
 
 
