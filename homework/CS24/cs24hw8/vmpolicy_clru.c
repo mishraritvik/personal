@@ -159,7 +159,29 @@ void policy_page_unmapped(page_t page) {
  * virtual memory system has a timer tick for efficiency.
  */
 void policy_timer_tick() {
-    //TODO
+    pageinfo_t * curr = pagelist.head, * prev = NULL;
+
+    /* Iterate through the linked list. */
+    while (curr != NULL) {
+
+        /* If the page has been accessed it should be moved. */
+        if (is_page_accessed(curr->page)) {
+            /* Reset accessed bit for next tick. */
+            clear_page_accessed(curr->page);
+
+            /* Reset permissions to none. */
+            set_page_permission(curr->page, PAGEPERM_NONE);
+
+            /* Remove from list and add again so it is at the end. */
+            remove_from_list(&pagelist, curr, prev);
+            add_page(&pagelist, curr->page);
+        }
+
+        /* Move forward in list. */
+        prev = curr;
+        curr = curr->next;
+    }
+
 }
 
 
