@@ -200,6 +200,14 @@ void policy_timer_tick() {
         prev = curr;
         curr = curr->next;
     }
+
+    //DEBUG
+    counter = 0;
+    curr = pagelist.head;
+    while (curr != NULL) {
+        counter++;
+        curr = curr->next;
+    }
 }
 
 
