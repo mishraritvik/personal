@@ -153,9 +153,13 @@ void policy_page_unmapped(page_t page) {
 }
 
 
-/* This function is called when the virtual memory system has a timer tick. */
+/* This function reorders the page list by iterating through it and moving any
+ * pages that have been accessed since the last tick to the back so that the
+ * least recently used pages tend to be in the front. It is called when the
+ * virtual memory system has a timer tick for efficiency.
+ */
 void policy_timer_tick() {
-    /* Do nothing! */
+    //TODO
 }
 
 
