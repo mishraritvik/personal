@@ -181,31 +181,30 @@ void policy_timer_tick() {
         pginfo = pginfo->next;
     }
 
-    return;
-    pageinfo_t * curr = pagelist.head, * prev = NULL;
-    page_t curr_page;
+    // pageinfo_t * curr = pagelist.head, * prev = NULL;
+    // page_t curr_page;
 
-    /* Iterate through the linked list. */
-    while (curr != NULL) {
-        curr_page = curr->page;
+    // /* Iterate through the linked list. */
+    // while (curr != NULL) {
+    //     curr_page = curr->page;
 
-        /* If the page has been accessed it should be moved. */
-        if (is_page_accessed(curr_page)) {
-            /* Reset accessed bit for next tick. */
-            clear_page_accessed(curr_page);
+    //     /* If the page has been accessed it should be moved. */
+    //     if (is_page_accessed(curr_page)) {
+    //         /* Reset accessed bit for next tick. */
+    //         clear_page_accessed(curr_page);
 
-            /* Reset permissions to none. */
-            set_page_permission(curr_page, PAGEPERM_NONE);
+    //         /* Reset permissions to none. */
+    //         set_page_permission(curr_page, PAGEPERM_NONE);
 
-            /* Remove from list and add again so it is at the end. */
-            remove_from_list(&pagelist, curr, prev);
-            add_page(&pagelist, curr_page);
-        }
+    //         /* Remove from list and add again so it is at the end. */
+    //         remove_from_list(&pagelist, curr, prev);
+    //         add_page(&pagelist, curr_page);
+    //     }
 
-        /* Move forward in list. */
-        prev = curr;
-        curr = curr->next;
-    }
+    //     /* Move forward in list. */
+    //     prev = curr;
+    //     curr = curr->next;
+    // }
 }
 
 
