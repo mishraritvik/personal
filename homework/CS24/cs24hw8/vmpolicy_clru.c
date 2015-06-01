@@ -159,6 +159,29 @@ void policy_page_unmapped(page_t page) {
  * virtual memory system has a timer tick for efficiency.
  */
 void policy_timer_tick() {
+
+    pageinfo_t *pginfo, *prev;
+    page_t currpg;
+
+    prev = NULL;
+    pginfo = pagelist.head;
+
+    while (pginfo != NULL) {
+        currpg = pginfo->page;
+
+        if (is_page_accessed(currpg)) {
+            clear_page_accessed(currpg);
+            set_page_permission(currpg, PAGEPERM_NONE);
+
+            remove_from_list(&pagelist, pginfo, prev);
+            add_page(&pagelist, currpg);
+        }
+
+        prev = pginfo;
+        pginfo = pginfo->next;
+    }
+
+    return;
     pageinfo_t * curr = pagelist.head, * prev = NULL;
     page_t curr_page;
 
@@ -177,13 +200,11 @@ void policy_timer_tick() {
             /* Remove from list and add again so it is at the end. */
             remove_from_list(&pagelist, curr, prev);
             add_page(&pagelist, curr_page);
-
-            curr = prev;
         }
 
         /* Move forward in list. */
         prev = curr;
-        curr = prev->next;
+        curr = curr->next;
     }
 }
 
