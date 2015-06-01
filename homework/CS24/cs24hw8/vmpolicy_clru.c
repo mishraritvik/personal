@@ -160,21 +160,23 @@ void policy_page_unmapped(page_t page) {
  */
 void policy_timer_tick() {
     pageinfo_t * curr = pagelist.head, * prev = NULL;
+    page_t page;
 
     /* Iterate through the linked list. */
     while (curr != NULL) {
+        page = curr->page;
 
         /* If the page has been accessed it should be moved. */
-        if (is_page_accessed(curr->page)) {
+        if (is_page_accessed(page)) {
             /* Reset accessed bit for next tick. */
-            clear_page_accessed(curr->page);
+            clear_page_accessed(page);
 
             /* Reset permissions to none. */
-            set_page_permission(curr->page, PAGEPERM_NONE);
+            set_page_permission(page, PAGEPERM_NONE);
 
             /* Remove from list and add again so it is at the end. */
             remove_from_list(&pagelist, curr, prev);
-            add_page(&pagelist, curr->page);
+            add_page(&pagelist, page);
         }
 
         /* Move forward in list. */
