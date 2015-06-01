@@ -1,0 +1,9 @@
+Part 1. Cache Misses
+
+Part 2. Cache Utilization
+
+Part 3. New cmp_records()
+
+Part 4. Benefit of Prefixes
+
+Part 5. Similar Keys

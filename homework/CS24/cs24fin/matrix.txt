@@ -1,0 +1,9 @@
+Part 1. Stride
+
+For src: stride of 1.
+
+For dst: stride of SIZE.
+
+Part 2. Minimum Distance
+
+Part 3. Worst Case
