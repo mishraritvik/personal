@@ -178,10 +178,8 @@ void policy_timer_tick() {
             remove_from_list(&pagelist, curr, prev);
             add_page(&pagelist, curr_page);
 
-            printf("MOO\n");
-            if (curr->next == NULL) {
-                printf("FOO\n");
-            }
+            /* curr is now next of prev because it was removed. */
+            curr = prev->next;
         }
 
         /* Move forward in list. */
