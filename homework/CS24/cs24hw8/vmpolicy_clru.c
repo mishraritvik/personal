@@ -162,8 +162,12 @@ void policy_timer_tick() {
     pageinfo_t * curr = pagelist.head, * prev = NULL;
     page_t curr_page;
 
-    /* Iterate through the linked list. */
-    while (curr != pagelist.tail) {
+    /*
+     * Iterate through the linked list. End condition can be curr being the tail
+     * because whether or not the tail has been accessed, it will remain the
+     * tail so no need to handle it.
+     */
+    while (curr->next != NULL) {
         curr_page = curr->page;
 
         /* If the page has been accessed it should be moved. */
