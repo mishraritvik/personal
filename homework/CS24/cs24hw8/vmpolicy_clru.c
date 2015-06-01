@@ -177,11 +177,13 @@ void policy_timer_tick() {
             /* Remove from list and add again so it is at the end. */
             remove_from_list(&pagelist, curr, prev);
             add_page(&pagelist, curr_page);
+
+            curr = prev;
         }
 
         /* Move forward in list. */
         prev = curr;
-        curr = curr->next;
+        curr = prev->next;
     }
 }
 
