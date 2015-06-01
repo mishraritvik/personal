@@ -178,6 +178,7 @@ void policy_timer_tick() {
             prev->next = curr->next;
             pagelist.tail->next = curr;
             pagelist.tail = curr;
+            curr = prev;
             // remove_from_list(&pagelist, curr, prev);
             // add_page(&pagelist, curr_page);
         }
