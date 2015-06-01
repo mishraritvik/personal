@@ -187,7 +187,8 @@ void policy_timer_tick() {
 
 
 /* This is a queue where the least recently used pages tend to be towards the
- * front of the queue, so we will choose the head as the victim.
+ * front of the queue (because of the rearrangment at each tick), so we will
+ * choose the head as the victim.
  */
 page_t choose_victim_page() {
     page_t victim;

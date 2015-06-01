@@ -692,6 +692,7 @@ static void sigalrm_handler(int signum, siginfo_t *infop, void *data) {
     /* All we have to do is inform the page replacement policy that a timer
      * tick occurred!
      */
+    printf("TICKING\n");
     policy_timer_tick();
 }
 
