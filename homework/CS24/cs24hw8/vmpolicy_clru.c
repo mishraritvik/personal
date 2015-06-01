@@ -202,7 +202,7 @@ void policy_timer_tick() {
     }
 
     //DEBUG
-    counter = 0;
+    int counter = 0;
     curr = pagelist.head;
     while (curr != NULL) {
         counter++;
