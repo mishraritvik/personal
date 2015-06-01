@@ -178,8 +178,8 @@ void policy_timer_tick() {
             remove_from_list(&pagelist, curr, prev);
             add_page(&pagelist, curr_page);
 
-            /* curr is now next of prev because it was removed. */
-            curr = prev->next;
+            /* curr is now prev because it was removed. */
+            curr = prev;
         }
 
         /* Move forward in list. */
