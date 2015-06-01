@@ -163,7 +163,7 @@ void policy_timer_tick() {
     page_t curr_page;
 
     /* Iterate through the linked list. */
-    while (curr != NULL) {
+    while (curr != pagelist.tail) {
         curr_page = curr->page;
 
         /* If the page has been accessed it should be moved. */
@@ -181,10 +181,13 @@ void policy_timer_tick() {
             /* Free old pageinfo, curr is now prev since it was removed. */
             free(curr);
 
+            /* Reset curr since it was removed. */
             if (prev == NULL) {
+                /* If prev was NULL, then we are at the head. */
                 curr = pagelist.head;
             }
             else {
+                /* Otherwise our prev is our new curr. */
                 curr = prev;
             }
         }
