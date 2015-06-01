@@ -179,6 +179,7 @@ void policy_timer_tick() {
             add_page(&pagelist, curr_page);
 
             /* curr is now prev because it was removed. */
+            free(curr);
             curr = prev;
         }
 
