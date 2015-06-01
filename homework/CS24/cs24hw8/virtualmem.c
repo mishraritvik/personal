@@ -647,11 +647,19 @@ static void sigsegv_handler(int signum, siginfo_t *infop, void *data) {
     else {
         switch(get_page_permission(page)) {
             case PAGEPERM_NONE:
-                //TODO how do we know if they tried to read or write?
+                /*
+                 * Tried to read or write. Give read access, if it was a write
+                 * then it will segfault again and read-write access will be
+                 * given then.
+                 */
+                set_page_permission(page, PAGEPERM_READ);
+                /* Now it is accessed so mark. */
+                set_page_accessed(page);
+                assert(is_page_accessed(page));
                 break;
             case PAGEPERM_READ:
                 /* Tried to write, so make it read-write access. */
-                set_page_permission(page, PAGEPERM_READ);
+                set_page_permission(page, PAGEPERM_RDWR);
                 /* Now it is accessed and dirty so mark both. */
                 set_page_accessed(page);
                 set_page_dirty(page);
