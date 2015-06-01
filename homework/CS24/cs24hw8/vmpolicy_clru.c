@@ -178,9 +178,9 @@ void policy_timer_tick() {
             remove_from_list(&pagelist, curr, prev);
             add_page(&pagelist, curr_page);
 
-            printf("1\n");
+            printf("MOO\n");
             if (curr->next == NULL) {
-                printf("2\n");
+                printf("FOO\n");
             }
         }
 
