@@ -1,18 +1,21 @@
-Answers to HW8 Questions
+1Answers to HW8 Questions
 ========================
 
 a)  How to detect when a page is accessed?
+
 We can detect segfaults. So, if we set up the permission such that an access
 results in a segfault, we will be able to detect when the page is accessed. So,
 we can use the PROT_NONE permission.
 
 b)  How to detect when a page becomes dirty?
+
 We can detect segfaults. So, if we set up the permission such that a write
 results in a segfault, we will be able to detect when the page is written to.
 So, we can use the PROT_READ permission.
 
 f)  Page-load rate of "test_matrix -m 1024 1000" using RANDOM policy:
 
+55193 page loads. Only ran once, did not average.
 
 g)  Page-load rate of "test_matrix_fifo -m 1024 1000" using FIFO policy:
 
