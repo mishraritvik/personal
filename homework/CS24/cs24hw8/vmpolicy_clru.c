@@ -1,5 +1,5 @@
 /*============================================================================
- * Implementation of the FIFO page replacement policy.
+ * Implementation of the CLOCK/LRU page replacement policy.
  *
  * We don't mind if policies use malloc() and free(), just because it keeps
  * things simpler.
@@ -124,7 +124,7 @@ static pagelist_t pagelist;
 
 /* Initialize the policy.  Return 0 for success, -1 for failure. */
 int policy_init() {
-    fprintf(stderr, "Using FIFO eviction policy.\n\n");
+    fprintf(stderr, "Using CLOCK/LRU eviction policy.\n\n");
     pagelist.head = NULL;
     pagelist.tail = NULL;
     return 0;
@@ -153,17 +153,14 @@ void policy_page_unmapped(page_t page) {
 }
 
 
-/* This function reorders the page list by iterating through it and moving any
- * pages that have been accessed since the last tick to the back so that the
- * least recently used pages tend to be in the front. It is called when the
- * virtual memory system has a timer tick for efficiency. */
+/* This function is called when the virtual memory system has a timer tick. */
 void policy_timer_tick() {
-    //TODO
+    /* Do nothing! */
 }
 
 
-/* This is a FIFO queue where the head is the oldest and the tail is the newest.
- * So, the victim is simply the first item in the linked list.
+/* This is a queue where the least recently used pages tend to be towards the
+ * front of the queue, so we will choose the head as the victim.
  */
 page_t choose_victim_page() {
     page_t victim;
