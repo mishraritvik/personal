@@ -195,8 +195,6 @@ page_t choose_victim_page() {
 
     assert(pagelist.head != NULL);
 
-    policy_timer_tick();
-
     victim = pagelist.head->page;
 
 #if VERBOSE
