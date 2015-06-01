@@ -540,7 +540,6 @@ void unmap_page(page_t page) {
 
         /* Check that it worked. */
         if (ret == -1) {
-            printf("a\n");
             perror("write");
             abort();
         }

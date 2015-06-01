@@ -162,6 +162,8 @@ void policy_timer_tick() {
     pageinfo_t * curr = pagelist.head, * prev = NULL;
     page_t curr_page;
 
+    return
+
     /* Iterate through the linked list. */
     while (curr != NULL) {
         curr_page = curr->page;
