@@ -208,6 +208,8 @@ void policy_timer_tick() {
         counter++;
         curr = curr->next;
     }
+
+    printf("pagelist size %d\n", counter);
 }
 
 
