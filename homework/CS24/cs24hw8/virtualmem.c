@@ -631,7 +631,9 @@ static void sigsegv_handler(int signum, siginfo_t *infop, void *data) {
         if (num_resident == max_resident) {
             page_t victim = choose_victim_page();
             assert(is_page_resident(victim));
+            printf("a\n");
             unmap_page(victim);
+            printf("b\n");
             assert(!is_page_resident(victim));
         }
 
