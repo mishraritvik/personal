@@ -168,7 +168,7 @@ void policy_timer_tick() {
      * because whether or not the tail has been accessed, it will remain the
      * tail so no need to handle it.
      */
-    while (curr->next != NULL) {
+    while (curr != NULL) {
         curr_page = curr->page;
         prev = curr->next;
 
@@ -185,7 +185,7 @@ void policy_timer_tick() {
             set_page_permission(curr_page, PAGEPERM_NONE);
 
             /* Free old pageinfo, curr is now prev since it was removed. */
-            free(curr);
+            // free(curr);
         }
         curr = prev;
     }
