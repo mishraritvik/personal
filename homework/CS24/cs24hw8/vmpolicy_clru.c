@@ -174,8 +174,8 @@ void policy_timer_tick() {
         /* If the page has been accessed it should be moved. */
         if (is_page_accessed(curr_page)) {
             /* Remove from list and add again so it is at the end. */
-            remove_from_list(&pagelist, curr, prev);
-            add_page(&pagelist, curr_page);
+            policy_page_unmapped(curr_page);
+            policy_page_mapped(curr_page);
 
             /* Reset accessed bit for next tick. */
             clear_page_accessed(curr_page);
