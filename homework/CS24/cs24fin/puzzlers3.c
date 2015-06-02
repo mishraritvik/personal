@@ -15,6 +15,7 @@ int main() {
     }
     else {
         val--;
+        printf("inside else\n");
         printf("%d", val); fflush(stdout); wait(NULL);
     }
     val++; printf("%d", val); fflush(stdout); exit(0);
