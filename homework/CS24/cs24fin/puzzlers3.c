@@ -9,6 +9,7 @@ int main() {
     printf("%d", 0); fflush(stdout);
     if (fork() == 0) {
         val++;
+        printf("inside if\n");
         printf("%d", val);
         fflush(stdout);
     }

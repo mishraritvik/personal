@@ -1,6 +1,28 @@
-Part 1.
+Part 1.A.
 
+At the very beginning of the loop, it forks. So, there are two processes that
+are at the i = 0 iteration of the loop. They each increment counter and print.
+So, we have two times printed so far. Then they both go into the i = 1
+iteration. They first fork, so there are another two processes at the i = 1
+iteration, making for a total of 4. All four print, so the total is 4 + 2 = 6
+prints so far. Now, all four processes are at i = 2, so they do not enter the
+body of the for loop. They all print after the for loop has finished, so
+another four prints making the total 4 + 6 = 10 prints. The value of counter is
+printed 10 times.
 
+Part 1.B.
+
+When fork is called for the first time, counter = 0. Then, counter is
+incremented and printed, with nothing else happening at the same time. So, the
+first line will have counter as 1.
+
+Part 1.C.
+
+Every process that is forked will eventually go from the first iteration of the
+loop to the second, and due to the bounds of the loop it is not possible for
+counter to go over 2. So, there is no way for counter = 1 to be the last line,
+as at least one counter = 2 line will always follow at some point. So, the last
+line will ahve counter as 2.
 
 Part 2.
 
@@ -8,3 +30,9 @@ Part 2.
 
 Part 3.
 
+First, 0 will always be printed.
+
+Then, it tries to fork. If the fork succeeds, val is incremented from 2 to 3 and
+printed (so 3 is the second number).
+If the fork fails, val is decremented from 2 to 1 and printed (so 1 is the
+second number).
