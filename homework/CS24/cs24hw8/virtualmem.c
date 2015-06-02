@@ -455,7 +455,7 @@ void map_page(page_t page, unsigned initial_perm) {
         abort();
     }
     if (vm_address != page_to_addr(page)) {
-        fprintf(stderr, "mmap: did not work\n");
+        fprintf(stderr, "mmap: address changed\n");
         abort();
     }
 
@@ -539,8 +539,8 @@ void unmap_page(page_t page) {
             abort();
         }
 
-        /* Save to slot. */
-        set_page_permission(page, PAGEPERM_RDWR);
+        /* Save to slot, need to be able to read from page to write to slot. */
+        set_page_permission(page, PAGEPERM_READ);
         ret = write(fd_swapfile, page_to_addr(page), PAGE_SIZE);
 
         /* Check that it worked. */

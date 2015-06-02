@@ -169,6 +169,10 @@ void policy_timer_tick() {
      * tail so no need to handle it.
      */
     while (curr != NULL) {
+        /*
+         * Get current page and move prev forward so it can be used to put curr
+         * in the right place later.
+         */
         curr_page = curr->page;
         prev = curr->next;
 
@@ -185,8 +189,9 @@ void policy_timer_tick() {
             set_page_permission(curr_page, PAGEPERM_NONE);
 
             /* Free old pageinfo, curr is now prev since it was removed. */
-            // free(curr);
+            free(curr);
         }
+        /* Move current forward. */
         curr = prev;
     }
 }
