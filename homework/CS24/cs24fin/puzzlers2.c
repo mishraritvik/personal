@@ -1,3 +1,9 @@
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
 pid_t pid;
 int counter = 0;
 void handler1(int sig) {
