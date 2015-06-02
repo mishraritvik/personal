@@ -170,6 +170,7 @@ void policy_timer_tick() {
      */
     while (curr->next != NULL) {
         curr_page = curr->page;
+        prev = curr->next;
 
         /* If the page has been accessed it should be moved. */
         if (is_page_accessed(curr_page)) {
@@ -185,21 +186,8 @@ void policy_timer_tick() {
 
             /* Free old pageinfo, curr is now prev since it was removed. */
             free(curr);
-
-            /* Reset curr since it was removed. */
-            if (prev == NULL) {
-                /* If prev was NULL, then we are at the head. */
-                curr = pagelist.head;
-            }
-            else {
-                /* Otherwise our prev is our new curr. */
-                curr = prev;
-            }
         }
-
-        /* Move forward in list. */
-        prev = curr;
-        curr = curr->next;
+        curr = prev;
     }
 }
 
