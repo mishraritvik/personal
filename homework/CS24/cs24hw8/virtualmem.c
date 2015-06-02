@@ -455,7 +455,7 @@ void map_page(page_t page, unsigned initial_perm) {
         abort();
     }
     if (vm_address != page_to_addr(page)) {
-        fprintf(stderr, "mmap: did not work.\n");
+        fprintf(stderr, "mmap: did not work\n");
         abort();
     }
 
@@ -466,7 +466,7 @@ void map_page(page_t page, unsigned initial_perm) {
      */
 
     /* Seek. */
-    ret = lseek(fd_swapfile, vm_address, SEEK_SET);
+    ret = lseek(fd_swapfile, page * PAGE_SIZE, SEEK_SET);
 
     /* Check that it worked. */
     if (ret == -1) {
@@ -475,7 +475,7 @@ void map_page(page_t page, unsigned initial_perm) {
     }
 
     /* Read contents. */
-    ret = read(fd_swapfile, vm_address, PAGE_SIZE);
+    ret = read(fd_swapfile, page * PAGE_SIZE, PAGE_SIZE);
 
     /* Check that it worked. */
     if (ret == -1) {
