@@ -209,7 +209,7 @@ void policy_timer_tick() {
         curr = curr->next;
     }
 
-    printf("pagelist size %d\n", counter);
+    printf("AAA pagelist size %d\n", counter, );
 }
 
 
