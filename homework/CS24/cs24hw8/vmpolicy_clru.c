@@ -182,13 +182,13 @@ void policy_timer_tick() {
             policy_page_unmapped(curr_page);
             policy_page_mapped(curr_page);
 
-            /* Reset accessed bit for next tick. */
+            /* Reset accessed bit for next timer tick. */
             clear_page_accessed(curr_page);
 
             /* Reset permissions to none. */
             set_page_permission(curr_page, PAGEPERM_NONE);
 
-            /* Free old pageinfo, curr is now prev since it was removed. */
+            /* Free the old pageinfo as it is no longer used. */
             free(curr);
         }
         /* Move forward in linked list. */
