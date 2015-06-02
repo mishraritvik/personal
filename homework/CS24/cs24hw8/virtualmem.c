@@ -447,7 +447,9 @@ void map_page(page_t page, unsigned initial_perm) {
     /* Use mmap to add to virtual memory. */
     void * vm_address = mmap(page_to_addr(page), PAGE_SIZE,
         pageperm_to_mmap(PAGEPERM_RDWR), MAP_FIXED | MAP_SHARED | MAP_ANONYMOUS,
-        -1, page * PAGE_SIZE);
+        -1,
+        // page * PAGE_SIZE);
+        0);
 
     /* Check that it worked. */
     if (vm_address == (void *) -1) {
@@ -631,9 +633,7 @@ static void sigsegv_handler(int signum, siginfo_t *infop, void *data) {
         if (num_resident == max_resident) {
             page_t victim = choose_victim_page();
             assert(is_page_resident(victim));
-            printf("999a\n");
             unmap_page(victim);
-            printf("999b\n");
             assert(!is_page_resident(victim));
         }
 
