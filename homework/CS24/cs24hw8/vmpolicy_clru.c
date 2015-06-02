@@ -185,7 +185,7 @@ void policy_timer_tick() {
             set_page_permission(curr_page, PAGEPERM_NONE);
 
             /* Free old pageinfo, curr is now prev since it was removed. */
-            free(curr);
+            // free(curr);
         }
         curr = prev;
     }
