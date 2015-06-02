@@ -454,7 +454,7 @@ void map_page(page_t page, unsigned initial_perm) {
         perror("mmap");
         abort();
     }
-    if (vm_address == page_to_addr(page)) {
+    if (vm_address != page_to_addr(page)) {
         fprintf(stderr, "mmap: did not work.\n");
         abort();
     }
