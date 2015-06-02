@@ -210,6 +210,7 @@ void policy_timer_tick() {
     }
 
     printf("AAA pagelist size %d\n", counter);
+    printf("AAA head %u\n", pagelist.head->page);
 }
 
 
