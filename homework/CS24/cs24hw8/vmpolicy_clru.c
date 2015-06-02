@@ -153,6 +153,7 @@ void policy_page_unmapped(page_t page) {
 }
 
 
+
 /* This function reorders the page list by iterating through it and moving any
  * pages that have been accessed since the last tick to the back so that the
  * least recently used pages tend to be in the front. It is called when the
@@ -198,14 +199,6 @@ void policy_timer_tick() {
 
         /* Move forward in list. */
         prev = curr;
-        curr = curr->next;
-    }
-
-    //DEBUG
-    int counter = 0;
-    curr = pagelist.head;
-    while (curr != NULL) {
-        counter++;
         curr = curr->next;
     }
 }
