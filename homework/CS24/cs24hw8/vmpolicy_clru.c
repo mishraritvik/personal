@@ -222,8 +222,6 @@ page_t choose_victim_page() {
 
     victim = pagelist.head->page;
 
-    victim = pagelist.head->next->page;
-
     assert(is_page_resident(victim));
 
 #if VERBOSE
