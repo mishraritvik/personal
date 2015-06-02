@@ -650,6 +650,10 @@ static void sigsegv_handler(int signum, siginfo_t *infop, void *data) {
 
     /* Handle unpermitted access (SEGV_ACCERR). */
     else {
+        /* Regardless of attempted read or write, it is now accessed. */
+        set_page_accessed(page);
+        assert(is_page_accessed(page));
+
         switch(get_page_permission(page)) {
             case PAGEPERM_NONE:
                 /*
@@ -658,17 +662,12 @@ static void sigsegv_handler(int signum, siginfo_t *infop, void *data) {
                  * given then.
                  */
                 set_page_permission(page, PAGEPERM_READ);
-                /* Now it is accessed so mark. */
-                set_page_accessed(page);
-                assert(is_page_accessed(page));
                 break;
             case PAGEPERM_READ:
                 /* Tried to write, so make it read-write access. */
                 set_page_permission(page, PAGEPERM_RDWR);
-                /* Now it is accessed and dirty so mark both. */
-                set_page_accessed(page);
+                /* Since it is a write it is also dirty. */
                 set_page_dirty(page);
-                assert(is_page_accessed(page));
                 assert(is_page_dirty(page));
                 break;
             case PAGEPERM_RDWR:
