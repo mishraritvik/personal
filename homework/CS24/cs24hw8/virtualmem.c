@@ -475,7 +475,7 @@ void map_page(page_t page, unsigned initial_perm) {
     }
 
     /* Read contents. */
-    ret = read(fd_swapfile, page * PAGE_SIZE, PAGE_SIZE);
+    ret = read(fd_swapfile, vm_address, PAGE_SIZE);
 
     /* Check that it worked. */
     if (ret == -1) {
