@@ -527,7 +527,7 @@ void unmap_page(page_t page) {
     /* Only if dirty. */
     if (is_page_dirty(page)) {
         /* Seek. */
-        ret = lseek(fd_swapfile, page * PAGE_SIZE, SEEK_SET);
+        ret = lseek(fd_swapfile, page_to_addr(page), SEEK_SET);
 
         /* Check that it worked. */
         if (ret == -1) {
