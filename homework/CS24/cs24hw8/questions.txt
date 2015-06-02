@@ -23,4 +23,4 @@ g)  Page-load rate of "test_matrix_fifo -m 1024 1000" using FIFO policy:
 
 h)  Page-load rate of "test_matrix_clru -m 1024 1000" using CLOCK/LRU policy:
 
-page loads.
+6834 page loads.

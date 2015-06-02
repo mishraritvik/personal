@@ -191,7 +191,7 @@ void policy_timer_tick() {
             /* Free old pageinfo, curr is now prev since it was removed. */
             free(curr);
         }
-        /* Move current forward. */
+        /* Move forward in linked list. */
         curr = prev;
     }
 }
