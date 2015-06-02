@@ -447,9 +447,7 @@ void map_page(page_t page, unsigned initial_perm) {
     /* Use mmap to add to virtual memory. */
     void * vm_address = mmap(page_to_addr(page), PAGE_SIZE,
         pageperm_to_mmap(PAGEPERM_RDWR), MAP_FIXED | MAP_SHARED | MAP_ANONYMOUS,
-        -1,
-        // page * PAGE_SIZE);
-        0);
+        -1, page * PAGE_SIZE);
 
     /* Check that it worked. */
     if (vm_address == (void *) -1) {
@@ -694,8 +692,6 @@ static void sigalrm_handler(int signum, siginfo_t *infop, void *data) {
     /* All we have to do is inform the page replacement policy that a timer
      * tick occurred!
      */
-    //DEBUG
-    printf("AAA num residents %d\n", num_resident);
     policy_timer_tick();
 }
 

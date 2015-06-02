@@ -169,6 +169,8 @@ page_t choose_victim_page() {
 
     victim = pagelist.head->page;
 
+    assert(is_page_resident(victim));
+
 #if VERBOSE
     fprintf(stderr, "Choosing victim page %u to evict.\n", victim);
 #endif

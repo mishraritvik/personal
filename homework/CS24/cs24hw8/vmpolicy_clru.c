@@ -208,9 +208,6 @@ void policy_timer_tick() {
         counter++;
         curr = curr->next;
     }
-
-    printf("AAA pagelist size %d\n", counter);
-    printf("AAA head %u\n", pagelist.head->page);
 }
 
 
@@ -224,6 +221,8 @@ page_t choose_victim_page() {
     assert(pagelist.head != NULL);
 
     victim = pagelist.head->page;
+
+    assert(is_page_resident(victim));
 
 #if VERBOSE
     fprintf(stderr, "Choosing victim page %u to evict.\n", victim);
