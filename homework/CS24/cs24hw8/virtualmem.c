@@ -447,11 +447,15 @@ void map_page(page_t page, unsigned initial_perm) {
     /* Use mmap to add to virtual memory. */
     void * vm_address = mmap(page_to_addr(page), PAGE_SIZE,
         pageperm_to_mmap(PAGEPERM_RDWR), MAP_FIXED | MAP_SHARED | MAP_ANONYMOUS,
-        -1, page * PAGE_SIZE);
+        -1, 0);
 
     /* Check that it worked. */
     if (vm_address == (void *) -1) {
         perror("mmap");
+        abort();
+    }
+    if (vm_address == page_to_addr(page)) {
+        fprintf(stderr, "mmap: did not work.\n");
         abort();
     }
 
@@ -462,7 +466,7 @@ void map_page(page_t page, unsigned initial_perm) {
      */
 
     /* Seek. */
-    ret = lseek(fd_swapfile, page * PAGE_SIZE, SEEK_SET);
+    ret = lseek(fd_swapfile, vm_address, SEEK_SET);
 
     /* Check that it worked. */
     if (ret == -1) {
