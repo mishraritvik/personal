@@ -1,5 +1,6 @@
 Part 1.A.
 
+Answer: 10
 At the very beginning of the loop, it forks. So, there are two processes that
 are at the i = 0 iteration of the loop. They each increment counter and print.
 So, we have two times printed so far. Then they both go into the i = 1
@@ -8,16 +9,20 @@ iteration, making for a total of 4. All four print, so the total is 4 + 2 = 6
 prints so far. Now, all four processes are at i = 2, so they do not enter the
 body of the for loop. They all print after the for loop has finished, so
 another four prints making the total 4 + 6 = 10 prints. The value of counter is
-printed 10 times.
+printed 10 times. Two of these will be when counter is 1 (the first prints by
+the original process and its first fork), while the other 8 will be when the
+counter is 2 (four times in the loop, four times after the loop finishes).
 
 Part 1.B.
 
+Answer: 1
 When fork is called for the first time, counter = 0. Then, counter is
 incremented and printed, with nothing else happening at the same time. So, the
 first line will have counter as 1.
 
 Part 1.C.
 
+Answer: 2
 Every process that is forked will eventually go from the first iteration of the
 loop to the second, and due to the bounds of the loop it is not possible for
 counter to go over 2. So, there is no way for counter = 1 to be the last line,
@@ -27,12 +32,23 @@ line will ahve counter as 2.
 Part 2.
 
 
-
 Part 3.
 
-First, 0 will always be printed.
+First, 0 will always be printed. This matches up with all of the supplied
+outputs, so this does not tell us anything.
 
-Then, it tries to fork. If the fork succeeds, val is incremented from 2 to 3 and
-printed (so 3 is the second number).
-If the fork fails, val is decremented from 2 to 1 and printed (so 1 is the
-second number).
+Then, it forks. The child increments val to 3 and prints, and the parent
+decrements val to 1 and prints. Since the child and parent and executed
+concurrently, it is possible for these to be in either order. So, there are two
+possibilities for this part: 13, or 31.
+
+Once the parent has printed, it waits for the child to terminate. So while the
+parent is waiting, the child goes on to the last part where it increments val to
+4 and prints. Then it terminates, allowing the parent to resume. The parent then
+increments its val to 2 and prints. So, this part will always result in printing
+42 due to the parent waiting.
+
+The result is that there are two possible sequences:
+0, 13, 42 or 0, 31, 42
+
+So, 01342 or 03142.

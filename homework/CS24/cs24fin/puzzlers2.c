@@ -19,7 +19,7 @@ void handler2(int sig) {
     exit(0);
 }
 
-main() {
+int main() {
     signal(SIGUSR1, handler1);
     if ((pid = fork()) == 0) {
         signal(SIGUSR1, handler2);

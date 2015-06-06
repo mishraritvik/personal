@@ -1,9 +1,36 @@
 Part A.
 
+H first tries to lock R. Since L has already locked R, H is not able to proceed,
+so it gives way to M. M does not need R, so it is able to proceed. Since M is
+higher priority than L, it preempts L. So, first M must finish running, then L
+will finish running, and then finally H will be able to run. This is called
+priority inversion because H is effectively preempted by M.
+
 Part B.
 
+When the priority inversion occurs, the high priority task is not be able to run
+when it is supposed to, and the watchdog timer will not be reset. The result of
+this is that the timer will overflow periodically, resulting in the whole system
+being reset even though the system was running normally, not hanging. As a
+result, it is possible for this computer to be in a state where it is not
+actually doing anything, but getting stuck in this cycle of the medium priority
+task preempting the high priority task, resetting due to an overflow, and
+repeating.
+
 Part C.
+
+H tries to lock R. L has already locked R, so H cannot proceed, but it donates
+its priority to L so L now has the highest priority. Then, when H gives way to
+M, M will not be able to preempt L because L now has a higher priority. So, it
+will wait till L is completed, then H will run since it can now lock R and it is
+the highest priority, and M will not run till H is completed.
 
 Part D.
 
 Part E.
+
+We have processes L, M, and H, and resources R1 and R2. L needs R1 and R2, M
+needs R1 and R2, and H needs only R1.
+
+L locks R1, M locks R2. L requests a lock of R2, and M requests a lock on R1.
+Now we have a deadlock.

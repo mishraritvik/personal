@@ -1,9 +1,13 @@
 Part 1. Stride
 
 For src: stride of 1.
-
 For dst: stride of SIZE.
 
 Part 2. Minimum Distance
+
+64 bytes.
+Each cache set had eight cache blocks of 64 bytes. They are all adjacent, so the
+minimum distance is the distance it takes to guarantee that two addresses are
+not in the same block of 64 bytes, which is 64 bytes.
 
 Part 3. Worst Case

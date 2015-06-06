@@ -1,9 +1,51 @@
 Part 1. Cache Misses
 
+Sorting algorithms typically operate by comparing two values, and making some
+decision based on that. The keys in memory are ordered randomly, so when two
+keys need to be compared to each other, even if they are nearby in the sorted
+ordering there relative positions will be random in the structure that carries
+the actual keys and values. Since the size of data is significantly larger
+than the size of the cache and it is being accessed randomly, nearly every
+access will be a miss. So, the number of misses generated will be on the order
+of:
+O(25 million * log(25 million)).
+
 Part 2. Cache Utilization
+
+I think it will perform close to main-memory speeds since the cache is almost
+never being used, and it is going to main-memory on almost every request.
 
 Part 3. New cmp_records()
 
+int cmp_records(const key_prefix *rec_ptrs, int i, int j) {
+    /* First compare prefixes. */
+    int ret = memcmp(rec_ptrs[i].prefix, rec_ptrs[j].prefix, 4);
+
+    /* If prefixes not equal, return that value. If equal, then compare keys. */
+    if (ret != 0) {
+        return ret;
+    }
+    return memcmp(rec_ptrs[i].ptr->key, rec_ptrs[j].ptr->key, KEY_SIZE);
+}
+
 Part 4. Benefit of Prefixes
 
+In the majority of cases, the first four bytes will not be the same, so only the
+prefixes will need to be compared in order to decide which is greater. Most
+sorting algorithms tend to compare values that are close together in the current
+state of the list, so comparing two prefixes will usually not result in a cache
+miss. Cache misses will only occur when the two prefixes are the same. Since the
+keys are randomly distributed and the length of the prefixes is 4 characters,
+the probability of two prefixes being the same is (1 / 26) ^ 4. So, we expect
+the cache misses to decrease by that factor to:
+(1 / 26) ^ 4 * O(25 million * log(25 million)).
+
 Part 5. Similar Keys
+If the keys are similar, then the probability of two prefixes being the same is
+significantly higher. If the prefixes of all of the keys are identical, then
+this approach will be worse: instead of moving around 4 bytes each time two
+values in the list are switched, the modified approach requires moving around
+8 bytes, while the prefix comparison does not result in any improvement in
+cache utilization. If the prefixes are not all identical but close together,
+depending on the portion that are the same the benefits of the modified
+solution will vary.
