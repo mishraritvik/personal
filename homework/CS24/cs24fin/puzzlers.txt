@@ -33,25 +33,50 @@ Part 2.
 
 Answer: The output will always be the same.
 
+First, it makes handler1 a signal handler for SIGUSR1. Then it forks, and the
+child makes handler2 a signal handler for SIGUSR1 as well, and the parent waits
+for child to terminate then adds 2 to counter and prints. The child kills the
+process and signals SIGUSR1, causing handler1 and handler2 to be called.
+
+So, the order of events:
+
+The child kills the parent and signals SIGUSR1. This results in handler1 being
+called, which increments counter and prints its value. So, "counter = 1" will be
+printed.
+
+Then, the parent kills itself and signals SIGUSR1, resulting in handler2 being
+called in the child process. handler2 adds 3 to counter to make it 3, and then
+prints it. So, "counter = 3" will then be printed.
+
+Meanwhile, the parent process was waiting for the child process to terminate.
+So, when handler1 kills the child it will be able to proceed. It adds 2 to
+counter to make it 3, then prints it. So, "counter = 3" will then be printed.
+
+The output will always be:
+counter = 1
+counter = 3
+counter = 3
+
 
 Part 3.
 
-Answer: 01342 and 03142 are possible.
+Answer: 01342, 03142, and 03412 are possible.
 
 First, 0 will always be printed. This matches up with all of the supplied
 outputs, so this does not tell us anything.
 
 Then, it forks. The child increments val to 3 and prints, and the parent
-decrements val to 1 and prints. Since the child and parent and executed
-concurrently, it is possible for these to be in either order. So, there are two
-possibilities for this part: 13, or 31.
+decrements val to 1 and prints. Then they both increment (child to 4, parent to
+2) and print. Since the child and parent and executed concurrently, it is
+possible for the parent and child to execute it various orders.
 
-Once the parent has printed, it waits for the child to terminate. So while the
-parent is waiting, the child goes on to the last part where it increments val to
-4 and prints. Then it terminates, allowing the parent to resume. The parent then
-increments its val to 2 and prints. So, this part will always result in printing
-42 due to the parent waiting.
+The constraints:
+- child prints 3 then 4, so 3 must always come before 4.
+- parent prints 1 then 2, so 1 must always come before 2.
+- parent waits after printing 1, so child must finish before the parent prints
+  2. this means 3 and 4 will come before 2.
 
-The result is that there are two possible sequences:
-0, then 13, then 42 or 0, then 31, then 42.
-So, 01342 or 03142 are the final sequences.
+The possibilities that follow these constraints:
+01342
+03142
+03412

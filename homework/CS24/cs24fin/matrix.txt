@@ -5,9 +5,21 @@ For dst: stride of SIZE.
 
 Part 2. Minimum Distance
 
-64 bytes.
-Each cache set had eight cache blocks of 64 bytes. They are all adjacent, so the
-minimum distance is the distance it takes to guarantee that two addresses are
-not in the same block of 64 bytes, which is 64 bytes.
+Answer: 64 bytes
+Each cache set had 8 cache blocks of 64 bytes each. They are all adjacent in
+memory, so the minimum distance is the distance it takes to guarantee that two
+addresses are not in the same block of 64 bytes, which is 64 bytes. It is
+still possible for two adjacent addresses to be in different cache blocks if
+they are on the edge of that block, and it is possible for two addresses that
+are 64 bytes apart to be in different sets if they are near the edge of the set.
 
 Part 3. Worst Case
+
+Answer: 8192
+The worst case is when there is always a cache miss when accessing dst. There
+are 512 cache blocks, and each can hold 16 dwords. Since the stride of dst is
+much larger than src, we can assume that almost all of the blocks will be used
+for dst, so for simplicity we assume all 512 are used for dst. Then, SIZE will
+need to be at least 512 * 16 = 8192 in order for every request for dst to be a
+cache miss. Any size larger that this will also result in the same worst case
+performance.

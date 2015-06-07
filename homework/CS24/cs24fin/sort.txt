@@ -12,8 +12,10 @@ O(25 million * log(25 million)).
 
 Part 2. Cache Utilization
 
-I think it will perform close to main-memory speeds since the cache is almost
-never being used, and it is going to main-memory on almost every request.
+It will perform close to main-memory speeds since the cache is almost never
+being used, and it is going to main-memory on almost every request. L1 cache is
+used well when stride and working memory are small, but neither is the case: the
+working memory is very large and the stride is random.
 
 Part 3. New cmp_records()
 
