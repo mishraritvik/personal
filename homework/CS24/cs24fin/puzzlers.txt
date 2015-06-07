@@ -31,8 +31,12 @@ line will ahve counter as 2.
 
 Part 2.
 
+Answer: The output will always be the same.
+
 
 Part 3.
+
+Answer: 01342 and 03142 are possible.
 
 First, 0 will always be printed. This matches up with all of the supplied
 outputs, so this does not tell us anything.
@@ -49,6 +53,5 @@ increments its val to 2 and prints. So, this part will always result in printing
 42 due to the parent waiting.
 
 The result is that there are two possible sequences:
-0, 13, 42 or 0, 31, 42
-
-So, 01342 or 03142.
+0, then 13, then 42 or 0, then 31, then 42.
+So, 01342 or 03142 are the final sequences.

@@ -41,6 +41,7 @@ the cache misses to decrease by that factor to:
 (1 / 26) ^ 4 * O(25 million * log(25 million)).
 
 Part 5. Similar Keys
+
 If the keys are similar, then the probability of two prefixes being the same is
 significantly higher. If the prefixes of all of the keys are identical, then
 this approach will be worse: instead of moving around 4 bytes each time two

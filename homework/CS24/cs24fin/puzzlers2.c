@@ -8,14 +8,14 @@ pid_t pid;
 int counter = 0;
 void handler1(int sig) {
     counter++;
-    printf("counter = %d\n", counter);
+    printf("1counter = %d\n", counter);
     fflush(stdout); /* Flushes the printed string to stdout */
     kill(pid, SIGUSR1);
 }
 
 void handler2(int sig) {
     counter += 3;
-    printf("counter = %d\n", counter);
+    printf("2counter = %d\n", counter);
     exit(0);
 }
 
@@ -31,7 +31,7 @@ int main() {
         int status;
         if ((p = wait(&status)) > 0) {
             counter += 2;
-            printf("counter = %d\n", counter);
+            printf("3counter = %d\n", counter);
         }
     }
 }
