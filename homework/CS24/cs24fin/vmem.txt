@@ -26,6 +26,7 @@ relevant. The only difference between this group and the previous one is that
 these were definitely created since the last timer tick, and so they should be
 removed only once all of those are removed.
 
+
 Part 2.A.
 
 The result of this mechanism is that the history value will hold the access

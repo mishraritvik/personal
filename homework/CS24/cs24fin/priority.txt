@@ -6,6 +6,7 @@ higher priority than L, it preempts L. So, first M must finish running, then L
 will finish running, and then finally H will be able to run. This is called
 priority inversion because H is effectively preempted by M.
 
+
 Part B.
 
 When the priority inversion occurs, the high priority task is not be able to run
@@ -17,6 +18,7 @@ actually doing anything, but getting stuck in this cycle of the medium priority
 task preempting the high priority task, resetting due to an overflow, and
 repeating.
 
+
 Part C.
 
 H tries to lock R. L has already locked R, so H cannot proceed, but it donates
@@ -25,7 +27,10 @@ M, M will not be able to preempt L because L now has a higher priority. So, it
 will wait till L is completed, then H will run since it can now lock R and it is
 the highest priority, and M will not run till H is completed.
 
+
 Part D.
+
+
 
 Part E.
 

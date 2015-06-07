@@ -10,12 +10,14 @@ access will be a miss. So, the number of misses generated will be on the order
 of:
 O(25 million * log(25 million)).
 
+
 Part 2. Cache Utilization
 
 It will perform close to main-memory speeds since the cache is almost never
 being used, and it is going to main-memory on almost every request. L1 cache is
 used well when stride and working memory are small, but neither is the case: the
 working memory is very large and the stride is random.
+
 
 Part 3. New cmp_records()
 
@@ -30,6 +32,7 @@ int cmp_records(const key_prefix *rec_ptrs, int i, int j) {
     return memcmp(rec_ptrs[i].ptr->key, rec_ptrs[j].ptr->key, KEY_SIZE);
 }
 
+
 Part 4. Benefit of Prefixes
 
 In the majority of cases, the first four bytes will not be the same, so only the
@@ -41,6 +44,7 @@ keys are randomly distributed and the length of the prefixes is 4 characters,
 the probability of two prefixes being the same is (1 / 26) ^ 4. So, we expect
 the cache misses to decrease by that factor to:
 (1 / 26) ^ 4 * O(25 million * log(25 million)).
+
 
 Part 5. Similar Keys
 

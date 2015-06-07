@@ -29,6 +29,7 @@ counter to go over 2. So, there is no way for counter = 1 to be the last line,
 as at least one counter = 2 line will always follow at some point. So, the last
 line will ahve counter as 2.
 
+
 Part 2.
 
 Answer: The output will always be the same.
