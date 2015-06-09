@@ -1,4 +1,6 @@
-Part 1.A.
+Part 1. Puzzle 1.
+
+Part 1.A. Number of Prints
 
 Answer: 10
 At the very beginning of the loop, it forks. So, there are two processes that
@@ -13,14 +15,14 @@ printed 10 times. Two of these will be when counter is 1 (the first prints by
 the original process and its first fork), while the other 8 will be when the
 counter is 2 (four times in the loop, four times after the loop finishes).
 
-Part 1.B.
+Part 1.B. First Value
 
 Answer: 1
 When fork is called for the first time, counter = 0. Then, counter is
 incremented and printed, with nothing else happening at the same time. So, the
 first line will have counter as 1.
 
-Part 1.C.
+Part 1.C. Last Value
 
 Answer: 2
 Every process that is forked will eventually go from the first iteration of the
@@ -30,7 +32,7 @@ as at least one counter = 2 line will always follow at some point. So, the last
 line will ahve counter as 2.
 
 
-Part 2.
+Part 2. Puzzle 2.
 
 Answer: The output will always be the same.
 
@@ -59,7 +61,7 @@ counter = 3
 counter = 3
 
 
-Part 3.
+Part 3. Puzzle 3.
 
 Answer: 01342, 03142, and 03412 are possible.
 

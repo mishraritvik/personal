@@ -21,7 +21,10 @@ Answer: 8192
 The worst case is when there is always a cache miss when accessing dst. There
 are 512 cache blocks, and each can hold 16 dwords. Since the stride of dst is
 much larger than src, we can assume that almost all of the blocks will be used
-for dst, so for simplicity we assume all 512 are used for dst. Then, SIZE will
-need to be at least 512 * 16 = 8192 in order for every request for dst to be a
-cache miss. Any size larger that this will also result in the same worst case
-performance.
+for dst since there will be much fewer misses on src, and so a much lower rate
+of evicting blocks in favor of blocks with src data. So for simplicity we
+assume all 512 are used for dst. Then, SIZE will need to be at least 512 * 16 =
+8192 in order for every request for dst to be a cache miss. If it was any
+smaller, then while the desired value will not be in the block that was used in
+the previous request, it should be in one of the blocks that is already in the
+cache.

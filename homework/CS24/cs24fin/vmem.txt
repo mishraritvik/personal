@@ -1,4 +1,4 @@
-Part 1.
+Part 1. Order of Eviction
 
 In the order in which they should be considered for eviction:
 
@@ -27,7 +27,9 @@ these were definitely created since the last timer tick, and so they should be
 removed only once all of those are removed.
 
 
-Part 2.A.
+Part 2. Access History
+
+Part 2.A. Eviction Mechanism
 
 The result of this mechanism is that the history value will hold the access
 history over the last k timer ticks, so that the page eviction policy can take
@@ -42,7 +44,7 @@ can be determined experimentally, or all the weights can be set to 1 if it is
 determined that an access k timer ticks ago implies as high a relevancy as an
 access since the last timer tick.
 
-Part 2.B.
+Part 2.B. Update Code
 
 #define ACCESS_MASK  0x04   /* Keeps bit 5, the access bit. */
 #define ACCESS_BIT   5      /* The location of the access bit. */
@@ -55,7 +57,7 @@ void update_history(pte_t pte, unsigned int *p_history) {
     *(p_history) += (pte & ACCESS_MASK) << ACCESS_BIT;
 }
 
-Part 2.C.
+Part 2.C. LRU vs. History
 
 When k = 1, this policy and LRU are identical: they are both only keeping track
 of accesses since the last timer tick, and choosing the evict a page with that

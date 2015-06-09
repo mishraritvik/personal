@@ -1,4 +1,4 @@
-Part A.
+Part A. Priority Inversion Scenario
 
 H first tries to lock R. Since L has already locked R, H is not able to proceed,
 so it gives way to M. M does not need R, so it is able to proceed. Since M is
@@ -7,7 +7,7 @@ will finish running, and then finally H will be able to run. This is called
 priority inversion because H is effectively preempted by M.
 
 
-Part B.
+Part B. Issues With Priority Inversion
 
 When the priority inversion occurs, the high priority task is not be able to run
 when it is supposed to, and the watchdog timer will not be reset. The result of
@@ -19,23 +19,71 @@ task preempting the high priority task, resetting due to an overflow, and
 repeating.
 
 
-Part C.
+Part C. Priority Donation Scenario
 
 H tries to lock R. L has already locked R, so H cannot proceed, but it donates
 its priority to L so L now has the highest priority. Then, when H gives way to
 M, M will not be able to preempt L because L now has a higher priority. So, it
 will wait till L is completed, then H will run since it can now lock R and it is
-the highest priority, and M will not run till H is completed.
+the highest priority, and M will not run till H is completed. So, since M has to
+wait until H has completed in order to run, priority inversion has been avoided.
 
 
-Part D.
+Part D. Complicated Priority Inversion Scenario
+
+Scenario:
+- H needs R1
+- MH does not need any resources
+- ML needs R1 and R2
+- L needs R2
+
+ML locks R1 and L locks R2. ML then attempts to lock R2, but cannot as L has it.
+H attempts to lock R1, but cannot since ML has it. Then, MH does not need any
+resources, so it preempts both ML and L and runs. Once MH finishes, L finishes,
+then ML is able to lock R2 so it can run, and then finally when ML finishes H is
+able to run. Priority inversion occurs because MH effectively preempted H.
+
+Why regular priorty donation would not work:
+Regular priority donation will not work in this case. If H had donated its
+priority to ML when it tried to lock R1, that would not have fixed anything
+becuase ML was still waiting for R2 which L had a lock on, and MH could still
+preempt L because H would not have donated its priority to L since it was only
+trying to get a lock on R1, not R2. So, everything would occur in the same order
+as described above.
+
+Generalized priority donation:
+Instead of H only donating its priority to the process that has a lock on the
+resource H needs, it should donate its priority to:
+- any process that has a lock on a resource it needs.
+- and any process that has a lock on any of the resources that are needed by any
+  of the processes that have a lock on a resource H needs, and so on.
+So, H should not only donate its priority to ML, but it should see that ML is
+waiting for a lock on R2, so H should also donate its priority to whatever is
+currently using R2 (in this case L). If it happened to be the case that L was
+also blocked waiting for a lock on another resource, then H should give its
+priority to whatever was currently using that resource, and the pattern would
+continue. The result is that a process that does not need any resources and is
+lower priority than H but higher priority than anything currently running will
+not be able to preempt anything that is either directly or indirectly blocking
+H. So, what would happen is ML and L would both get the highest priority, and MH
+will not be able to preempt them. So, L finishes, then ML locks R2 and finishes,
+then H locks R1 and finishes, and finally MH runs. In this case, priority
+inversion does not occur.
 
 
+Part E. Deadlock
 
-Part E.
+Problem:
+The problem with priority donation in this case is that it will not resolve the
+issue. Assume P1 has low priority and P2 has high priority. Then, when P2 tries
+to lock R1, it donates its priority to P1, so that they now have the same
+priority. However, this leaves them in the same deadlock situation.
 
-We have processes L, M, and H, and resources R1 and R2. L needs R1 and R2, M
-needs R1 and R2, and H needs only R1.
-
-L locks R1, M locks R2. L requests a lock of R2, and M requests a lock on R1.
-Now we have a deadlock.
+Solution:
+When priority is donated, it should still be noted that the priority was donated
+and that it was not the original priority. That way, if there is a process with
+an original priority X, and then another process that received a donated
+priority of X, it would still be recognized that the first should be given
+priority. Then, the deadlock must be recognized by the system, and the lower
+priority process should release its lock so that the higher priority process can
+run.
